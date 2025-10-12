@@ -290,6 +290,70 @@ class CalendarEventCreate(BaseModel):
     date: str
     time: Optional[str] = None
     location: Optional[str] = None
+
+# Contact Form Submission
+class ContactSubmission(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    subject: str
+    message: str
+    status: str = "new"  # new, read, responded
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ContactSubmissionCreate(BaseModel):
+    name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    subject: str
+    message: str
+
+# Volunteer Application
+class VolunteerApplication(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    email: EmailStr
+    phone: str
+    interest: str
+    availability: str
+    experience: Optional[str] = None
+    message: Optional[str] = None
+    status: str = "pending"  # pending, reviewed, approved, rejected
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class VolunteerApplicationCreate(BaseModel):
+    name: str
+    email: EmailStr
+    phone: str
+    interest: str
+    availability: str
+    experience: Optional[str] = None
+    message: Optional[str] = None
+
+# Sponsorship Inquiry
+class SponsorshipInquiry(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    company: str
+    contact: str
+    email: EmailStr
+    phone: str
+    interest: str
+    message: Optional[str] = None
+    status: str = "new"  # new, contacted, in_discussion, approved, declined
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class SponsorshipInquiryCreate(BaseModel):
+    company: str
+    contact: str
+    email: EmailStr
+    phone: str
+    interest: str
+    message: Optional[str] = None
+
     type: str = "event"
 
 
