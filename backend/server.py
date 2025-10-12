@@ -764,6 +764,245 @@ async def delete_membership(membership_id: str, admin: User = Depends(get_admin_
         raise HTTPException(status_code=404, detail="Membership not found")
     return {"message": "Membership deleted"}
 
+# User Memberships
+@api_router.post("/admin/user-memberships", response_model=UserMembership)
+async def enroll_user_in_membership(enrollment: UserMembershipCreate, admin: User = Depends(get_admin_user)):
+    user = await db.users.find_one({"id": enrollment.user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    membership = await db.memberships.find_one({"id": enrollment.membership_id}, {"_id": 0})
+    if not membership:
+        raise HTTPException(status_code=404, detail="Membership not found")
+    
+    # Calculate end date (1 year from now)
+    start_date = datetime.now(timezone.utc)
+    end_date = start_date + timedelta(days=365)
+    
+    user_membership = UserMembership(
+        user_id=enrollment.user_id,
+        membership_id=enrollment.membership_id,
+        start_date=start_date,
+        end_date=end_date,
+        auto_renew=enrollment.auto_renew
+    )
+    
+    doc = user_membership.model_dump()
+    doc['start_date'] = doc['start_date'].isoformat()
+    doc['end_date'] = doc['end_date'].isoformat()
+    doc['created_at'] = doc['created_at'].isoformat()
+    
+    await db.user_memberships.insert_one(doc)
+    return user_membership
+
+@api_router.get("/admin/user-memberships")
+async def get_all_user_memberships(admin: User = Depends(get_admin_user)):
+    memberships = await db.user_memberships.find({}, {"_id": 0}).to_list(1000)
+    for m in memberships:
+        if isinstance(m['start_date'], str):
+            m['start_date'] = datetime.fromisoformat(m['start_date'])
+        if m.get('end_date') and isinstance(m['end_date'], str):
+            m['end_date'] = datetime.fromisoformat(m['end_date'])
+        if isinstance(m['created_at'], str):
+            m['created_at'] = datetime.fromisoformat(m['created_at'])
+    return memberships
+
+@api_router.get("/user-memberships/me")
+async def get_my_memberships(user: User = Depends(get_current_user)):
+    memberships = await db.user_memberships.find({"user_id": user.id}, {"_id": 0}).to_list(100)
+    for m in memberships:
+        if isinstance(m['start_date'], str):
+            m['start_date'] = datetime.fromisoformat(m['start_date'])
+        if m.get('end_date') and isinstance(m['end_date'], str):
+            m['end_date'] = datetime.fromisoformat(m['end_date'])
+        if isinstance(m['created_at'], str):
+            m['created_at'] = datetime.fromisoformat(m['created_at'])
+    return memberships
+
+@api_router.put("/admin/user-memberships/{membership_id}/status")
+async def update_user_membership_status(membership_id: str, status: str, admin: User = Depends(get_admin_user)):
+    if status not in ["active", "expired", "cancelled"]:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    
+    result = await db.user_memberships.update_one({"id": membership_id}, {"$set": {"status": status}})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Membership enrollment not found")
+    return {"message": f"Membership status updated to {status}"}
+
+# Invoice Management
+@api_router.post("/admin/invoices", response_model=Invoice)
+async def create_invoice(invoice_data: InvoiceCreate, admin: User = Depends(get_admin_user)):
+    # Generate invoice number
+    count = await db.invoices.count_documents({})
+    invoice_number = f"INV-{datetime.now().year}-{count + 1:05d}"
+    
+    invoice = Invoice(
+        **invoice_data.model_dump(),
+        invoice_number=invoice_number,
+        status="draft"
+    )
+    
+    doc = invoice.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    
+    await db.invoices.insert_one(doc)
+    return invoice
+
+@api_router.get("/admin/invoices")
+async def get_all_invoices(admin: User = Depends(get_admin_user)):
+    invoices = await db.invoices.find({}, {"_id": 0}).to_list(1000)
+    for inv in invoices:
+        if isinstance(inv['created_at'], str):
+            inv['created_at'] = datetime.fromisoformat(inv['created_at'])
+        if inv.get('sent_at') and isinstance(inv['sent_at'], str):
+            inv['sent_at'] = datetime.fromisoformat(inv['sent_at'])
+        if inv.get('paid_at') and isinstance(inv['paid_at'], str):
+            inv['paid_at'] = datetime.fromisoformat(inv['paid_at'])
+    return invoices
+
+@api_router.get("/admin/invoices/user/{user_id}")
+async def get_user_invoices(user_id: str, admin: User = Depends(get_admin_user)):
+    invoices = await db.invoices.find({"user_id": user_id}, {"_id": 0}).to_list(100)
+    for inv in invoices:
+        if isinstance(inv['created_at'], str):
+            inv['created_at'] = datetime.fromisoformat(inv['created_at'])
+        if inv.get('sent_at') and isinstance(inv['sent_at'], str):
+            inv['sent_at'] = datetime.fromisoformat(inv['sent_at'])
+        if inv.get('paid_at') and isinstance(inv['paid_at'], str):
+            inv['paid_at'] = datetime.fromisoformat(inv['paid_at'])
+    return invoices
+
+@api_router.get("/invoices/me")
+async def get_my_invoices(user: User = Depends(get_current_user)):
+    invoices = await db.invoices.find({"user_id": user.id}, {"_id": 0}).to_list(100)
+    for inv in invoices:
+        if isinstance(inv['created_at'], str):
+            inv['created_at'] = datetime.fromisoformat(inv['created_at'])
+        if inv.get('sent_at') and isinstance(inv['sent_at'], str):
+            inv['sent_at'] = datetime.fromisoformat(inv['sent_at'])
+        if inv.get('paid_at') and isinstance(inv['paid_at'], str):
+            inv['paid_at'] = datetime.fromisoformat(inv['paid_at'])
+    return invoices
+
+@api_router.put("/admin/invoices/{invoice_id}/status")
+async def update_invoice_status(invoice_id: str, status: str, admin: User = Depends(get_admin_user)):
+    if status not in ["draft", "sent", "paid", "overdue", "cancelled"]:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    
+    update_data = {"status": status}
+    if status == "sent" and not await db.invoices.find_one({"id": invoice_id, "sent_at": {"$ne": None}}):
+        update_data["sent_at"] = datetime.now(timezone.utc).isoformat()
+    elif status == "paid":
+        update_data["paid_at"] = datetime.now(timezone.utc).isoformat()
+        update_data["payment_status"] = "paid"
+    
+    result = await db.invoices.update_one({"id": invoice_id}, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    return {"message": f"Invoice status updated to {status}"}
+
+# Payment Plans
+@api_router.post("/admin/payment-plans", response_model=PaymentPlan)
+async def create_payment_plan(plan_data: PaymentPlanCreate, admin: User = Depends(get_admin_user)):
+    installment_amount = plan_data.total_amount / plan_data.num_installments
+    
+    payment_plan = PaymentPlan(
+        user_id=plan_data.user_id,
+        program_id=plan_data.program_id,
+        total_amount=plan_data.total_amount,
+        num_installments=plan_data.num_installments,
+        installment_amount=installment_amount,
+        frequency=plan_data.frequency,
+        next_payment_date=plan_data.first_payment_date
+    )
+    
+    doc = payment_plan.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.payment_plans.insert_one(doc)
+    
+    # Create payment plan transactions
+    from datetime import datetime as dt
+    current_date = dt.strptime(plan_data.first_payment_date, "%Y-%m-%d")
+    
+    for i in range(1, plan_data.num_installments + 1):
+        transaction = PaymentPlanTransaction(
+            payment_plan_id=payment_plan.id,
+            installment_number=i,
+            amount=installment_amount,
+            due_date=current_date.strftime("%Y-%m-%d")
+        )
+        txn_doc = transaction.model_dump()
+        txn_doc['created_at'] = txn_doc['created_at'].isoformat()
+        await db.payment_plan_transactions.insert_one(txn_doc)
+        
+        # Calculate next date based on frequency
+        if plan_data.frequency == "weekly":
+            current_date += timedelta(weeks=1)
+        elif plan_data.frequency == "bi-weekly":
+            current_date += timedelta(weeks=2)
+        else:  # monthly
+            current_date += timedelta(days=30)
+    
+    return payment_plan
+
+@api_router.get("/admin/payment-plans")
+async def get_all_payment_plans(admin: User = Depends(get_admin_user)):
+    plans = await db.payment_plans.find({}, {"_id": 0}).to_list(1000)
+    for plan in plans:
+        if isinstance(plan['created_at'], str):
+            plan['created_at'] = datetime.fromisoformat(plan['created_at'])
+    return plans
+
+@api_router.get("/admin/payment-plans/{plan_id}/transactions")
+async def get_payment_plan_transactions(plan_id: str, admin: User = Depends(get_admin_user)):
+    transactions = await db.payment_plan_transactions.find({"payment_plan_id": plan_id}, {"_id": 0}).to_list(100)
+    for txn in transactions:
+        if isinstance(txn['created_at'], str):
+            txn['created_at'] = datetime.fromisoformat(txn['created_at'])
+        if txn.get('paid_at') and isinstance(txn['paid_at'], str):
+            txn['paid_at'] = datetime.fromisoformat(txn['paid_at'])
+    return transactions
+
+@api_router.get("/payment-plans/me")
+async def get_my_payment_plans(user: User = Depends(get_current_user)):
+    plans = await db.payment_plans.find({"user_id": user.id}, {"_id": 0}).to_list(100)
+    for plan in plans:
+        if isinstance(plan['created_at'], str):
+            plan['created_at'] = datetime.fromisoformat(plan['created_at'])
+    return plans
+
+@api_router.put("/admin/payment-plan-transactions/{transaction_id}/mark-paid")
+async def mark_payment_plan_transaction_paid(transaction_id: str, admin: User = Depends(get_admin_user)):
+    result = await db.payment_plan_transactions.update_one(
+        {"id": transaction_id},
+        {"$set": {
+            "status": "paid",
+            "paid_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    
+    # Update payment plan progress
+    transaction = await db.payment_plan_transactions.find_one({"id": transaction_id}, {"_id": 0})
+    if transaction:
+        plan_id = transaction['payment_plan_id']
+        await db.payment_plans.update_one(
+            {"id": plan_id},
+            {"$inc": {"payments_made": 1}}
+        )
+        
+        # Check if plan is completed
+        plan = await db.payment_plans.find_one({"id": plan_id}, {"_id": 0})
+        if plan and plan['payments_made'] >= plan['num_installments']:
+            await db.payment_plans.update_one(
+                {"id": plan_id},
+                {"$set": {"status": "completed"}}
+            )
+    
+    return {"message": "Payment marked as paid"}
+
 # Stripe webhook
 @api_router.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
