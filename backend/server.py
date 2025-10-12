@@ -1466,8 +1466,10 @@ async def create_enhanced_registration(registration_data: EnhancedRegistrationCr
             detail="Enhanced registration is for youth athletes (17 and under). Athletes 18+ should create their own accounts."
         )
     
-    registration = EnhancedRegistration(**registration_data.dict(), user_id=current_user.id)
-    await db.enhanced_registrations.insert_one(registration.dict())
+    registration = EnhancedRegistration(**registration_data.model_dump(), user_id=current_user.id)
+    doc = registration.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.enhanced_registrations.insert_one(doc)
     
     # Send confirmation email
     athlete_full_name = f"{registration_data.athlete_first_name} {registration_data.athlete_last_name}"
