@@ -19,6 +19,8 @@ import About from '@/pages/About';
 import Contact from '@/pages/Contact';
 import FAQ from '@/pages/FAQ';
 import Shop from '@/pages/Shop';
+import Policies from '@/pages/Policies';
+import GetInvolved from '@/pages/GetInvolved';
 import MemberDashboard from '@/pages/MemberDashboard';
 import AdminDashboard from '@/pages/AdminDashboard';
 import RegistrationSuccess from '@/pages/RegistrationSuccess';
