@@ -527,6 +527,41 @@ class AdultRegistrationCreate(BaseModel):
     years_playing: Optional[str] = None
     position: Optional[str] = None
     previous_experience: Optional[str] = None
+
+
+# Teams
+class Team(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    division: str  # U10, U12, U14, U16, U18, Adult
+    age_group: str
+    season: str
+    coach_name: str
+    coach_email: Optional[str] = None
+    coach_phone: Optional[str] = None
+    max_roster_size: int = 15
+    practice_schedule: Optional[str] = None
+    home_venue: Optional[str] = None
+    players: List[dict] = []
+    status: str = "active"  # active, inactive
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class TeamCreate(BaseModel):
+    name: str
+    division: str
+    age_group: str
+    season: str
+    coach_name: str
+    coach_email: Optional[str] = None
+    coach_phone: Optional[str] = None
+    max_roster_size: int = 15
+    practice_schedule: Optional[str] = None
+    home_venue: Optional[str] = None
+
+class AddPlayerToTeam(BaseModel):
+    registration_id: str
+
     shirt_size: str
     shorts_size: str
     liability_waiver: bool
