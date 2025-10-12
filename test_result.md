@@ -143,15 +143,18 @@ backend:
 
   - task: "Create Stripe payment endpoints for approved registrations"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Created 4 new endpoints: POST /enhanced-registrations/{id}/checkout, GET /enhanced-registrations/payment-status/{session_id}, POST /adult-registrations/{id}/checkout, GET /adult-registrations/payment-status/{session_id}"
+      - working: true
+        agent: "testing"
+        comment: "All 4 payment endpoints tested and working correctly. Youth checkout: cs_test_a1CgWKUdjVLlEK4doqyphzPx8I0EGsFqcU0RntTnv6jDSMW5kZ9MHIdjzU, Adult checkout: cs_test_a1DQig7QtOgnygx8OokyCtxFcDUxseSlJtgpygwqUR1sBBzeZD4EuqUmCm. Payment status checks returning correct unpaid status. Fixed backend model validation issues and missing return statements. Stripe integration fully functional."
 
 frontend:
   - task: "Add payment buttons and status to MemberDashboard"
