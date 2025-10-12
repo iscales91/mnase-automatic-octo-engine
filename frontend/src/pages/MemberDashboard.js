@@ -237,7 +237,7 @@ function MemberDashboard() {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                           <div>
                             <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Age Group</div>
                             <div style={{ fontWeight: '600' }}>{reg.athlete_grade}</div>
@@ -254,6 +254,25 @@ function MemberDashboard() {
                             <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Registered On</div>
                             <div style={{ fontWeight: '600' }}>{new Date(reg.created_at).toLocaleDateString()}</div>
                           </div>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Payment Status</div>
+                            <div style={{ fontWeight: '600', textTransform: 'capitalize', color: reg.payment_status === 'paid' ? '#10b981' : '#eab308' }}>
+                              {reg.payment_status === 'paid' ? 'Paid' : reg.payment_status === 'pending_payment' ? 'Pending' : 'Unpaid'}
+                            </div>
+                            {reg.registration_fee && (
+                              <div style={{ fontSize: '0.9rem', color: '#64748b', marginTop: '0.25rem' }}>
+                                Registration Fee: ${reg.registration_fee}
+                              </div>
+                            )}
+                          </div>
+                          {reg.status === 'approved' && reg.payment_status !== 'paid' && (
+                            <Button onClick={() => handleYouthPayment(reg.id)}>
+                              <DollarSign size={16} style={{ marginRight: '0.5rem' }} />
+                              Pay Now
+                            </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
