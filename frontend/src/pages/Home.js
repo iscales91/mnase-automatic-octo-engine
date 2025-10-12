@@ -86,6 +86,14 @@ function Home() {
           <div className="navbar-links">
             <Link to="/programs" className="navbar-link" data-testid="nav-programs-link">Programs</Link>
             <Link to="/memberships" className="navbar-link" data-testid="nav-memberships-link">Memberships</Link>
+            <div className="navbar-dropdown">
+              <button className="navbar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'inherit' }}>Mentality Academy ▾</button>
+              <div className="navbar-dropdown-content">
+                <Link to="/camps" data-testid="nav-camps-link">Camps</Link>
+                <Link to="/clinics" data-testid="nav-clinics-link">Clinics</Link>
+                <Link to="/workshops" data-testid="nav-workshops-link">Workshops</Link>
+              </div>
+            </div>
             <Link to="/events" className="navbar-link" data-testid="nav-events-link">Events</Link>
             <Link to="/facilities" className="navbar-link" data-testid="nav-facilities-link">Facilities</Link>
             {token ? (
