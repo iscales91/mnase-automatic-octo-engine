@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 import UserManagement from '@/components/admin/UserManagement';
 import BillingInvoices from '@/components/admin/BillingInvoices';
 import PaymentPlans from '@/components/admin/PaymentPlans';
+import CalendarManagement from '@/components/admin/CalendarManagement';
+import FormSubmissions from '@/components/admin/FormSubmissions';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
