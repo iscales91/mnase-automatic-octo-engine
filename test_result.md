@@ -183,7 +183,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Create Stripe payment endpoints for approved registrations"
     - "Add payment buttons and status to MemberDashboard"
   stuck_tasks: []
   test_all: false
