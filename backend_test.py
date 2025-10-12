@@ -656,6 +656,32 @@ def main():
     test_results.append(("Get User Registrations", tester.test_get_registrations()))
     test_results.append(("Get User Bookings", tester.test_get_bookings()))
     
+    # Registration Tests
+    print("\n📝 REGISTRATION TESTS")
+    test_results.append(("Create Youth Registration", tester.test_create_youth_registration()))
+    test_results.append(("Create Adult Registration", tester.test_create_adult_registration()))
+    test_results.append(("Get User Enhanced Registrations", tester.test_get_enhanced_registrations()))
+    test_results.append(("Get User Adult Registrations", tester.test_get_adult_registrations()))
+    
+    # Admin Registration Management Tests
+    print("\n🔧 ADMIN REGISTRATION MANAGEMENT TESTS")
+    test_results.append(("Get All Enhanced Registrations (Admin)", tester.test_get_admin_enhanced_registrations()))
+    test_results.append(("Get All Adult Registrations (Admin)", tester.test_get_admin_adult_registrations()))
+    test_results.append(("Approve Youth Registration (Admin)", tester.test_approve_youth_registration()))
+    test_results.append(("Approve Adult Registration (Admin)", tester.test_approve_adult_registration()))
+    
+    # Payment Integration Tests
+    print("\n💳 STRIPE PAYMENT INTEGRATION TESTS")
+    test_results.append(("Youth Registration Checkout", tester.test_youth_registration_checkout()))
+    test_results.append(("Adult Registration Checkout", tester.test_adult_registration_checkout()))
+    test_results.append(("Youth Payment Status Check", tester.test_youth_payment_status()))
+    test_results.append(("Adult Payment Status Check", tester.test_adult_payment_status()))
+    
+    # Security Tests
+    print("\n🔒 SECURITY TESTS")
+    test_results.append(("Unauthorized Payment Access", tester.test_unauthorized_payment_access()))
+    test_results.append(("Non-existent Registration Payment", tester.test_nonexistent_registration_payment()))
+
     # Admin Tests
     print("\n🔧 ADMIN FUNCTIONALITY TESTS")
     test_results.append(("Create Event (Admin)", tester.test_create_event_admin()))
