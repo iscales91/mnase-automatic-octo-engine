@@ -1690,13 +1690,6 @@ async def get_adult_registration_payment_status(session_id: str, user: User = De
             )
     
     return status
-        if plan and plan['payments_made'] >= plan['num_installments']:
-            await db.payment_plans.update_one(
-                {"id": plan_id},
-                {"$set": {"status": "completed"}}
-            )
-    
-    return {"message": "Payment marked as paid"}
 
 # Stripe webhook
 @api_router.post("/webhook/stripe")
