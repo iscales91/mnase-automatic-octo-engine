@@ -25,6 +25,7 @@ import Recruitment from '@/pages/Recruitment';
 import Sponsorship from '@/pages/Sponsorship';
 import Scores from '@/pages/Scores';
 import Foundation from '@/pages/Foundation';
+import EnhancedRegistration from '@/pages/EnhancedRegistration';
 import MemberDashboard from '@/pages/MemberDashboard';
 import AdminDashboard from '@/pages/AdminDashboard';
 import RegistrationSuccess from '@/pages/RegistrationSuccess';
