@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, MapPin, Clock, DollarSign } from 'lucide-react';
+import { Calendar, MapPin, Clock, DollarSign, Users, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 
@@ -14,9 +14,11 @@ function MemberDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [registrations, setRegistrations] = useState([]);
+  const [youthRegistrations, setYouthRegistrations] = useState([]);
+  const [adultRegistrations, setAdultRegistrations] = useState([]);
+  const [myTeams, setMyTeams] = useState([]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [bookings, setBookings] = useState([]);
-  const [events, setEvents] = useState({});
-  const [facilities, setFacilities] = useState({});
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem('token');
 
@@ -32,21 +34,36 @@ function MemberDashboard() {
     try {
       const headers = { Authorization: `Bearer ${token}` };
       
-      const [userRes, regRes, bookRes, eventsRes, facRes] = await Promise.all([
+      const [userRes, regRes, youthRegRes, adultRegRes, calendarRes, bookRes, teamsRes] = await Promise.all([
         axios.get(`${API}/auth/me`, { headers }),
         axios.get(`${API}/registrations`, { headers }),
+        axios.get(`${API}/enhanced-registrations`, { headers }),
+        axios.get(`${API}/adult-registrations`, { headers }),
+        axios.get(`${API}/calendar-events`),
         axios.get(`${API}/bookings`, { headers }),
-        axios.get(`${API}/events`),
-        axios.get(`${API}/facilities`)
+        axios.get(`${API}/teams`)
       ]);
 
       setUser(userRes.data);
       setRegistrations(regRes.data);
+      setYouthRegistrations(youthRegRes.data);
+      setAdultRegistrations(adultRegRes.data);
       setBookings(bookRes.data);
       
-      const eventsMap = {};
-      eventsRes.data.forEach(event => {
-        eventsMap[event.id] = event;
+      // Filter upcoming events
+      const today = new Date();
+      const upcoming = calendarRes.data
+        .filter(event => new Date(event.date) >= today)
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .slice(0, 5);
+      setUpcomingEvents(upcoming);
+      
+      // Find teams user is on
+      const allRegistrationIds = [...youthRegRes.data.map(r => r.id), ...adultRegRes.data.map(r => r.id)];
+      const userTeams = teamsRes.data.filter(team => 
+        team.players?.some(player => allRegistrationIds.includes(player.registration_id))
+      );
+      setMyTeams(userTeams);
       });
       setEvents(eventsMap);
       
