@@ -18,6 +18,30 @@ function Home() {
   const [registerData, setRegisterData] = useState({ email: '', password: '', name: '' });
   const token = localStorage.getItem('token');
 
+  // Carousel images for MNASE Basketball League
+  const carouselImages = [
+    {
+      url: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1600&h=900&fit=crop',
+      title: 'Elite Mammoths Program',
+      description: 'March–June Travel Program - Competitive play and tournament preparation'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1608245449230-4ac19066d2d0?w=1600&h=900&fit=crop',
+      title: 'State-of-the-Art Facilities',
+      description: 'Book our premium basketball courts and training facilities'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1574623452334-1e0ac2b3ccb4?w=1600&h=900&fit=crop',
+      title: 'Weekend Draft League',
+      description: 'Weekly competitive games - Get drafted Friday, play Saturday'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1519861531473-9200262188bf?w=1600&h=900&fit=crop',
+      title: 'Year-Round Development',
+      description: 'Programs designed to build skills, character, and community'
+    }
+  ];
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
