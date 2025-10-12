@@ -214,7 +214,7 @@ class Invoice(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
     invoice_number: str
-    items: List[Dict[str, any]]  # [{name, description, amount, quantity}]
+    items: List[Dict]  # [{name, description, amount, quantity}]
     subtotal: float
     tax: float = 0.0
     total: float
@@ -228,7 +228,7 @@ class Invoice(BaseModel):
 
 class InvoiceCreate(BaseModel):
     user_id: str
-    items: List[Dict[str, any]]
+    items: List[Dict]
     subtotal: float
     tax: float = 0.0
     total: float
