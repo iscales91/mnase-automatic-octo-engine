@@ -100,7 +100,15 @@ function Home() {
                 <Link to="/workshops" data-testid="nav-workshops-link">Workshops</Link>
               </div>
             </div>
-            <Link to="/events" className="navbar-link" data-testid="nav-events-link">Events</Link>
+            <div className="navbar-dropdown">
+              <button className="navbar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'inherit' }}>Events ▾</button>
+              <div className="navbar-dropdown-content">
+                <Link to="/shoot-n-hoops" data-testid="nav-shoot-n-hoops-link">Shoot N HOOPS</Link>
+                <Link to="/summer-sizzle" data-testid="nav-summer-sizzle-link">Summer Sizzle Circuit</Link>
+                <Link to="/winter-wars" data-testid="nav-winter-wars-link">Winter Wars Circuit</Link>
+                <Link to="/media-gallery" data-testid="nav-media-gallery-link">Media/Video Gallery</Link>
+              </div>
+            </div>
             <Link to="/facilities" className="navbar-link" data-testid="nav-facilities-link">Facilities</Link>
             {token ? (
               <>
