@@ -465,6 +465,75 @@ class EnhancedRegistrationCreate(BaseModel):
     previous_teams: Optional[str] = None
     position: Optional[str] = None
     skill_level: str
+
+
+# Adult Registration (18+)
+class AdultRegistration(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    event_id: Optional[str] = None
+    program_id: Optional[str] = None
+    
+    # Participant Info
+    participant_name: str
+    participant_email: EmailStr
+    participant_phone: str
+    
+    # Emergency Contact
+    emergency_contact_name: str
+    emergency_contact_phone: str
+    emergency_contact_relationship: str
+    
+    # Medical (Optional)
+    medical_conditions: Optional[str] = None
+    allergies: Optional[str] = None
+    medications: Optional[str] = None
+    
+    # Experience
+    skill_level: str
+    years_playing: Optional[str] = None
+    position: Optional[str] = None
+    previous_experience: Optional[str] = None
+    
+    # Uniform
+    shirt_size: str
+    shorts_size: str
+    
+    # Consents
+    liability_waiver: bool
+    code_of_conduct: bool
+    media_consent: bool = False
+    
+    # Additional
+    special_requests: Optional[str] = None
+    
+    status: str = "pending"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class AdultRegistrationCreate(BaseModel):
+    event_id: Optional[str] = None
+    program_id: Optional[str] = None
+    participant_name: str
+    participant_email: EmailStr
+    participant_phone: str
+    emergency_contact_name: str
+    emergency_contact_phone: str
+    emergency_contact_relationship: str
+    medical_conditions: Optional[str] = None
+    allergies: Optional[str] = None
+    medications: Optional[str] = None
+    skill_level: str
+    years_playing: Optional[str] = None
+    position: Optional[str] = None
+    previous_experience: Optional[str] = None
+    shirt_size: str
+    shorts_size: str
+    liability_waiver: bool
+    code_of_conduct: bool
+    media_consent: bool = False
+    special_requests: Optional[str] = None
+
     media_consent: bool = False
     liability_waiver: bool
     code_of_conduct: bool
