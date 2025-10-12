@@ -78,6 +78,40 @@ function MemberDashboard() {
     navigate('/');
   };
 
+  const handleYouthPayment = async (registrationId) => {
+    try {
+      const originUrl = window.location.origin;
+      const response = await axios.post(
+        `${API}/enhanced-registrations/${registrationId}/checkout`,
+        { origin_url: originUrl },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (response.data.checkout_url) {
+        window.location.href = response.data.checkout_url;
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to initiate payment');
+    }
+  };
+
+  const handleAdultPayment = async (registrationId) => {
+    try {
+      const originUrl = window.location.origin;
+      const response = await axios.post(
+        `${API}/adult-registrations/${registrationId}/checkout`,
+        { origin_url: originUrl },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (response.data.checkout_url) {
+        window.location.href = response.data.checkout_url;
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to initiate payment');
+    }
+  };
+
   const getStatusIcon = (status) => {
     if (status === 'approved') return <CheckCircle size={20} style={{ color: '#10b981' }} />;
     if (status === 'pending') return <AlertCircle size={20} style={{ color: '#eab308' }} />;
