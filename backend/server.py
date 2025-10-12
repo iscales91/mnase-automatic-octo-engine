@@ -1064,6 +1064,44 @@ async def stripe_webhook(request: Request):
         logging.error(f"Webhook error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
+
+# Calendar Events Endpoints
+@api_router.get("/calendar-events", response_model=List[CalendarEvent])
+async def get_calendar_events():
+    """Get all calendar events"""
+    events = await db.calendar_events.find({}, {"_id": 0}).to_list(length=None)
+    return [CalendarEvent(**event) for event in events]
+
+@api_router.post("/admin/calendar-events", response_model=CalendarEvent)
+async def create_calendar_event(event_data: CalendarEventCreate, admin: User = Depends(get_admin_user)):
+    """Create a new calendar event (admin only)"""
+    event = CalendarEvent(**event_data.dict())
+    await db.calendar_events.insert_one(event.dict())
+    return event
+
+@api_router.put("/admin/calendar-events/{event_id}", response_model=CalendarEvent)
+async def update_calendar_event(event_id: str, event_data: CalendarEventCreate, admin: User = Depends(get_admin_user)):
+    """Update a calendar event (admin only)"""
+    existing = await db.calendar_events.find_one({"id": event_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Calendar event not found")
+    
+    await db.calendar_events.update_one(
+        {"id": event_id},
+        {"$set": event_data.dict()}
+    )
+    updated = await db.calendar_events.find_one({"id": event_id}, {"_id": 0})
+    return CalendarEvent(**updated)
+
+@api_router.delete("/admin/calendar-events/{event_id}")
+async def delete_calendar_event(event_id: str, admin: User = Depends(get_admin_user)):
+    """Delete a calendar event (admin only)"""
+    result = await db.calendar_events.delete_one({"id": event_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Calendar event not found")
+    return {"message": "Calendar event deleted successfully"}
+
+
 # Include router
 app.include_router(api_router)
 
