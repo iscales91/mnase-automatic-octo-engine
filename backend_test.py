@@ -72,7 +72,9 @@ class MNASEBasketballAPITester:
         test_user_data = {
             "email": f"testuser_{datetime.now().strftime('%H%M%S')}@test.com",
             "password": "TestPass123!",
-            "name": "Test User"
+            "name": "Test User",
+            "date_of_birth": "1990-01-01",
+            "phone": "555-0100"
         }
         
         success, response = self.run_test(
