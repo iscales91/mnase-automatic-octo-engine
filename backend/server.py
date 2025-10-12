@@ -468,6 +468,12 @@ class EnhancedRegistrationCreate(BaseModel):
     previous_teams: Optional[str] = None
     position: Optional[str] = None
     skill_level: str
+    media_consent: bool = False
+    liability_waiver: bool
+    code_of_conduct: bool
+    medical_treatment: bool
+    special_requests: Optional[str] = None
+    how_heard_about: Optional[str] = None
 
 
 # Adult Registration (18+)
