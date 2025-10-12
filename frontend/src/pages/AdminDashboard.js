@@ -263,6 +263,12 @@ function AdminDashboard() {
             <CalendarManagement />
           </TabsContent>
 
+
+
+          <TabsContent value="teams" data-testid="teams-content">
+            <TeamsManagement />
+          </TabsContent>
+
           <TabsContent value="forms" data-testid="forms-content">
             <FormSubmissions />
           </TabsContent>
