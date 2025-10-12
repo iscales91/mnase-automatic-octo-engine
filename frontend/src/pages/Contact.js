@@ -15,11 +15,15 @@ function Contact() {
     message: ''
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement contact form submission to backend
-    toast.success('Message sent! We\'ll get back to you soon.');
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    try {
+      const response = await axios.post(`${API}/contact`, formData);
+      toast.success('Message sent! We\'ll get back to you soon.');
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to send message. Please try again.');
+    }
   };
 
   return (
