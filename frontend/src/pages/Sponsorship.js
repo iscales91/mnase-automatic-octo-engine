@@ -20,11 +20,15 @@ function Sponsorship() {
     message: ''
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement sponsorship form submission to backend
-    toast.success('Thank you for your interest! We\'ll contact you within 48 hours.');
-    setFormData({ company: '', contact: '', email: '', phone: '', interest: '', message: '' });
+    try {
+      const response = await axios.post(`${API}/sponsorship`, formData);
+      toast.success('Thank you for your interest! We\'ll contact you within 48 hours.');
+      setFormData({ company: '', contact: '', email: '', phone: '', interest: '', message: '' });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to submit inquiry. Please try again.');
+    }
   };
 
   const tiers = [
