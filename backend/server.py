@@ -1690,24 +1690,6 @@ async def get_adult_registration_payment_status(session_id: str, user: User = De
             )
     
     return status
-
-        }}
-    )
-    
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Transaction not found")
-    
-    # Update payment plan progress
-    transaction = await db.payment_plan_transactions.find_one({"id": transaction_id}, {"_id": 0})
-    if transaction:
-        plan_id = transaction['payment_plan_id']
-        await db.payment_plans.update_one(
-            {"id": plan_id},
-            {"$inc": {"payments_made": 1}}
-        )
-        
-        # Check if plan is completed
-        plan = await db.payment_plans.find_one({"id": plan_id}, {"_id": 0})
         if plan and plan['payments_made'] >= plan['num_installments']:
             await db.payment_plans.update_one(
                 {"id": plan_id},
