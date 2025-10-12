@@ -40,12 +40,18 @@ class User(BaseModel):
     email: EmailStr
     name: str
     role: str = "member"  # member or admin
+    date_of_birth: Optional[str] = None  # YYYY-MM-DD format
+    phone: Optional[str] = None
+    parent_account_id: Optional[str] = None  # Links youth to parent account
+    is_parent: bool = False  # True if this account manages youth
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
     name: str
+    date_of_birth: str  # Required to verify age (18+)
+    phone: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: EmailStr
