@@ -1259,6 +1259,51 @@ async def get_my_payment_plans(user: User = Depends(get_current_user)):
     return plans
 
 @api_router.put("/admin/payment-plan-transactions/{transaction_id}/mark-paid")
+
+
+# Adult Registration Endpoints
+@api_router.post("/adult-registrations", response_model=AdultRegistration)
+async def create_adult_registration(registration_data: AdultRegistrationCreate, current_user: User = Depends(get_current_user)):
+    """Create a new adult registration (18+ programs)"""
+    registration = AdultRegistration(**registration_data.dict(), user_id=current_user.id)
+    await db.adult_registrations.insert_one(registration.dict())
+    
+    # Send confirmation email
+    try:
+        email_service.send_registration_confirmation(
+            to_email=registration_data.participant_email,
+            athlete_name=registration_data.participant_name,
+            parent_name=registration_data.participant_name,
+            registration_id=registration.id
+        )
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+    
+    return registration
+
+@api_router.get("/adult-registrations", response_model=List[AdultRegistration])
+async def get_user_adult_registrations(current_user: User = Depends(get_current_user)):
+    """Get user's adult registrations"""
+    registrations = await db.adult_registrations.find({"user_id": current_user.id}, {"_id": 0}).to_list(length=None)
+    return [AdultRegistration(**reg) for reg in registrations]
+
+@api_router.get("/admin/adult-registrations", response_model=List[AdultRegistration])
+async def get_all_adult_registrations(admin: User = Depends(get_admin_user)):
+    """Get all adult registrations (admin only)"""
+    registrations = await db.adult_registrations.find({}, {"_id": 0}).to_list(length=None)
+    return [AdultRegistration(**reg) for reg in registrations]
+
+@api_router.put("/admin/adult-registrations/{registration_id}/status")
+async def update_adult_registration_status(registration_id: str, status: str, admin: User = Depends(get_admin_user)):
+    """Update adult registration status (admin only)"""
+    result = await db.adult_registrations.update_one(
+        {"id": registration_id},
+        {"$set": {"status": status}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Registration not found")
+    return {"message": "Status updated successfully"}
+
 async def mark_payment_plan_transaction_paid(transaction_id: str, admin: User = Depends(get_admin_user)):
     result = await db.payment_plan_transactions.update_one(
         {"id": transaction_id},
