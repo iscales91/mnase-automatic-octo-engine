@@ -22,11 +22,15 @@ function GetInvolved() {
     message: ''
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement volunteer form submission to backend
-    toast.success('Thank you for your interest! We\'ll contact you soon.');
-    setFormData({ name: '', email: '', phone: '', interest: '', availability: '', experience: '', message: '' });
+    try {
+      const response = await axios.post(`${API}/volunteer`, formData);
+      toast.success('Thank you for your interest! We\'ll contact you soon.');
+      setFormData({ name: '', email: '', phone: '', interest: '', availability: '', experience: '', message: '' });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to submit application. Please try again.');
+    }
   };
 
   const opportunities = [
