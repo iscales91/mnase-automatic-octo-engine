@@ -357,6 +357,280 @@ class MNASEBasketballAPITester:
         )
         return success
 
+    def test_create_youth_registration(self):
+        """Test creating a youth registration"""
+        youth_registration_data = {
+            "athlete_first_name": "John",
+            "athlete_last_name": "Smith",
+            "athlete_date_of_birth": "2010-05-15",
+            "athlete_gender": "Male",
+            "athlete_grade": "8th",
+            "athlete_school": "Test Middle School",
+            "athlete_email": "john.smith@test.com",
+            "athlete_phone": "555-0123",
+            "parent_first_name": "Michael",
+            "parent_last_name": "Smith",
+            "parent_email": "michael.smith@test.com",
+            "parent_phone": "555-0124",
+            "parent_address": "123 Test Street",
+            "parent_city": "Test City",
+            "parent_state": "CA",
+            "parent_zip": "90210",
+            "emergency_name": "Sarah Smith",
+            "emergency_relationship": "Mother",
+            "emergency_phone": "555-0125",
+            "insurance_provider": "Test Insurance",
+            "insurance_policy_number": "TEST123456",
+            "shirt_size": "Medium",
+            "shorts_size": "Medium",
+            "years_playing": "3",
+            "skill_level": "Intermediate",
+            "liability_waiver": True,
+            "code_of_conduct": True,
+            "medical_treatment": True
+        }
+        
+        success, response = self.run_test(
+            "Create Youth Registration",
+            "POST",
+            "enhanced-registrations",
+            200,
+            data=youth_registration_data
+        )
+        
+        if success and 'id' in response:
+            self.youth_registration_id = response['id']
+            print(f"✅ Youth registration created with ID: {self.youth_registration_id}")
+        return success
+
+    def test_create_adult_registration(self):
+        """Test creating an adult registration"""
+        adult_registration_data = {
+            "participant_name": "Jane Doe",
+            "participant_email": "jane.doe@test.com",
+            "participant_phone": "555-0126",
+            "emergency_contact_name": "John Doe",
+            "emergency_contact_phone": "555-0127",
+            "emergency_contact_relationship": "Spouse",
+            "skill_level": "Advanced",
+            "years_playing": "10",
+            "position": "Point Guard",
+            "shirt_size": "Large",
+            "shorts_size": "Large",
+            "liability_waiver": True,
+            "code_of_conduct": True
+        }
+        
+        success, response = self.run_test(
+            "Create Adult Registration",
+            "POST",
+            "adult-registrations",
+            200,
+            data=adult_registration_data
+        )
+        
+        if success and 'id' in response:
+            self.adult_registration_id = response['id']
+            print(f"✅ Adult registration created with ID: {self.adult_registration_id}")
+        return success
+
+    def test_approve_youth_registration(self):
+        """Test approving youth registration as admin"""
+        if not self.youth_registration_id:
+            print("❌ No youth registration ID available for approval")
+            return False
+            
+        success, response = self.run_test(
+            "Approve Youth Registration (Admin)",
+            "PUT",
+            f"admin/enhanced-registrations/{self.youth_registration_id}/status",
+            200,
+            data="approved",
+            use_admin=True
+        )
+        return success
+
+    def test_approve_adult_registration(self):
+        """Test approving adult registration as admin"""
+        if not self.adult_registration_id:
+            print("❌ No adult registration ID available for approval")
+            return False
+            
+        success, response = self.run_test(
+            "Approve Adult Registration (Admin)",
+            "PUT",
+            f"admin/adult-registrations/{self.adult_registration_id}/status",
+            200,
+            data="approved",
+            use_admin=True
+        )
+        return success
+
+    def test_youth_registration_checkout(self):
+        """Test creating Stripe checkout for youth registration"""
+        if not self.youth_registration_id:
+            print("❌ No youth registration ID available for checkout")
+            return False
+            
+        checkout_data = {
+            "origin_url": self.base_url
+        }
+        
+        success, response = self.run_test(
+            "Youth Registration Checkout",
+            "POST",
+            f"enhanced-registrations/{self.youth_registration_id}/checkout",
+            200,
+            data=checkout_data
+        )
+        
+        if success and 'session_id' in response:
+            self.youth_session_id = response['session_id']
+            print(f"✅ Youth checkout session created: {self.youth_session_id}")
+            print(f"✅ Checkout URL: {response.get('checkout_url', 'N/A')}")
+        return success
+
+    def test_adult_registration_checkout(self):
+        """Test creating Stripe checkout for adult registration"""
+        if not self.adult_registration_id:
+            print("❌ No adult registration ID available for checkout")
+            return False
+            
+        checkout_data = {
+            "origin_url": self.base_url
+        }
+        
+        success, response = self.run_test(
+            "Adult Registration Checkout",
+            "POST",
+            f"adult-registrations/{self.adult_registration_id}/checkout",
+            200,
+            data=checkout_data
+        )
+        
+        if success and 'session_id' in response:
+            self.adult_session_id = response['session_id']
+            print(f"✅ Adult checkout session created: {self.adult_session_id}")
+            print(f"✅ Checkout URL: {response.get('checkout_url', 'N/A')}")
+        return success
+
+    def test_youth_payment_status(self):
+        """Test checking youth registration payment status"""
+        if not self.youth_session_id:
+            print("❌ No youth session ID available for status check")
+            return False
+            
+        success, response = self.run_test(
+            "Youth Payment Status Check",
+            "GET",
+            f"enhanced-registrations/payment-status/{self.youth_session_id}",
+            200
+        )
+        
+        if success:
+            print(f"✅ Payment status: {response.get('payment_status', 'Unknown')}")
+        return success
+
+    def test_adult_payment_status(self):
+        """Test checking adult registration payment status"""
+        if not self.adult_session_id:
+            print("❌ No adult session ID available for status check")
+            return False
+            
+        success, response = self.run_test(
+            "Adult Payment Status Check",
+            "GET",
+            f"adult-registrations/payment-status/{self.adult_session_id}",
+            200
+        )
+        
+        if success:
+            print(f"✅ Payment status: {response.get('payment_status', 'Unknown')}")
+        return success
+
+    def test_unauthorized_payment_access(self):
+        """Test unauthorized access to payment endpoints"""
+        # Test without authentication
+        temp_token = self.token
+        self.token = None
+        
+        success, response = self.run_test(
+            "Unauthorized Payment Access",
+            "POST",
+            "enhanced-registrations/fake-id/checkout",
+            401,
+            data={"origin_url": self.base_url}
+        )
+        
+        # Restore token
+        self.token = temp_token
+        return success
+
+    def test_nonexistent_registration_payment(self):
+        """Test payment for non-existent registration"""
+        success, response = self.run_test(
+            "Non-existent Registration Payment",
+            "POST",
+            "enhanced-registrations/fake-registration-id/checkout",
+            404,
+            data={"origin_url": self.base_url}
+        )
+        return success
+
+    def test_get_enhanced_registrations(self):
+        """Test getting user's enhanced registrations"""
+        success, response = self.run_test(
+            "Get User Enhanced Registrations",
+            "GET",
+            "enhanced-registrations",
+            200
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} enhanced registrations")
+        return success
+
+    def test_get_adult_registrations(self):
+        """Test getting user's adult registrations"""
+        success, response = self.run_test(
+            "Get User Adult Registrations",
+            "GET",
+            "adult-registrations",
+            200
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} adult registrations")
+        return success
+
+    def test_get_admin_enhanced_registrations(self):
+        """Test getting all enhanced registrations as admin"""
+        success, response = self.run_test(
+            "Get All Enhanced Registrations (Admin)",
+            "GET",
+            "admin/enhanced-registrations",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} total enhanced registrations")
+        return success
+
+    def test_get_admin_adult_registrations(self):
+        """Test getting all adult registrations as admin"""
+        success, response = self.run_test(
+            "Get All Adult Registrations (Admin)",
+            "GET",
+            "admin/adult-registrations",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} total adult registrations")
+        return success
+
 def main():
     print("🏀 Starting MNASE Basketball League API Tests")
     print("=" * 50)
