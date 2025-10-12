@@ -1831,8 +1831,10 @@ async def get_calendar_events():
 @api_router.post("/admin/calendar-events", response_model=CalendarEvent)
 async def create_calendar_event(event_data: CalendarEventCreate, admin: User = Depends(get_admin_user)):
     """Create a new calendar event (admin only)"""
-    event = CalendarEvent(**event_data.dict())
-    await db.calendar_events.insert_one(event.dict())
+    event = CalendarEvent(**event_data.model_dump())
+    doc = event.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.calendar_events.insert_one(doc)
     return event
 
 @api_router.put("/admin/calendar-events/{event_id}", response_model=CalendarEvent)
