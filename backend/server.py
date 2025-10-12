@@ -140,6 +140,56 @@ class PaymentTransaction(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+# Programs
+class Program(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    slug: str
+    name: str
+    season: str
+    description: str
+    long_description: str
+    age_range: str
+    price: float
+    inclusions: List[str]
+    schedule: str
+    registration_info: str
+    active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ProgramCreate(BaseModel):
+    slug: str
+    name: str
+    season: str
+    description: str
+    long_description: str
+    age_range: str
+    price: float
+    inclusions: List[str]
+    schedule: str
+    registration_info: str
+    active: bool = True
+
+# Memberships
+class Membership(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    type: str
+    tier: str
+    price: float
+    benefits: List[str]
+    description: str
+    active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class MembershipCreate(BaseModel):
+    type: str
+    tier: str
+    price: float
+    benefits: List[str]
+    description: str
+    active: bool = True
+
 # Helper functions
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
