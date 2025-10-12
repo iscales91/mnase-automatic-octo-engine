@@ -192,8 +192,12 @@ function AdminDashboard() {
       {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-container">
-          <Link to="/" className="navbar-brand" data-testid="navbar-brand">MNASE Basketball</Link>
+          <Link to="/" className="navbar-brand" data-testid="navbar-brand">
+            <img src="https://customer-assets.emergentagent.com/job_bball-league-hub/artifacts/tglx13e4_MNASE%20Logo%20Big" alt="MNASE Basketball" style={{ height: '50px' }} />
+          </Link>
           <div className="navbar-links">
+            <Link to="/programs" className="navbar-link" data-testid="nav-programs-link">Programs</Link>
+            <Link to="/memberships" className="navbar-link" data-testid="nav-memberships-link">Memberships</Link>
             <Link to="/dashboard" className="navbar-link" data-testid="nav-dashboard-link">Admin Dashboard</Link>
             <button onClick={handleLogout} className="navbar-btn btn-secondary" data-testid="logout-btn">Logout</button>
           </div>
