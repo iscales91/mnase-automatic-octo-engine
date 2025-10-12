@@ -57,6 +57,8 @@ function App() {
           <Route path="/shop" element={<Shop />} />
           <Route path="/policies" element={<Policies />} />
           <Route path="/get-involved" element={<GetInvolved />} />
+          <Route path="/recruitment" element={<Recruitment />} />
+          <Route path="/sponsorship" element={<Sponsorship />} />
           <Route path="/dashboard" element={
             token && user ? (
               user.role === 'admin' ? <AdminDashboard /> : <MemberDashboard />
