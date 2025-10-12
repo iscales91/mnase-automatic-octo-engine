@@ -445,9 +445,8 @@ class MNASEBasketballAPITester:
         success, response = self.run_test(
             "Approve Youth Registration (Admin)",
             "PUT",
-            f"admin/enhanced-registrations/{self.youth_registration_id}/status",
+            f"admin/enhanced-registrations/{self.youth_registration_id}/status?status=approved",
             200,
-            data="approved",
             use_admin=True
         )
         return success
