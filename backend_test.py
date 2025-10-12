@@ -15,6 +15,10 @@ class MNASEBasketballAPITester:
         self.tests_passed = 0
         self.created_event_id = None
         self.created_facility_id = None
+        self.youth_registration_id = None
+        self.adult_registration_id = None
+        self.youth_session_id = None
+        self.adult_session_id = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None, use_admin=False):
         """Run a single API test"""
