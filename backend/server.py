@@ -533,6 +533,12 @@ class AdultRegistrationCreate(BaseModel):
     years_playing: Optional[str] = None
     position: Optional[str] = None
     previous_experience: Optional[str] = None
+    shirt_size: str
+    shorts_size: str
+    liability_waiver: bool
+    code_of_conduct: bool
+    media_consent: bool = False
+    special_requests: Optional[str] = None
 
 
 # Teams
