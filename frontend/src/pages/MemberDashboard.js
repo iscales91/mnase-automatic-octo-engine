@@ -86,68 +86,342 @@ function MemberDashboard() {
     navigate('/');
   };
 
+  const getStatusIcon = (status) => {
+    if (status === 'approved') return <CheckCircle size={20} style={{ color: '#10b981' }} />;
+    if (status === 'pending') return <AlertCircle size={20} style={{ color: '#eab308' }} />;
+    return <XCircle size={20} style={{ color: '#ef4444' }} />;
+  };
+
+  const getStatusColor = (status) => {
+    if (status === 'approved') return { background: '#dcfce7', color: '#166534' };
+    if (status === 'pending') return { background: '#fef3c7', color: '#854d0e' };
+    return { background: '#fee2e2', color: '#991b1b' };
+  };
+
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '3rem' }} data-testid="loading-indicator">Loading...</div>;
+    return <div style={{ textAlign: 'center', padding: '3rem' }}>Loading...</div>;
   }
 
   return (
-    <div>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f8f9ff 0%, #e8eeff 100%)' }}>
       {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-container">
-          <Link to="/" className="navbar-brand" data-testid="navbar-brand">MNASE Basketball</Link>
+          <Link to="/" className="navbar-brand">
+            <img src="https://customer-assets.emergentagent.com/job_bball-league-hub/artifacts/tglx13e4_MNASE%20Logo%20Big" alt="MNASE Basketball" style={{ height: '50px' }} />
+          </Link>
           <div className="navbar-links">
-            <Link to="/events" className="navbar-link" data-testid="nav-events-link">Events</Link>
-            <Link to="/facilities" className="navbar-link" data-testid="nav-facilities-link">Facilities</Link>
-            <Link to="/dashboard" className="navbar-link" data-testid="nav-dashboard-link">Dashboard</Link>
-            <button onClick={handleLogout} className="navbar-btn btn-secondary" data-testid="logout-btn">Logout</button>
+            <Link to="/programs" className="navbar-link">Programs</Link>
+            <Link to="/events" className="navbar-link">Events</Link>
+            <Link to="/facilities" className="navbar-link">Facilities</Link>
+            <Link to="/dashboard" className="navbar-link">Dashboard</Link>
+            <button onClick={handleLogout} className="navbar-btn btn-secondary">Logout</button>
           </div>
         </div>
       </nav>
 
-      <div className="dashboard-container" data-testid="member-dashboard">
-        <div className="dashboard-header">
-          <h1 className="dashboard-title" data-testid="dashboard-title">Welcome, {user?.name}!</h1>
-          <p className="dashboard-subtitle" data-testid="dashboard-subtitle">Manage your registrations and bookings</p>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '3rem 2rem' }}>
+        {/* Header */}
+        <div style={{ marginBottom: '3rem' }}>
+          <h1 style={{ fontSize: '3rem', fontWeight: '700', color: '#1e293b', marginBottom: '0.5rem' }}>
+            Welcome, {user?.name}!
+          </h1>
+          <p style={{ fontSize: '1.2rem', color: '#64748b' }}>
+            Manage your registrations, teams, and upcoming activities
+          </p>
         </div>
 
-        <div className="stat-grid">
-          <div className="stat-card">
-            <div className="stat-label">Total Registrations</div>
-            <div className="stat-value" data-testid="total-registrations">{registrations.length}</div>
+        {/* Stats Grid */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
+          gap: '1.5rem',
+          marginBottom: '3rem'
+        }}>
+          <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', border: '2px solid #e8eeff' }}>
+            <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '0.5rem' }}>Program Registrations</div>
+            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1e293b' }}>
+              {youthRegistrations.length + adultRegistrations.length}
+            </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-label">Total Bookings</div>
-            <div className="stat-value" data-testid="total-bookings">{bookings.length}</div>
+          <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', border: '2px solid #e8eeff' }}>
+            <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '0.5rem' }}>My Teams</div>
+            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1e293b' }}>
+              {myTeams.length}
+            </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-label">Completed Payments</div>
-            <div className="stat-value" data-testid="completed-payments">
-              {registrations.filter(r => r.payment_status === 'completed').length + 
-               bookings.filter(b => b.payment_status === 'completed').length}
+          <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', border: '2px solid #e8eeff' }}>
+            <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '0.5rem' }}>Upcoming Events</div>
+            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1e293b' }}>
+              {upcomingEvents.length}
+            </div>
+          </div>
+          <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', border: '2px solid #e8eeff' }}>
+            <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '0.5rem' }}>Facility Bookings</div>
+            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1e293b' }}>
+              {bookings.length}
             </div>
           </div>
         </div>
 
+        {/* Main Content Tabs */}
         <Tabs defaultValue="registrations" className="w-full">
-          <TabsList>
-            <TabsTrigger value="registrations" data-testid="registrations-tab">Event Registrations</TabsTrigger>
-            <TabsTrigger value="bookings" data-testid="bookings-tab">Facility Bookings</TabsTrigger>
+          <TabsList style={{ marginBottom: '2rem', display: 'flex', flexWrap: 'wrap' }}>
+            <TabsTrigger value="registrations">My Registrations</TabsTrigger>
+            <TabsTrigger value="teams">My Teams</TabsTrigger>
+            <TabsTrigger value="schedule">Upcoming Schedule</TabsTrigger>
+            <TabsTrigger value="bookings">Facility Bookings</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="registrations" data-testid="registrations-content">
-            <div className="card-grid">
-              {registrations.length === 0 ? (
-                <p style={{ color: '#64748b', textAlign: 'center', padding: '2rem' }} data-testid="no-registrations-message">
-                  No event registrations yet. <Link to="/events" style={{ color: '#3b82f6' }}>Browse events</Link>
-                </p>
+
+          {/* Registrations Tab */}
+          <TabsContent value="registrations">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {youthRegistrations.length === 0 && adultRegistrations.length === 0 ? (
+                <Card>
+                  <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
+                    <p style={{ fontSize: '1.1rem', color: '#64748b', marginBottom: '1.5rem' }}>
+                      No program registrations yet
+                    </p>
+                    <Link to="/program-registration">
+                      <Button>Register for a Program</Button>
+                    </Link>
+                  </CardContent>
+                </Card>
               ) : (
-                registrations.map((reg) => {
-                  const event = events[reg.event_id];
-                  if (!event) return null;
-                  return (
-                    <Card key={reg.id} data-testid={`registration-card-${reg.id}`}>
+                <>
+                  {youthRegistrations.map((reg) => (
+                    <Card key={reg.id} style={{ border: '2px solid #e8eeff' }}>
                       <CardHeader>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                          <div>
+                            <CardTitle>Youth Registration - {reg.athlete_first_name} {reg.athlete_last_name}</CardTitle>
+                            <CardDescription>Registration ID: {reg.id}</CardDescription>
+                          </div>
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '0.5rem',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '20px',
+                            ...getStatusColor(reg.status)
+                          }}>
+                            {getStatusIcon(reg.status)}
+                            <span style={{ fontWeight: '600', textTransform: 'capitalize' }}>{reg.status}</span>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Age Group</div>
+                            <div style={{ fontWeight: '600' }}>{reg.athlete_grade}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Skill Level</div>
+                            <div style={{ fontWeight: '600', textTransform: 'capitalize' }}>{reg.skill_level}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Position</div>
+                            <div style={{ fontWeight: '600' }}>{reg.position || 'Not specified'}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Registered On</div>
+                            <div style={{ fontWeight: '600' }}>{new Date(reg.created_at).toLocaleDateString()}</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  {adultRegistrations.map((reg) => (
+                    <Card key={reg.id} style={{ border: '2px solid #e8eeff' }}>
+                      <CardHeader>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                          <div>
+                            <CardTitle>Adult Registration - {reg.participant_name}</CardTitle>
+                            <CardDescription>Registration ID: {reg.id}</CardDescription>
+                          </div>
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '0.5rem',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '20px',
+                            ...getStatusColor(reg.status)
+                          }}>
+                            {getStatusIcon(reg.status)}
+                            <span style={{ fontWeight: '600', textTransform: 'capitalize' }}>{reg.status}</span>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Skill Level</div>
+                            <div style={{ fontWeight: '600', textTransform: 'capitalize' }}>{reg.skill_level}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Position</div>
+                            <div style={{ fontWeight: '600' }}>{reg.position || 'Not specified'}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Email</div>
+                            <div style={{ fontWeight: '600' }}>{reg.participant_email}</div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Registered On</div>
+                            <div style={{ fontWeight: '600' }}>{new Date(reg.created_at).toLocaleDateString()}</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Teams Tab */}
+          <TabsContent value="teams">
+            {myTeams.length === 0 ? (
+              <Card>
+                <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
+                  <Users size={48} style={{ color: '#94a3b8', margin: '0 auto 1rem' }} />
+                  <p style={{ fontSize: '1.1rem', color: '#64748b' }}>
+                    You haven't been assigned to a team yet
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
+                {myTeams.map((team) => (
+                  <Card key={team.id} style={{ border: '2px solid #e8eeff' }}>
+                    <CardHeader>
+                      <CardTitle style={{ fontSize: '1.5rem' }}>{team.name}</CardTitle>
+                      <CardDescription>{team.division} • {team.season}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <div>
+                          <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Coach</div>
+                          <div style={{ fontWeight: '600' }}>{team.coach_name}</div>
+                        </div>
+                        {team.practice_schedule && (
+                          <div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Practice Schedule</div>
+                            <div style={{ fontWeight: '600' }}>{team.practice_schedule}</div>
+                          </div>
+                        )}
+                        {team.home_venue && (
+                          <div>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Home Venue</div>
+                            <div style={{ fontWeight: '600' }}>{team.home_venue}</div>
+                          </div>
+                        )}
+                        <div>
+                          <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Roster Size</div>
+                          <div style={{ fontWeight: '600' }}>{team.players?.length || 0} / {team.max_roster_size}</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Schedule Tab */}
+          <TabsContent value="schedule">
+            {upcomingEvents.length === 0 ? (
+              <Card>
+                <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
+                  <Calendar size={48} style={{ color: '#94a3b8', margin: '0 auto 1rem' }} />
+                  <p style={{ fontSize: '1.1rem', color: '#64748b' }}>
+                    No upcoming events scheduled
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {upcomingEvents.map((event) => (
+                  <Card key={event.id} style={{ border: '2px solid #e8eeff' }}>
+                    <CardContent style={{ padding: '1.5rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                            {event.title}
+                          </h3>
+                          {event.description && (
+                            <p style={{ color: '#64748b', marginBottom: '0.5rem' }}>{event.description}</p>
+                          )}
+                          <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.9rem', color: '#64748b' }}>
+                            <span>📅 {event.date}</span>
+                            {event.time && <span>🕐 {event.time}</span>}
+                            {event.location && <span>📍 {event.location}</span>}
+                          </div>
+                        </div>
+                        <div style={{
+                          padding: '0.5rem 1rem',
+                          background: '#dcfce7',
+                          color: '#166534',
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          textTransform: 'uppercase'
+                        }}>
+                          {event.type}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Bookings Tab - Keep existing */}
+          <TabsContent value="bookings">
+            {bookings.length === 0 ? (
+              <Card>
+                <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
+                  <p style={{ fontSize: '1.1rem', color: '#64748b', marginBottom: '1.5rem' }}>
+                    No facility bookings yet
+                  </p>
+                  <Link to="/facilities">
+                    <Button>Book a Facility</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {bookings.map((booking) => (
+                  <Card key={booking.id}>
+                    <CardContent style={{ padding: '1.5rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <div>
+                          <h3 style={{ fontWeight: '600', marginBottom: '0.5rem' }}>Booking ID: {booking.id}</h3>
+                          <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.9rem', color: '#64748b' }}>
+                            <span>📅 {booking.date}</span>
+                            <span>🕐 {booking.start_time} - {booking.end_time}</span>
+                            <span>💵 ${booking.amount}</span>
+                          </div>
+                        </div>
+                        <div style={{
+                          padding: '0.5rem 1rem',
+                          ...getStatusColor(booking.payment_status)
+                        }}>
+                          {booking.payment_status}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
                         <CardTitle data-testid={`registration-event-title-${reg.id}`}>{event.title}</CardTitle>
                         <CardDescription>
                           <span 
