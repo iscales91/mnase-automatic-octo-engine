@@ -1503,6 +1503,190 @@ async def update_enhanced_registration_status(registration_id: str, status: str,
         raise HTTPException(status_code=404, detail="Registration not found")
     return {"message": "Status updated successfully"}
 
+# Youth Registration Payment Endpoints
+@api_router.post("/enhanced-registrations/{registration_id}/checkout")
+async def create_youth_registration_checkout(registration_id: str, checkout_req: CheckoutRequest, user: User = Depends(get_current_user)):
+    """Create Stripe checkout session for approved youth registration"""
+    registration = await db.enhanced_registrations.find_one({"id": registration_id}, {"_id": 0})
+    if not registration:
+        raise HTTPException(status_code=404, detail="Registration not found")
+    
+    if registration['user_id'] != user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    if registration['status'] != 'approved':
+        raise HTTPException(status_code=400, detail="Registration must be approved before payment")
+    
+    if registration.get('payment_status') == 'paid':
+        raise HTTPException(status_code=400, detail="Registration already paid")
+    
+    # Create Stripe checkout
+    webhook_url = f"{checkout_req.origin_url}/api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    
+    success_url = f"{checkout_req.origin_url}/registration-success?session_id={{{{CHECKOUT_SESSION_ID}}}}"
+    cancel_url = f"{checkout_req.origin_url}/member-dashboard"
+    
+    checkout_request = CheckoutSessionRequest(
+        amount=float(registration.get('registration_fee', 150.0)),
+        currency="usd",
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={
+            "type": "youth_registration_payment",
+            "registration_id": registration_id,
+            "user_id": user.id,
+            "athlete_name": f"{registration['athlete_first_name']} {registration['athlete_last_name']}"
+        }
+    )
+    
+    session = await stripe_checkout.create_checkout_session(checkout_request)
+    
+    # Update registration with session ID
+    await db.enhanced_registrations.update_one(
+        {"id": registration_id},
+        {"$set": {
+            "checkout_session_id": session.session_id,
+            "payment_status": "pending_payment"
+        }}
+    )
+    
+    # Save payment transaction
+    payment_txn = PaymentTransaction(
+        session_id=session.session_id,
+        user_id=user.id,
+        amount=float(registration.get('registration_fee', 150.0)),
+        currency="usd",
+        payment_status="pending",
+        metadata=checkout_request.metadata
+    )
+    txn_doc = payment_txn.model_dump()
+    txn_doc['created_at'] = txn_doc['created_at'].isoformat()
+    txn_doc['updated_at'] = txn_doc['updated_at'].isoformat()
+    await db.payment_transactions.insert_one(txn_doc)
+    
+    return {"checkout_url": session.url, "session_id": session.session_id}
+
+@api_router.get("/enhanced-registrations/payment-status/{session_id}")
+async def get_youth_registration_payment_status(session_id: str, user: User = Depends(get_current_user)):
+    """Check payment status for youth registration"""
+    webhook_url = "http://localhost:8001/api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    
+    status = await stripe_checkout.get_checkout_status(session_id)
+    
+    # Update payment transaction
+    existing_txn = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
+    if existing_txn and existing_txn.get('payment_status') != 'completed':
+        await db.payment_transactions.update_one(
+            {"session_id": session_id},
+            {"$set": {
+                "payment_status": status.payment_status,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        # Update registration payment status
+        if status.payment_status == "paid":
+            await db.enhanced_registrations.update_one(
+                {"checkout_session_id": session_id},
+                {"$set": {"payment_status": "paid"}}
+            )
+    
+    return status
+
+# Adult Registration Payment Endpoints
+@api_router.post("/adult-registrations/{registration_id}/checkout")
+async def create_adult_registration_checkout(registration_id: str, checkout_req: CheckoutRequest, user: User = Depends(get_current_user)):
+    """Create Stripe checkout session for approved adult registration"""
+    registration = await db.adult_registrations.find_one({"id": registration_id}, {"_id": 0})
+    if not registration:
+        raise HTTPException(status_code=404, detail="Registration not found")
+    
+    if registration['user_id'] != user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    if registration['status'] != 'approved':
+        raise HTTPException(status_code=400, detail="Registration must be approved before payment")
+    
+    if registration.get('payment_status') == 'paid':
+        raise HTTPException(status_code=400, detail="Registration already paid")
+    
+    # Create Stripe checkout
+    webhook_url = f"{checkout_req.origin_url}/api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    
+    success_url = f"{checkout_req.origin_url}/registration-success?session_id={{{{CHECKOUT_SESSION_ID}}}}"
+    cancel_url = f"{checkout_req.origin_url}/member-dashboard"
+    
+    checkout_request = CheckoutSessionRequest(
+        amount=float(registration.get('registration_fee', 200.0)),
+        currency="usd",
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={
+            "type": "adult_registration_payment",
+            "registration_id": registration_id,
+            "user_id": user.id,
+            "participant_name": registration['participant_name']
+        }
+    )
+    
+    session = await stripe_checkout.create_checkout_session(checkout_request)
+    
+    # Update registration with session ID
+    await db.adult_registrations.update_one(
+        {"id": registration_id},
+        {"$set": {
+            "checkout_session_id": session.session_id,
+            "payment_status": "pending_payment"
+        }}
+    )
+    
+    # Save payment transaction
+    payment_txn = PaymentTransaction(
+        session_id=session.session_id,
+        user_id=user.id,
+        amount=float(registration.get('registration_fee', 200.0)),
+        currency="usd",
+        payment_status="pending",
+        metadata=checkout_request.metadata
+    )
+    txn_doc = payment_txn.model_dump()
+    txn_doc['created_at'] = txn_doc['created_at'].isoformat()
+    txn_doc['updated_at'] = txn_doc['updated_at'].isoformat()
+    await db.payment_transactions.insert_one(txn_doc)
+    
+    return {"checkout_url": session.url, "session_id": session.session_id}
+
+@api_router.get("/adult-registrations/payment-status/{session_id}")
+async def get_adult_registration_payment_status(session_id: str, user: User = Depends(get_current_user)):
+    """Check payment status for adult registration"""
+    webhook_url = "http://localhost:8001/api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    
+    status = await stripe_checkout.get_checkout_status(session_id)
+    
+    # Update payment transaction
+    existing_txn = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
+    if existing_txn and existing_txn.get('payment_status') != 'completed':
+        await db.payment_transactions.update_one(
+            {"session_id": session_id},
+            {"$set": {
+                "payment_status": status.payment_status,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        # Update registration payment status
+        if status.payment_status == "paid":
+            await db.adult_registrations.update_one(
+                {"checkout_session_id": session_id},
+                {"$set": {"payment_status": "paid"}}
+            )
+    
+    return status
+
         }}
     )
     
