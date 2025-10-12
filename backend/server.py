@@ -1174,6 +1174,39 @@ async def mark_payment_plan_transaction_paid(transaction_id: str, admin: User = 
         {"$set": {
             "status": "paid",
             "paid_at": datetime.now(timezone.utc).isoformat()
+
+
+# Enhanced Registration Endpoints
+@api_router.post("/enhanced-registrations", response_model=EnhancedRegistration)
+async def create_enhanced_registration(registration_data: EnhancedRegistrationCreate, current_user: User = Depends(get_current_user)):
+    """Create a new enhanced registration"""
+    registration = EnhancedRegistration(**registration_data.dict(), user_id=current_user.id)
+    await db.enhanced_registrations.insert_one(registration.dict())
+    return registration
+
+@api_router.get("/enhanced-registrations", response_model=List[EnhancedRegistration])
+async def get_user_enhanced_registrations(current_user: User = Depends(get_current_user)):
+    """Get user's enhanced registrations"""
+    registrations = await db.enhanced_registrations.find({"user_id": current_user.id}, {"_id": 0}).to_list(length=None)
+    return [EnhancedRegistration(**reg) for reg in registrations]
+
+@api_router.get("/admin/enhanced-registrations", response_model=List[EnhancedRegistration])
+async def get_all_enhanced_registrations(admin: User = Depends(get_admin_user)):
+    """Get all enhanced registrations (admin only)"""
+    registrations = await db.enhanced_registrations.find({}, {"_id": 0}).to_list(length=None)
+    return [EnhancedRegistration(**reg) for reg in registrations]
+
+@api_router.put("/admin/enhanced-registrations/{registration_id}/status")
+async def update_enhanced_registration_status(registration_id: str, status: str, admin: User = Depends(get_admin_user)):
+    """Update enhanced registration status (admin only)"""
+    result = await db.enhanced_registrations.update_one(
+        {"id": registration_id},
+        {"$set": {"status": status}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Registration not found")
+    return {"message": "Status updated successfully"}
+
         }}
     )
     
