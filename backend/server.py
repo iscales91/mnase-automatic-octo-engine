@@ -354,6 +354,117 @@ class SponsorshipInquiryCreate(BaseModel):
     interest: str
     message: Optional[str] = None
 
+
+
+# Enhanced Registration
+class EnhancedRegistration(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    event_id: Optional[str] = None
+    program_id: Optional[str] = None
+    
+    # Athlete Info
+    athlete_first_name: str
+    athlete_last_name: str
+    athlete_date_of_birth: str
+    athlete_gender: str
+    athlete_grade: str
+    athlete_school: str
+    athlete_email: Optional[str] = None
+    athlete_phone: Optional[str] = None
+    
+    # Parent Info
+    parent_first_name: str
+    parent_last_name: str
+    parent_email: str
+    parent_phone: str
+    parent_address: str
+    parent_city: str
+    parent_state: str
+    parent_zip: Optional[str] = None
+    
+    # Emergency Contact
+    emergency_name: str
+    emergency_relationship: str
+    emergency_phone: str
+    
+    # Medical
+    medical_conditions: Optional[str] = None
+    allergies: Optional[str] = None
+    medications: Optional[str] = None
+    insurance_provider: str
+    insurance_policy_number: str
+    physician_name: Optional[str] = None
+    physician_phone: Optional[str] = None
+    
+    # Uniform
+    shirt_size: str
+    shorts_size: str
+    shoe_size: Optional[str] = None
+    
+    # Experience
+    years_playing: str
+    previous_teams: Optional[str] = None
+    position: Optional[str] = None
+    skill_level: str
+    
+    # Consents
+    media_consent: bool = False
+    liability_waiver: bool
+    code_of_conduct: bool
+    medical_treatment: bool
+    
+    # Additional
+    special_requests: Optional[str] = None
+    how_heard_about: Optional[str] = None
+    
+    status: str = "pending"  # pending, approved, rejected
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class EnhancedRegistrationCreate(BaseModel):
+    event_id: Optional[str] = None
+    program_id: Optional[str] = None
+    athlete_first_name: str
+    athlete_last_name: str
+    athlete_date_of_birth: str
+    athlete_gender: str
+    athlete_grade: str
+    athlete_school: str
+    athlete_email: Optional[str] = None
+    athlete_phone: Optional[str] = None
+    parent_first_name: str
+    parent_last_name: str
+    parent_email: str
+    parent_phone: str
+    parent_address: str
+    parent_city: str
+    parent_state: str
+    parent_zip: Optional[str] = None
+    emergency_name: str
+    emergency_relationship: str
+    emergency_phone: str
+    medical_conditions: Optional[str] = None
+    allergies: Optional[str] = None
+    medications: Optional[str] = None
+    insurance_provider: str
+    insurance_policy_number: str
+    physician_name: Optional[str] = None
+    physician_phone: Optional[str] = None
+    shirt_size: str
+    shorts_size: str
+    shoe_size: Optional[str] = None
+    years_playing: str
+    previous_teams: Optional[str] = None
+    position: Optional[str] = None
+    skill_level: str
+    media_consent: bool = False
+    liability_waiver: bool
+    code_of_conduct: bool
+    medical_treatment: bool
+    special_requests: Optional[str] = None
+    how_heard_about: Optional[str] = None
+
     type: str = "event"
 
 
