@@ -16,6 +16,7 @@ import PaymentPlans from '@/components/admin/PaymentPlans';
 import CalendarManagement from '@/components/admin/CalendarManagement';
 import FormSubmissions from '@/components/admin/FormSubmissions';
 import TeamsManagement from '@/components/admin/TeamsManagement';
+import RegistrationsManagement from '@/components/admin/RegistrationsManagement';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
