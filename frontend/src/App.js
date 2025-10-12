@@ -64,6 +64,7 @@ function App() {
           <Route path="/sponsorship" element={<Sponsorship />} />
           <Route path="/scores" element={<Scores />} />
           <Route path="/foundation" element={<Foundation />} />
+          <Route path="/register" element={<EnhancedRegistration />} />
           <Route path="/dashboard" element={
             token && user ? (
               user.role === 'admin' ? <AdminDashboard /> : <MemberDashboard />
