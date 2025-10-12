@@ -272,6 +272,27 @@ class PaymentPlanTransaction(BaseModel):
     transaction_id: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+# Calendar Events
+class CalendarEvent(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: Optional[str] = None
+    date: str  # YYYY-MM-DD format
+    time: Optional[str] = None  # HH:MM format
+    location: Optional[str] = None
+    type: str  # program, tournament, camp, clinic, workshop, event, other
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class CalendarEventCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    date: str
+    time: Optional[str] = None
+    location: Optional[str] = None
+    type: str = "event"
+
+
 # Helper functions
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
