@@ -256,6 +256,16 @@ function AdminDashboard() {
             <PaymentPlans token={token} />
           </TabsContent>
 
+
+          <TabsContent value="calendar" data-testid="calendar-content">
+            <CalendarManagement />
+          </TabsContent>
+
+          <TabsContent value="forms" data-testid="forms-content">
+            <FormSubmissions />
+          </TabsContent>
+
+
           <TabsContent value="events" data-testid="events-content">
             <div style={{ marginBottom: '2rem' }}>
               <Dialog open={showEventDialog} onOpenChange={setShowEventDialog}>
