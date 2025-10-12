@@ -517,10 +517,25 @@ async def register(user_data: UserCreate):
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     
+    # Verify user is 18+ years old
+    from datetime import date
+    dob = datetime.strptime(user_data.date_of_birth, "%Y-%m-%d").date()
+    today = date.today()
+    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    
+    if age < 18:
+        raise HTTPException(
+            status_code=400, 
+            detail="You must be 18 years or older to create an account. Youth registrations must be completed by a parent or guardian."
+        )
+    
     user = User(
         email=user_data.email,
         name=user_data.name,
-        role="member"
+        role="member",
+        date_of_birth=user_data.date_of_birth,
+        phone=user_data.phone,
+        is_parent=True  # All adult accounts can manage youth
     )
     
     doc = user.model_dump()
