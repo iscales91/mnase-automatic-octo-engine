@@ -430,43 +430,7 @@ function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="registrations" data-testid="registrations-content">
-            <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1.5rem' }}>All Event Registrations</h3>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                      <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600' }}>Registration ID</th>
-                      <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600' }}>Event ID</th>
-                      <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600' }}>User ID</th>
-                      <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: '600' }}>Payment Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {registrations.map((reg) => (
-                      <tr key={reg.id} style={{ borderBottom: '1px solid #f3f4f6' }} data-testid={`registration-row-${reg.id}`}>
-                        <td style={{ padding: '0.75rem' }} data-testid={`reg-id-${reg.id}`}>{reg.id.substring(0, 8)}...</td>
-                        <td style={{ padding: '0.75rem' }} data-testid={`reg-event-id-${reg.id}`}>{reg.event_id.substring(0, 8)}...</td>
-                        <td style={{ padding: '0.75rem' }} data-testid={`reg-user-id-${reg.id}`}>{reg.user_id.substring(0, 8)}...</td>
-                        <td style={{ padding: '0.75rem' }}>
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '0.25rem 0.75rem',
-                            borderRadius: '20px',
-                            fontSize: '0.85rem',
-                            fontWeight: '600',
-                            background: reg.payment_status === 'completed' ? '#dcfce7' : '#fef3c7',
-                            color: reg.payment_status === 'completed' ? '#166534' : '#92400e'
-                          }} data-testid={`reg-status-${reg.id}`}>
-                            {reg.payment_status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <RegistrationsManagement />
           </TabsContent>
 
           <TabsContent value="bookings" data-testid="bookings-content">
