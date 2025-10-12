@@ -110,6 +110,9 @@ function Home() {
               </div>
             </div>
             <Link to="/facilities" className="navbar-link" data-testid="nav-facilities-link">Facilities</Link>
+            <Link to="/about" className="navbar-link" data-testid="nav-about-link">About</Link>
+            <Link to="/faq" className="navbar-link" data-testid="nav-faq-link">FAQ</Link>
+            <Link to="/shop" className="navbar-link" data-testid="nav-shop-link">Shop</Link>
             {token ? (
               <>
                 <Link to="/dashboard" className="navbar-link" data-testid="nav-dashboard-link">Dashboard</Link>
