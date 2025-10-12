@@ -633,6 +633,34 @@ async def get_booking_status(session_id: str, user: User = Depends(get_current_u
     
     return status
 
+# User Management (Admin)
+@api_router.get("/admin/users", response_model=List[User])
+async def get_all_users(admin: User = Depends(get_admin_user)):
+    users = await db.users.find({}, {"_id": 0, "password": 0}).to_list(1000)
+    for user in users:
+        if isinstance(user['created_at'], str):
+            user['created_at'] = datetime.fromisoformat(user['created_at'])
+    return users
+
+@api_router.get("/admin/users/{user_id}", response_model=User)
+async def get_user_by_id(user_id: str, admin: User = Depends(get_admin_user)):
+    user = await db.users.find_one({"id": user_id}, {"_id": 0, "password": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if isinstance(user['created_at'], str):
+        user['created_at'] = datetime.fromisoformat(user['created_at'])
+    return User(**user)
+
+@api_router.put("/admin/users/{user_id}/role")
+async def update_user_role(user_id: str, role: str, admin: User = Depends(get_admin_user)):
+    if role not in ["admin", "member"]:
+        raise HTTPException(status_code=400, detail="Invalid role")
+    
+    result = await db.users.update_one({"id": user_id}, {"$set": {"role": role}})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": f"User role updated to {role}"}
+
 # Program endpoints
 @api_router.get("/programs", response_model=List[Program])
 async def get_programs():
