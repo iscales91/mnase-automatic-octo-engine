@@ -1306,8 +1306,10 @@ async def get_my_payment_plans(user: User = Depends(get_current_user)):
 @api_router.post("/adult-registrations", response_model=AdultRegistration)
 async def create_adult_registration(registration_data: AdultRegistrationCreate, current_user: User = Depends(get_current_user)):
     """Create a new adult registration (18+ programs)"""
-    registration = AdultRegistration(**registration_data.dict(), user_id=current_user.id)
-    await db.adult_registrations.insert_one(registration.dict())
+    registration = AdultRegistration(**registration_data.model_dump(), user_id=current_user.id)
+    doc = registration.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.adult_registrations.insert_one(doc)
     
 
 
