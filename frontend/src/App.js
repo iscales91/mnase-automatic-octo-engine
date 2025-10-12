@@ -23,6 +23,8 @@ import Policies from '@/pages/Policies';
 import GetInvolved from '@/pages/GetInvolved';
 import Recruitment from '@/pages/Recruitment';
 import Sponsorship from '@/pages/Sponsorship';
+import Scores from '@/pages/Scores';
+import Foundation from '@/pages/Foundation';
 import MemberDashboard from '@/pages/MemberDashboard';
 import AdminDashboard from '@/pages/AdminDashboard';
 import RegistrationSuccess from '@/pages/RegistrationSuccess';
