@@ -1097,6 +1097,83 @@ async def stripe_webhook(request: Request):
     webhook_url = "http://localhost:8001/api/webhook/stripe"
     stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
     
+
+
+# Contact Form Endpoint
+@api_router.post("/contact", response_model=ContactSubmission)
+async def submit_contact_form(submission_data: ContactSubmissionCreate):
+    """Submit a contact form"""
+    submission = ContactSubmission(**submission_data.dict())
+    await db.contact_submissions.insert_one(submission.dict())
+    return submission
+
+@api_router.get("/admin/contact-submissions", response_model=List[ContactSubmission])
+async def get_contact_submissions(admin: User = Depends(get_admin_user)):
+    """Get all contact form submissions (admin only)"""
+    submissions = await db.contact_submissions.find({}, {"_id": 0}).to_list(length=None)
+    return [ContactSubmission(**sub) for sub in submissions]
+
+@api_router.put("/admin/contact-submissions/{submission_id}/status")
+async def update_contact_submission_status(submission_id: str, status: str, admin: User = Depends(get_admin_user)):
+    """Update contact submission status (admin only)"""
+    result = await db.contact_submissions.update_one(
+        {"id": submission_id},
+        {"$set": {"status": status}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    return {"message": "Status updated successfully"}
+
+# Volunteer Application Endpoints
+@api_router.post("/volunteer", response_model=VolunteerApplication)
+async def submit_volunteer_application(application_data: VolunteerApplicationCreate):
+    """Submit a volunteer application"""
+    application = VolunteerApplication(**application_data.dict())
+    await db.volunteer_applications.insert_one(application.dict())
+    return application
+
+@api_router.get("/admin/volunteer-applications", response_model=List[VolunteerApplication])
+async def get_volunteer_applications(admin: User = Depends(get_admin_user)):
+    """Get all volunteer applications (admin only)"""
+    applications = await db.volunteer_applications.find({}, {"_id": 0}).to_list(length=None)
+    return [VolunteerApplication(**app) for app in applications]
+
+@api_router.put("/admin/volunteer-applications/{application_id}/status")
+async def update_volunteer_application_status(application_id: str, status: str, admin: User = Depends(get_admin_user)):
+    """Update volunteer application status (admin only)"""
+    result = await db.volunteer_applications.update_one(
+        {"id": application_id},
+        {"$set": {"status": status}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Application not found")
+    return {"message": "Status updated successfully"}
+
+# Sponsorship Inquiry Endpoints
+@api_router.post("/sponsorship", response_model=SponsorshipInquiry)
+async def submit_sponsorship_inquiry(inquiry_data: SponsorshipInquiryCreate):
+    """Submit a sponsorship inquiry"""
+    inquiry = SponsorshipInquiry(**inquiry_data.dict())
+    await db.sponsorship_inquiries.insert_one(inquiry.dict())
+    return inquiry
+
+@api_router.get("/admin/sponsorship-inquiries", response_model=List[SponsorshipInquiry])
+async def get_sponsorship_inquiries(admin: User = Depends(get_admin_user)):
+    """Get all sponsorship inquiries (admin only)"""
+    inquiries = await db.sponsorship_inquiries.find({}, {"_id": 0}).to_list(length=None)
+    return [SponsorshipInquiry(**inq) for inq in inquiries]
+
+@api_router.put("/admin/sponsorship-inquiries/{inquiry_id}/status")
+async def update_sponsorship_inquiry_status(inquiry_id: str, status: str, admin: User = Depends(get_admin_user)):
+    """Update sponsorship inquiry status (admin only)"""
+    result = await db.sponsorship_inquiries.update_one(
+        {"id": inquiry_id},
+        {"$set": {"status": status}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Inquiry not found")
+    return {"message": "Status updated successfully"}
+
     try:
         event = await stripe_checkout.handle_webhook(body, signature)
         
