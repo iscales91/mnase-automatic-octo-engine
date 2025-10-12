@@ -41,6 +41,44 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
 }
 
+/* Dropdown Menu */
+.navbar-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.navbar-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 200px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  z-index: 1000;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.navbar-dropdown-content a {
+  color: #374151;
+  padding: 0.75rem 1.25rem;
+  text-decoration: none;
+  display: block;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.navbar-dropdown-content a:hover {
+  background-color: #f3f4f6;
+  color: #1e40af;
+}
+
+.navbar-dropdown:hover .navbar-dropdown-content {
+  display: block;
+}
+
 .navbar-brand {
   font-size: 1.5rem;
   font-weight: 700;
