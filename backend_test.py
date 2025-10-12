@@ -460,9 +460,8 @@ class MNASEBasketballAPITester:
         success, response = self.run_test(
             "Approve Adult Registration (Admin)",
             "PUT",
-            f"admin/adult-registrations/{self.adult_registration_id}/status",
+            f"admin/adult-registrations/{self.adult_registration_id}/status?status=approved",
             200,
-            data="approved",
             use_admin=True
         )
         return success
