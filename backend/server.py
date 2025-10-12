@@ -1442,7 +1442,11 @@ async def mark_payment_plan_transaction_paid(transaction_id: str, admin: User = 
         {"$set": {
             "status": "paid",
             "paid_at": datetime.now(timezone.utc).isoformat()
-
+        }}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    return {"message": "Transaction marked as paid"}
 
 # Enhanced Registration Endpoints
 @api_router.post("/enhanced-registrations", response_model=EnhancedRegistration)
