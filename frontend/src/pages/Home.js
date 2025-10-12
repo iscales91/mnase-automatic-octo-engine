@@ -83,8 +83,9 @@ function Home() {
             Join Minnesota's premier basketball community. Register for events, book facilities, and connect with fellow players.
           </p>
           <div className="hero-buttons">
-            <Link to="/events" className="hero-btn hero-btn-primary" data-testid="hero-events-btn">View Events</Link>
-            <Link to="/facilities" className="hero-btn hero-btn-secondary" data-testid="hero-facilities-btn">Browse Facilities</Link>
+            <Link to="/programs" className="hero-btn hero-btn-primary" data-testid="hero-programs-btn">Explore Programs</Link>
+            <Link to="/memberships" className="hero-btn hero-btn-secondary" data-testid="hero-memberships-btn">View Memberships</Link>
+            <Link to="/events" className="hero-btn hero-btn-secondary" data-testid="hero-events-btn">Upcoming Events</Link>
           </div>
         </div>
       </section>
