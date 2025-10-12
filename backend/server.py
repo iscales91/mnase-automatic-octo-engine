@@ -1202,8 +1202,36 @@ async def mark_payment_plan_transaction_paid(transaction_id: str, admin: User = 
 @api_router.post("/enhanced-registrations", response_model=EnhancedRegistration)
 async def create_enhanced_registration(registration_data: EnhancedRegistrationCreate, current_user: User = Depends(get_current_user)):
     """Create a new enhanced registration"""
+    # Verify athlete is 17 or younger (youth requirement)
+    from datetime import date
+    athlete_dob = datetime.strptime(registration_data.athlete_date_of_birth, "%Y-%m-%d").date()
+    today = date.today()
+    athlete_age = today.year - athlete_dob.year - ((today.month, today.day) < (athlete_dob.month, athlete_dob.day))
+    
+    if athlete_age > 17:
+        raise HTTPException(
+            status_code=400,
+            detail="Enhanced registration is for youth athletes (17 and under). Athletes 18+ should create their own accounts."
+        )
+    
     registration = EnhancedRegistration(**registration_data.dict(), user_id=current_user.id)
     await db.enhanced_registrations.insert_one(registration.dict())
+    
+    # Send confirmation email
+    athlete_full_name = f"{registration_data.athlete_first_name} {registration_data.athlete_last_name}"
+    parent_full_name = f"{registration_data.parent_first_name} {registration_data.parent_last_name}"
+    
+    try:
+        email_service.send_registration_confirmation(
+            to_email=registration_data.parent_email,
+            athlete_name=athlete_full_name,
+            parent_name=parent_full_name,
+            registration_id=registration.id
+        )
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        # Continue even if email fails
+    
     return registration
 
 @api_router.get("/enhanced-registrations", response_model=List[EnhancedRegistration])
