@@ -38,6 +38,10 @@ function App() {
           <Route path="/clinics" element={<Clinics />} />
           <Route path="/workshops" element={<Workshops />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/shoot-n-hoops" element={<ShootNHoops />} />
+          <Route path="/summer-sizzle" element={<SummerSizzle />} />
+          <Route path="/winter-wars" element={<WinterWars />} />
+          <Route path="/media-gallery" element={<MediaGallery />} />
           <Route path="/facilities" element={<Facilities />} />
           <Route path="/dashboard" element={
             token && user ? (
