@@ -227,6 +227,9 @@ function AdminDashboard() {
 
         <Tabs defaultValue="events" className="w-full">
           <TabsList>
+            <TabsTrigger value="users" data-testid="users-tab">Users</TabsTrigger>
+            <TabsTrigger value="billing" data-testid="billing-tab">Billing</TabsTrigger>
+            <TabsTrigger value="payment-plans" data-testid="payment-plans-tab">Payment Plans</TabsTrigger>
             <TabsTrigger value="events" data-testid="events-tab">Events</TabsTrigger>
             <TabsTrigger value="facilities" data-testid="facilities-tab">Facilities</TabsTrigger>
             <TabsTrigger value="registrations" data-testid="registrations-tab">Registrations</TabsTrigger>
