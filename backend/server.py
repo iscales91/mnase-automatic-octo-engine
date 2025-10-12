@@ -1739,8 +1739,10 @@ async def update_contact_submission_status(submission_id: str, status: str, admi
 @api_router.post("/volunteer", response_model=VolunteerApplication)
 async def submit_volunteer_application(application_data: VolunteerApplicationCreate):
     """Submit a volunteer application"""
-    application = VolunteerApplication(**application_data.dict())
-    await db.volunteer_applications.insert_one(application.dict())
+    application = VolunteerApplication(**application_data.model_dump())
+    doc = application.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.volunteer_applications.insert_one(doc)
     return application
 
 @api_router.get("/admin/volunteer-applications", response_model=List[VolunteerApplication])
