@@ -190,6 +190,88 @@ class MembershipCreate(BaseModel):
     description: str
     active: bool = True
 
+# User Membership Enrollment
+class UserMembership(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    membership_id: str
+    status: str = "active"  # active, expired, cancelled
+    start_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    end_date: Optional[datetime] = None
+    payment_status: str = "pending"  # pending, paid, failed
+    auto_renew: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UserMembershipCreate(BaseModel):
+    user_id: str
+    membership_id: str
+    auto_renew: bool = False
+
+# Invoices
+class Invoice(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    invoice_number: str
+    items: List[Dict[str, any]]  # [{name, description, amount, quantity}]
+    subtotal: float
+    tax: float = 0.0
+    total: float
+    status: str = "draft"  # draft, sent, paid, overdue, cancelled
+    due_date: Optional[str] = None
+    payment_method: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    sent_at: Optional[datetime] = None
+    paid_at: Optional[datetime] = None
+
+class InvoiceCreate(BaseModel):
+    user_id: str
+    items: List[Dict[str, any]]
+    subtotal: float
+    tax: float = 0.0
+    total: float
+    due_date: Optional[str] = None
+    notes: Optional[str] = None
+
+# Payment Plans
+class PaymentPlan(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    program_id: Optional[str] = None
+    total_amount: float
+    num_installments: int
+    installment_amount: float
+    frequency: str = "monthly"  # weekly, bi-weekly, monthly
+    status: str = "active"  # active, completed, cancelled, defaulted
+    next_payment_date: Optional[str] = None
+    payments_made: int = 0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PaymentPlanCreate(BaseModel):
+    user_id: str
+    program_id: Optional[str] = None
+    total_amount: float
+    num_installments: int
+    frequency: str = "monthly"
+    first_payment_date: str
+
+# Payment Plan Transactions
+class PaymentPlanTransaction(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    payment_plan_id: str
+    installment_number: int
+    amount: float
+    due_date: str
+    status: str = "pending"  # pending, paid, failed, skipped
+    paid_at: Optional[datetime] = None
+    payment_method: Optional[str] = None
+    transaction_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 # Helper functions
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
