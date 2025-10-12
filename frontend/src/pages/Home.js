@@ -857,6 +857,28 @@ function Home() {
                   />
                 </div>
                 <div>
+                  <Label htmlFor="register-dob">Date of Birth (Must be 18+)</Label>
+                  <Input
+                    id="register-dob"
+                    data-testid="register-dob-input"
+                    type="date"
+                    value={registerData.date_of_birth}
+                    onChange={(e) => setRegisterData({...registerData, date_of_birth: e.target.value})}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="register-phone">Phone (Optional)</Label>
+                  <Input
+                    id="register-phone"
+                    data-testid="register-phone-input"
+                    type="tel"
+                    value={registerData.phone}
+                    onChange={(e) => setRegisterData({...registerData, phone: e.target.value})}
+                    placeholder="(123) 456-7890"
+                  />
+                </div>
+                <div>
                   <Label htmlFor="register-password">Password</Label>
                   <Input
                     id="register-password"
@@ -866,6 +888,16 @@ function Home() {
                     onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
                     required
                   />
+                </div>
+                <div style={{ 
+                  padding: '0.75rem', 
+                  background: '#fef2f2', 
+                  borderRadius: '6px', 
+                  border: '1px solid #fee2e2',
+                  fontSize: '0.875rem',
+                  color: '#991b1b'
+                }}>
+                  <strong>Note:</strong> You must be 18+ to create an account. Youth athletes (17 and under) must be registered by a parent or guardian.
                 </div>
                 <Button type="submit" className="w-full" data-testid="register-submit-btn">Create Account</Button>
               </form>
