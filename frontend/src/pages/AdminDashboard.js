@@ -10,6 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Edit, Trash2, Calendar, MapPin, DollarSign } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import UserManagement from '@/components/admin/UserManagement';
+import BillingInvoices from '@/components/admin/BillingInvoices';
+import PaymentPlans from '@/components/admin/PaymentPlans';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
