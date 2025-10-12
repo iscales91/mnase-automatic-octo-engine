@@ -64,14 +64,6 @@ function MemberDashboard() {
         team.players?.some(player => allRegistrationIds.includes(player.registration_id))
       );
       setMyTeams(userTeams);
-      });
-      setEvents(eventsMap);
-      
-      const facMap = {};
-      facRes.data.forEach(fac => {
-        facMap[fac.id] = fac;
-      });
-      setFacilities(facMap);
     } catch (error) {
       toast.error('Failed to load dashboard data');
     } finally {
