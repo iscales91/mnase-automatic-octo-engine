@@ -236,6 +236,18 @@ function AdminDashboard() {
             <TabsTrigger value="bookings" data-testid="bookings-tab">Bookings</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="users" data-testid="users-content">
+            <UserManagement token={token} />
+          </TabsContent>
+
+          <TabsContent value="billing" data-testid="billing-content">
+            <BillingInvoices token={token} />
+          </TabsContent>
+
+          <TabsContent value="payment-plans" data-testid="payment-plans-content">
+            <PaymentPlans token={token} />
+          </TabsContent>
+
           <TabsContent value="events" data-testid="events-content">
             <div style={{ marginBottom: '2rem' }}>
               <Dialog open={showEventDialog} onOpenChange={setShowEventDialog}>
