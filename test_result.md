@@ -123,11 +123,14 @@ backend:
     file: "frontend/src/pages/AdminDashboard.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Successfully integrated RegistrationsManagement component into AdminDashboard registrations tab"
+      - working: true
+        agent: "testing"
+        comment: "Admin registration management endpoints tested successfully. Can retrieve all enhanced and adult registrations, approve registrations via status updates. Integration working properly."
 
   - task: "Add payment fields to EnhancedRegistration and AdultRegistration models"
     implemented: true
