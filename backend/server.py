@@ -512,6 +512,9 @@ class AdultRegistration(BaseModel):
     special_requests: Optional[str] = None
     
     status: str = "pending"
+    payment_status: str = "unpaid"  # unpaid, pending_payment, paid
+    checkout_session_id: Optional[str] = None
+    registration_fee: float = 200.0  # Default adult registration fee
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class AdultRegistrationCreate(BaseModel):
