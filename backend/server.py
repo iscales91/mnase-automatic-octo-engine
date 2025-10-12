@@ -427,6 +427,9 @@ class EnhancedRegistration(BaseModel):
     how_heard_about: Optional[str] = None
     
     status: str = "pending"  # pending, approved, rejected
+    payment_status: str = "unpaid"  # unpaid, pending_payment, paid
+    checkout_session_id: Optional[str] = None
+    registration_fee: float = 150.0  # Default registration fee
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class EnhancedRegistrationCreate(BaseModel):
