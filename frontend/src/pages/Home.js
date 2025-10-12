@@ -100,17 +100,184 @@ function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="hero-section" data-testid="hero-section">
-        <div className="hero-content">
-          <h1 className="hero-title" data-testid="hero-title">Welcome to MNASE Basketball League</h1>
-          <p className="hero-subtitle" data-testid="hero-subtitle">
-            Join Minnesota's premier basketball community. Register for events, book facilities, and connect with fellow players.
-          </p>
-          <div className="hero-buttons">
-            <Link to="/programs" className="hero-btn hero-btn-primary" data-testid="hero-programs-btn">Explore Programs</Link>
-            <Link to="/memberships" className="hero-btn hero-btn-secondary" data-testid="hero-memberships-btn">View Memberships</Link>
-            <Link to="/events" className="hero-btn hero-btn-secondary" data-testid="hero-events-btn">Upcoming Events</Link>
+      {/* Hero Section with Carousel */}
+      <section style={{ padding: '2rem', background: 'linear-gradient(135deg, #f8f9ff 0%, #e8eeff 100%)' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          {/* Image Carousel */}
+          <ImageCarousel images={carouselImages} autoPlay={true} interval={5000} />
+          
+          {/* Hero Content */}
+          <div style={{ textAlign: 'center', padding: '3rem 2rem', marginTop: '2rem' }}>
+            <h1 style={{ 
+              fontSize: '3rem', 
+              fontWeight: '700', 
+              marginBottom: '1rem', 
+              color: '#1e293b',
+              fontFamily: 'Space Grotesk, sans-serif'
+            }} data-testid="hero-title">
+              Unleash The MENACE
+            </h1>
+            <p style={{ 
+              fontSize: '1.5rem', 
+              marginBottom: '2rem', 
+              color: '#64748b',
+              maxWidth: '800px',
+              margin: '0 auto 2rem'
+            }} data-testid="hero-subtitle">
+              Mentorship. Networking. Athletics. Support. Experience.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link to="/programs" style={{ textDecoration: 'none' }}>
+                <button className="hero-btn" style={{
+                  padding: '1rem 2rem',
+                  fontSize: '1.1rem',
+                  borderRadius: '12px',
+                  border: 'none',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                  color: 'white',
+                  boxShadow: '0 8px 24px rgba(220, 38, 38, 0.3)',
+                  transition: 'all 0.3s'
+                }} data-testid="hero-programs-btn">
+                  Explore Programs
+                </button>
+              </Link>
+              <Link to="/memberships" style={{ textDecoration: 'none' }}>
+                <button className="hero-btn" style={{
+                  padding: '1rem 2rem',
+                  fontSize: '1.1rem',
+                  borderRadius: '12px',
+                  border: '2px solid #dc2626',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  background: 'transparent',
+                  color: '#dc2626',
+                  transition: 'all 0.3s'
+                }} data-testid="hero-memberships-btn">
+                  View Memberships
+                </button>
+              </Link>
+              <Link to="/events" style={{ textDecoration: 'none' }}>
+                <button className="hero-btn" style={{
+                  padding: '1rem 2rem',
+                  fontSize: '1.1rem',
+                  borderRadius: '12px',
+                  border: '2px solid #dc2626',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  background: 'transparent',
+                  color: '#dc2626',
+                  transition: 'all 0.3s'
+                }} data-testid="hero-events-btn">
+                  Upcoming Events
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section style={{ padding: '4rem 2rem', background: 'white' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          <h2 style={{ 
+            fontSize: '2.5rem', 
+            fontWeight: '700', 
+            textAlign: 'center', 
+            marginBottom: '3rem',
+            color: '#1e293b'
+          }}>
+            Our Programs
+          </h2>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+            gap: '2rem' 
+          }}>
+            <div style={{ 
+              padding: '2rem', 
+              background: 'linear-gradient(135deg, #fef2f2 0%, #ffffff 100%)',
+              borderRadius: '16px',
+              border: '2px solid #fee2e2',
+              textAlign: 'center'
+            }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#991b1b' }}>
+                Elite Mammoths
+              </h3>
+              <p style={{ color: '#64748b', marginBottom: '1rem' }}>
+                March–June travel program with competitive play and tournament preparation
+              </p>
+              <div style={{ fontSize: '1.8rem', fontWeight: '700', color: '#dc2626', marginBottom: '1rem' }}>
+                $608.59
+              </div>
+              <Link to="/programs">
+                <Button style={{ background: '#dc2626' }}>Learn More</Button>
+              </Link>
+            </div>
+
+            <div style={{ 
+              padding: '2rem', 
+              background: 'linear-gradient(135deg, #fef2f2 0%, #ffffff 100%)',
+              borderRadius: '16px',
+              border: '2px solid #fee2e2',
+              textAlign: 'center'
+            }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#991b1b' }}>
+                Second Chance Shots
+              </h3>
+              <p style={{ color: '#64748b', marginBottom: '1rem' }}>
+                November–March program for athletes seeking development opportunities
+              </p>
+              <div style={{ fontSize: '1.8rem', fontWeight: '700', color: '#dc2626', marginBottom: '1rem' }}>
+                $250.00
+              </div>
+              <Link to="/programs">
+                <Button style={{ background: '#dc2626' }}>Learn More</Button>
+              </Link>
+            </div>
+
+            <div style={{ 
+              padding: '2rem', 
+              background: 'linear-gradient(135deg, #fef2f2 0%, #ffffff 100%)',
+              borderRadius: '16px',
+              border: '2px solid #fee2e2',
+              textAlign: 'center'
+            }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#991b1b' }}>
+                Lockdown 3on3
+              </h3>
+              <p style={{ color: '#64748b', marginBottom: '1rem' }}>
+                July–September fast-paced 3-on-3 basketball league for ages 9-17
+              </p>
+              <div style={{ fontSize: '1.8rem', fontWeight: '700', color: '#dc2626', marginBottom: '1rem' }}>
+                $125.00
+              </div>
+              <Link to="/programs">
+                <Button style={{ background: '#dc2626' }}>Learn More</Button>
+              </Link>
+            </div>
+
+            <div style={{ 
+              padding: '2rem', 
+              background: 'linear-gradient(135deg, #fef2f2 0%, #ffffff 100%)',
+              borderRadius: '16px',
+              border: '2px solid #fee2e2',
+              textAlign: 'center'
+            }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#991b1b' }}>
+                Weekend Draft
+              </h3>
+              <p style={{ color: '#64748b', marginBottom: '1rem' }}>
+                Year-round weekly draft-style games every Saturday
+              </p>
+              <div style={{ fontSize: '1.8rem', fontWeight: '700', color: '#dc2626', marginBottom: '1rem' }}>
+                $25.00
+              </div>
+              <Link to="/programs">
+                <Button style={{ background: '#dc2626' }}>Learn More</Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
