@@ -15,7 +15,13 @@ const API = `${BACKEND_URL}/api`;
 function Home() {
   const [showAuth, setShowAuth] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [registerData, setRegisterData] = useState({ email: '', password: '', name: '' });
+  const [registerData, setRegisterData] = useState({ 
+    email: '', 
+    password: '', 
+    name: '', 
+    date_of_birth: '',
+    phone: ''
+  });
   const token = localStorage.getItem('token');
 
   // Carousel images for MNASE Basketball League
