@@ -85,7 +85,13 @@ function Home() {
           </Link>
           <div className="navbar-links">
             <Link to="/programs" className="navbar-link" data-testid="nav-programs-link">Programs</Link>
-            <Link to="/memberships" className="navbar-link" data-testid="nav-memberships-link">Memberships</Link>
+            <div className="navbar-dropdown">
+              <button className="navbar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'inherit' }}>Memberships ▾</button>
+              <div className="navbar-dropdown-content">
+                <Link to="/memberships/individual" data-testid="nav-individual-memberships-link">Individual/Family</Link>
+                <Link to="/memberships/team" data-testid="nav-team-memberships-link">Team/Group</Link>
+              </div>
+            </div>
             <div className="navbar-dropdown">
               <button className="navbar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'inherit' }}>Mentality Academy ▾</button>
               <div className="navbar-dropdown-content">
