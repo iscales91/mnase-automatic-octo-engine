@@ -1303,6 +1303,97 @@ async def create_adult_registration(registration_data: AdultRegistrationCreate, 
     registration = AdultRegistration(**registration_data.dict(), user_id=current_user.id)
     await db.adult_registrations.insert_one(registration.dict())
     
+
+
+# Teams Endpoints
+@api_router.post("/admin/teams", response_model=Team)
+async def create_team(team_data: TeamCreate, admin: User = Depends(get_admin_user)):
+    """Create a new team (admin only)"""
+    team = Team(**team_data.dict())
+    await db.teams.insert_one(team.dict())
+    return team
+
+@api_router.get("/admin/teams", response_model=List[Team])
+async def get_all_teams(admin: User = Depends(get_admin_user)):
+    """Get all teams (admin only)"""
+    teams = await db.teams.find({}, {"_id": 0}).to_list(length=None)
+    return [Team(**team) for team in teams]
+
+@api_router.put("/admin/teams/{team_id}", response_model=Team)
+async def update_team(team_id: str, team_data: TeamCreate, admin: User = Depends(get_admin_user)):
+    """Update a team (admin only)"""
+    existing = await db.teams.find_one({"id": team_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    await db.teams.update_one(
+        {"id": team_id},
+        {"$set": team_data.dict()}
+    )
+    updated = await db.teams.find_one({"id": team_id}, {"_id": 0})
+    return Team(**updated)
+
+@api_router.delete("/admin/teams/{team_id}")
+async def delete_team(team_id: str, admin: User = Depends(get_admin_user)):
+    """Delete a team (admin only)"""
+    result = await db.teams.delete_one({"id": team_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Team not found")
+    return {"message": "Team deleted successfully"}
+
+@api_router.post("/admin/teams/{team_id}/players")
+async def add_player_to_team(team_id: str, player_data: AddPlayerToTeam, admin: User = Depends(get_admin_user)):
+    """Add player to team (admin only)"""
+    team = await db.teams.find_one({"id": team_id}, {"_id": 0})
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Get registration details
+    registration = await db.enhanced_registrations.find_one({"id": player_data.registration_id}, {"_id": 0})
+    if not registration:
+        registration = await db.adult_registrations.find_one({"id": player_data.registration_id}, {"_id": 0})
+    
+    if not registration:
+        raise HTTPException(status_code=404, detail="Registration not found")
+    
+    # Check if team is full
+    if len(team.get('players', [])) >= team['max_roster_size']:
+        raise HTTPException(status_code=400, detail="Team roster is full")
+    
+    # Create player object
+    player = {
+        "id": str(uuid.uuid4()),
+        "registration_id": player_data.registration_id,
+        "name": f"{registration.get('athlete_first_name', registration.get('participant_name', 'Unknown'))} {registration.get('athlete_last_name', '')}".strip(),
+        "position": registration.get('position', ''),
+        "jersey_number": None
+    }
+    
+    # Add player to team
+    await db.teams.update_one(
+        {"id": team_id},
+        {"$push": {"players": player}}
+    )
+    
+    return {"message": "Player added to team successfully"}
+
+@api_router.delete("/admin/teams/{team_id}/players/{player_id}")
+async def remove_player_from_team(team_id: str, player_id: str, admin: User = Depends(get_admin_user)):
+    """Remove player from team (admin only)"""
+    result = await db.teams.update_one(
+        {"id": team_id},
+        {"$pull": {"players": {"id": player_id}}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Team not found")
+    return {"message": "Player removed from team successfully"}
+
+@api_router.get("/teams", response_model=List[Team])
+async def get_public_teams():
+    """Get all active teams (public)"""
+    teams = await db.teams.find({"status": "active"}, {"_id": 0}).to_list(length=None)
+    return [Team(**team) for team in teams]
+
     # Send confirmation email
     try:
         email_service.send_registration_confirmation(
