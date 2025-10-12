@@ -1338,7 +1338,7 @@ async def update_team(team_id: str, team_data: TeamCreate, admin: User = Depends
     
     await db.teams.update_one(
         {"id": team_id},
-        {"$set": team_data.dict()}
+        {"$set": team_data.model_dump()}
     )
     updated = await db.teams.find_one({"id": team_id}, {"_id": 0})
     return Team(**updated)
