@@ -1766,8 +1766,10 @@ async def update_volunteer_application_status(application_id: str, status: str, 
 @api_router.post("/sponsorship", response_model=SponsorshipInquiry)
 async def submit_sponsorship_inquiry(inquiry_data: SponsorshipInquiryCreate):
     """Submit a sponsorship inquiry"""
-    inquiry = SponsorshipInquiry(**inquiry_data.dict())
-    await db.sponsorship_inquiries.insert_one(inquiry.dict())
+    inquiry = SponsorshipInquiry(**inquiry_data.model_dump())
+    doc = inquiry.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.sponsorship_inquiries.insert_one(doc)
     return inquiry
 
 @api_router.get("/admin/sponsorship-inquiries", response_model=List[SponsorshipInquiry])
