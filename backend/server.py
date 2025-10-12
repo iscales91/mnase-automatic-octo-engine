@@ -1317,8 +1317,10 @@ async def create_adult_registration(registration_data: AdultRegistrationCreate, 
 @api_router.post("/admin/teams", response_model=Team)
 async def create_team(team_data: TeamCreate, admin: User = Depends(get_admin_user)):
     """Create a new team (admin only)"""
-    team = Team(**team_data.dict())
-    await db.teams.insert_one(team.dict())
+    team = Team(**team_data.model_dump())
+    doc = team.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.teams.insert_one(doc)
     return team
 
 @api_router.get("/admin/teams", response_model=List[Team])
