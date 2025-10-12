@@ -47,6 +47,10 @@ function App() {
           <Route path="/winter-wars" element={<WinterWars />} />
           <Route path="/media-gallery" element={<MediaGallery />} />
           <Route path="/facilities" element={<Facilities />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/shop" element={<Shop />} />
           <Route path="/dashboard" element={
             token && user ? (
               user.role === 'admin' ? <AdminDashboard /> : <MemberDashboard />
