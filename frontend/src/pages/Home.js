@@ -178,6 +178,486 @@ function Home() {
         </div>
       </section>
 
+      {/* Mentality Academy Section */}
+      <section style={{ padding: '4rem 2rem', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <h2 style={{ 
+              fontSize: '3rem', 
+              fontWeight: '700', 
+              color: 'white',
+              marginBottom: '1rem',
+              fontFamily: 'Space Grotesk, sans-serif'
+            }}>
+              Mentality Academy
+            </h2>
+            <p style={{ fontSize: '1.2rem', color: '#94a3b8', maxWidth: '700px', margin: '0 auto' }}>
+              Elevate your game with specialized training through our camps, clinics, and workshops
+            </p>
+          </div>
+
+          <Tabs defaultValue="camps" className="w-full">
+            <TabsList style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              background: 'rgba(255, 255, 255, 0.1)',
+              padding: '0.5rem',
+              borderRadius: '12px',
+              marginBottom: '3rem',
+              border: '1px solid rgba(255, 255, 255, 0.2)'
+            }}>
+              <TabsTrigger 
+                value="camps" 
+                data-testid="camps-tab"
+                style={{ 
+                  padding: '0.75rem 2rem',
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'white',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Camps
+              </TabsTrigger>
+              <TabsTrigger 
+                value="clinics" 
+                data-testid="clinics-tab"
+                style={{ 
+                  padding: '0.75rem 2rem',
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'white',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Clinics
+              </TabsTrigger>
+              <TabsTrigger 
+                value="workshops" 
+                data-testid="workshops-tab"
+                style={{ 
+                  padding: '0.75rem 2rem',
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'white',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Workshops
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Camps Tab */}
+            <TabsContent value="camps" data-testid="camps-content">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '2rem',
+                  transition: 'all 0.3s'
+                }}>
+                  <div style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1.5rem',
+                    fontSize: '2rem'
+                  }}>
+                    🏀
+                  </div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'white', marginBottom: '1rem' }}>
+                    Youth Basketball Camp
+                  </h3>
+                  <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                    Summer basketball camp for ages 10-16. Professional coaching, skill development, and competitive games in a fun environment.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Duration:</strong> 5-day intensive
+                    </div>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Ages:</strong> 10-16
+                    </div>
+                    <div style={{ color: '#dc2626', fontSize: '1.5rem', fontWeight: '700', marginTop: '0.5rem' }}>
+                      $200
+                    </div>
+                  </div>
+                  <Button style={{ width: '100%', background: '#dc2626', border: 'none' }} data-testid="camp-register-1">
+                    Register Now
+                  </Button>
+                </div>
+
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '2rem',
+                  transition: 'all 0.3s'
+                }}>
+                  <div style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1.5rem',
+                    fontSize: '2rem'
+                  }}>
+                    🎯
+                  </div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'white', marginBottom: '1rem' }}>
+                    Elite Skills Camp
+                  </h3>
+                  <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                    Advanced camp for competitive players focusing on advanced techniques, game strategy, and mental toughness.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Duration:</strong> 3-day intensive
+                    </div>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Ages:</strong> 13-18
+                    </div>
+                    <div style={{ color: '#dc2626', fontSize: '1.5rem', fontWeight: '700', marginTop: '0.5rem' }}>
+                      $350
+                    </div>
+                  </div>
+                  <Button style={{ width: '100%', background: '#dc2626', border: 'none' }} data-testid="camp-register-2">
+                    Register Now
+                  </Button>
+                </div>
+
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '2rem',
+                  transition: 'all 0.3s'
+                }}>
+                  <div style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1.5rem',
+                    fontSize: '2rem'
+                  }}>
+                    ⭐
+                  </div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'white', marginBottom: '1rem' }}>
+                    Holiday Break Camp
+                  </h3>
+                  <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                    Stay active during school breaks with our holiday camps. Fun drills, games, and skill development in a festive atmosphere.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Duration:</strong> 3-day sessions
+                    </div>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Ages:</strong> 8-14
+                    </div>
+                    <div style={{ color: '#dc2626', fontSize: '1.5rem', fontWeight: '700', marginTop: '0.5rem' }}>
+                      $175
+                    </div>
+                  </div>
+                  <Button style={{ width: '100%', background: '#dc2626', border: 'none' }} data-testid="camp-register-3">
+                    Register Now
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Clinics Tab */}
+            <TabsContent value="clinics" data-testid="clinics-content">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '2rem'
+                }}>
+                  <div style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1.5rem',
+                    fontSize: '2rem'
+                  }}>
+                    🎓
+                  </div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'white', marginBottom: '1rem' }}>
+                    Shooting Clinic
+                  </h3>
+                  <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                    Master your shooting form with our specialized clinic. Focus on mechanics, consistency, and shot selection.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Duration:</strong> 2 hours
+                    </div>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Schedule:</strong> Weekly sessions
+                    </div>
+                    <div style={{ color: '#dc2626', fontSize: '1.5rem', fontWeight: '700', marginTop: '0.5rem' }}>
+                      $50
+                    </div>
+                  </div>
+                  <Button style={{ width: '100%', background: '#dc2626', border: 'none' }} data-testid="clinic-register-1">
+                    Book Clinic
+                  </Button>
+                </div>
+
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '2rem'
+                }}>
+                  <div style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1.5rem',
+                    fontSize: '2rem'
+                  }}>
+                    🛡️
+                  </div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'white', marginBottom: '1rem' }}>
+                    Defense & Footwork Clinic
+                  </h3>
+                  <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                    Lock down opponents with proper defensive stance, lateral movement, and positioning techniques.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Duration:</strong> 2 hours
+                    </div>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Schedule:</strong> Bi-weekly sessions
+                    </div>
+                    <div style={{ color: '#dc2626', fontSize: '1.5rem', fontWeight: '700', marginTop: '0.5rem' }}>
+                      $50
+                    </div>
+                  </div>
+                  <Button style={{ width: '100%', background: '#dc2626', border: 'none' }} data-testid="clinic-register-2">
+                    Book Clinic
+                  </Button>
+                </div>
+
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '2rem'
+                }}>
+                  <div style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1.5rem',
+                    fontSize: '2rem'
+                  }}>
+                    ⚡
+                  </div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'white', marginBottom: '1rem' }}>
+                    Ball Handling Clinic
+                  </h3>
+                  <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                    Improve your handles with advanced dribbling drills, crossovers, and ball control exercises.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Duration:</strong> 2 hours
+                    </div>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Schedule:</strong> Weekly sessions
+                    </div>
+                    <div style={{ color: '#dc2626', fontSize: '1.5rem', fontWeight: '700', marginTop: '0.5rem' }}>
+                      $50
+                    </div>
+                  </div>
+                  <Button style={{ width: '100%', background: '#dc2626', border: 'none' }} data-testid="clinic-register-3">
+                    Book Clinic
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Workshops Tab */}
+            <TabsContent value="workshops" data-testid="workshops-content">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '2rem'
+                }}>
+                  <div style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1.5rem',
+                    fontSize: '2rem'
+                  }}>
+                    🧠
+                  </div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'white', marginBottom: '1rem' }}>
+                    Mental Toughness Workshop
+                  </h3>
+                  <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                    Develop the mental game. Learn visualization, focus techniques, and pressure management strategies.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Duration:</strong> Half-day workshop
+                    </div>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Schedule:</strong> Monthly
+                    </div>
+                    <div style={{ color: '#dc2626', fontSize: '1.5rem', fontWeight: '700', marginTop: '0.5rem' }}>
+                      $75
+                    </div>
+                  </div>
+                  <Button style={{ width: '100%', background: '#dc2626', border: 'none' }} data-testid="workshop-register-1">
+                    Reserve Spot
+                  </Button>
+                </div>
+
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '2rem'
+                }}>
+                  <div style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1.5rem',
+                    fontSize: '2rem'
+                  }}>
+                    🎬
+                  </div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'white', marginBottom: '1rem' }}>
+                    Film Study Workshop
+                  </h3>
+                  <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                    Learn to analyze game film like the pros. Understand offensive/defensive schemes and improve IQ.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Duration:</strong> 3-hour session
+                    </div>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Schedule:</strong> Bi-monthly
+                    </div>
+                    <div style={{ color: '#dc2626', fontSize: '1.5rem', fontWeight: '700', marginTop: '0.5rem' }}>
+                      $60
+                    </div>
+                  </div>
+                  <Button style={{ width: '100%', background: '#dc2626', border: 'none' }} data-testid="workshop-register-2">
+                    Reserve Spot
+                  </Button>
+                </div>
+
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '2rem'
+                }}>
+                  <div style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1.5rem',
+                    fontSize: '2rem'
+                  }}>
+                    🏆
+                  </div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'white', marginBottom: '1rem' }}>
+                    College Recruitment Workshop
+                  </h3>
+                  <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                    Navigate the college recruitment process. Create highlight reels, contact coaches, and prepare for showcases.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Duration:</strong> Full-day workshop
+                    </div>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                      <strong style={{ color: 'white' }}>Schedule:</strong> Quarterly
+                    </div>
+                    <div style={{ color: '#dc2626', fontSize: '1.5rem', fontWeight: '700', marginTop: '0.5rem' }}>
+                      $100
+                    </div>
+                  </div>
+                  <Button style={{ width: '100%', background: '#dc2626', border: 'none' }} data-testid="workshop-register-3">
+                    Reserve Spot
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section style={{ padding: '4rem 2rem', background: 'white' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
