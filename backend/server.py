@@ -1323,6 +1323,18 @@ async def create_adult_registration(registration_data: AdultRegistrationCreate, 
     doc['created_at'] = doc['created_at'].isoformat()
     await db.adult_registrations.insert_one(doc)
     
+    # Send confirmation email
+    try:
+        email_service.send_registration_confirmation(
+            to_email=registration_data.participant_email,
+            athlete_name=registration_data.participant_name,
+            parent_name=registration_data.participant_name,
+            registration_id=registration.id
+        )
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+    
+    return registration
 
 
 # Teams Endpoints
