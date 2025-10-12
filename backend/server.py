@@ -551,6 +551,109 @@ async def get_booking_status(session_id: str, user: User = Depends(get_current_u
     
     return status
 
+# Program endpoints
+@api_router.get("/programs", response_model=List[Program])
+async def get_programs():
+    programs = await db.programs.find({}, {"_id": 0}).to_list(1000)
+    for program in programs:
+        if isinstance(program['created_at'], str):
+            program['created_at'] = datetime.fromisoformat(program['created_at'])
+    return programs
+
+@api_router.get("/programs/{program_id}", response_model=Program)
+async def get_program(program_id: str):
+    program = await db.programs.find_one({"id": program_id}, {"_id": 0})
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+    if isinstance(program['created_at'], str):
+        program['created_at'] = datetime.fromisoformat(program['created_at'])
+    return Program(**program)
+
+@api_router.get("/programs/slug/{slug}", response_model=Program)
+async def get_program_by_slug(slug: str):
+    program = await db.programs.find_one({"slug": slug}, {"_id": 0})
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+    if isinstance(program['created_at'], str):
+        program['created_at'] = datetime.fromisoformat(program['created_at'])
+    return Program(**program)
+
+@api_router.post("/programs", response_model=Program)
+async def create_program(program_data: ProgramCreate, admin: User = Depends(get_admin_user)):
+    program = Program(**program_data.model_dump())
+    doc = program.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.programs.insert_one(doc)
+    return program
+
+@api_router.put("/programs/{program_id}", response_model=Program)
+async def update_program(program_id: str, program_data: ProgramCreate, admin: User = Depends(get_admin_user)):
+    existing = await db.programs.find_one({"id": program_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Program not found")
+    
+    updated_doc = program_data.model_dump()
+    await db.programs.update_one({"id": program_id}, {"$set": updated_doc})
+    
+    program = await db.programs.find_one({"id": program_id}, {"_id": 0})
+    if isinstance(program['created_at'], str):
+        program['created_at'] = datetime.fromisoformat(program['created_at'])
+    return Program(**program)
+
+@api_router.delete("/programs/{program_id}")
+async def delete_program(program_id: str, admin: User = Depends(get_admin_user)):
+    result = await db.programs.delete_one({"id": program_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Program not found")
+    return {"message": "Program deleted"}
+
+# Membership endpoints
+@api_router.get("/memberships", response_model=List[Membership])
+async def get_memberships():
+    memberships = await db.memberships.find({}, {"_id": 0}).to_list(1000)
+    for membership in memberships:
+        if isinstance(membership['created_at'], str):
+            membership['created_at'] = datetime.fromisoformat(membership['created_at'])
+    return memberships
+
+@api_router.get("/memberships/{membership_id}", response_model=Membership)
+async def get_membership(membership_id: str):
+    membership = await db.memberships.find_one({"id": membership_id}, {"_id": 0})
+    if not membership:
+        raise HTTPException(status_code=404, detail="Membership not found")
+    if isinstance(membership['created_at'], str):
+        membership['created_at'] = datetime.fromisoformat(membership['created_at'])
+    return Membership(**membership)
+
+@api_router.post("/memberships", response_model=Membership)
+async def create_membership(membership_data: MembershipCreate, admin: User = Depends(get_admin_user)):
+    membership = Membership(**membership_data.model_dump())
+    doc = membership.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.memberships.insert_one(doc)
+    return membership
+
+@api_router.put("/memberships/{membership_id}", response_model=Membership)
+async def update_membership(membership_id: str, membership_data: MembershipCreate, admin: User = Depends(get_admin_user)):
+    existing = await db.memberships.find_one({"id": membership_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Membership not found")
+    
+    updated_doc = membership_data.model_dump()
+    await db.memberships.update_one({"id": membership_id}, {"$set": updated_doc})
+    
+    membership = await db.memberships.find_one({"id": membership_id}, {"_id": 0})
+    if isinstance(membership['created_at'], str):
+        membership['created_at'] = datetime.fromisoformat(membership['created_at'])
+    return Membership(**membership)
+
+@api_router.delete("/memberships/{membership_id}")
+async def delete_membership(membership_id: str, admin: User = Depends(get_admin_user)):
+    result = await db.memberships.delete_one({"id": membership_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Membership not found")
+    return {"message": "Membership deleted"}
+
 # Stripe webhook
 @api_router.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
