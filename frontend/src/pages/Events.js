@@ -60,8 +60,30 @@ function Events() {
           </Link>
           <div className="navbar-links">
             <Link to="/programs" className="navbar-link" data-testid="nav-programs-link">Programs</Link>
-            <Link to="/memberships" className="navbar-link" data-testid="nav-memberships-link">Memberships</Link>
-            <Link to="/events" className="navbar-link" data-testid="nav-events-link">Events</Link>
+            <div className="navbar-dropdown">
+              <button className="navbar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'inherit' }}>Memberships ▾</button>
+              <div className="navbar-dropdown-content">
+                <Link to="/memberships/individual">Individual/Family</Link>
+                <Link to="/memberships/team">Team/Group</Link>
+              </div>
+            </div>
+            <div className="navbar-dropdown">
+              <button className="navbar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'inherit' }}>Mentality Academy ▾</button>
+              <div className="navbar-dropdown-content">
+                <Link to="/camps">Camps</Link>
+                <Link to="/clinics">Clinics</Link>
+                <Link to="/workshops">Workshops</Link>
+              </div>
+            </div>
+            <div className="navbar-dropdown">
+              <button className="navbar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'inherit' }}>Events ▾</button>
+              <div className="navbar-dropdown-content">
+                <Link to="/shoot-n-hoops">Shoot N HOOPS</Link>
+                <Link to="/summer-sizzle">Summer Sizzle Circuit</Link>
+                <Link to="/winter-wars">Winter Wars Circuit</Link>
+                <Link to="/media-gallery">Media/Video Gallery</Link>
+              </div>
+            </div>
             <Link to="/facilities" className="navbar-link" data-testid="nav-facilities-link">Facilities</Link>
             {token ? (
               <Link to="/dashboard" className="navbar-btn btn-primary" data-testid="nav-dashboard-link">Dashboard</Link>
@@ -72,16 +94,52 @@ function Events() {
         </div>
       </nav>
 
-      <div style={{ padding: '3rem 2rem' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '1rem', color: '#1e293b' }} data-testid="events-title">
-            Upcoming Events
+      {/* Hero Section */}
+      <section style={{ 
+        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', 
+        padding: '4rem 2rem 3rem',
+        textAlign: 'center'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <h1 style={{ 
+            fontSize: '3.5rem', 
+            fontWeight: '700', 
+            color: 'white', 
+            marginBottom: '1rem',
+            fontFamily: 'Space Grotesk, sans-serif'
+          }} data-testid="events-title">
+            Events & Calendar
           </h1>
-          <p style={{ fontSize: '1.1rem', color: '#64748b', marginBottom: '3rem' }} data-testid="events-subtitle">
-            Register for basketball leagues, tournaments, and training sessions
+          <p style={{ fontSize: '1.3rem', color: '#94a3b8' }} data-testid="events-subtitle">
+            Browse upcoming events, programs, and activities
           </p>
+        </div>
+      </section>
 
-          {loading ? (
+      <div style={{ padding: '3rem 2rem', background: 'white' }}>
+        <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
+          <Tabs defaultValue="calendar" className="w-full">
+            <TabsList style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              background: '#f8f9ff',
+              padding: '0.5rem',
+              borderRadius: '12px',
+              marginBottom: '2rem'
+            }}>
+              <TabsTrigger value="calendar" data-testid="calendar-tab" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}>
+                📅 Calendar View
+              </TabsTrigger>
+              <TabsTrigger value="list" data-testid="list-tab" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}>
+                📋 List View
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="calendar" data-testid="calendar-content">
+              <Calendar />
+            </TabsContent>
+
+            <TabsContent value="list" data-testid="list-content">{loading ? (
             <div style={{ textAlign: 'center', padding: '3rem' }} data-testid="loading-indicator">Loading events...</div>
           ) : events.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3rem' }} data-testid="no-events-message">
@@ -101,7 +159,7 @@ function Events() {
                   <CardContent>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748b' }}>
-                        <Calendar size={18} />
+                        <CalendarIcon size={18} />
                         <span data-testid={`event-date-${event.id}`}>{event.date} at {event.time}</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748b' }}>
@@ -130,7 +188,8 @@ function Events() {
                 </Card>
               ))}
             </div>
-          )}
+          )}</TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
