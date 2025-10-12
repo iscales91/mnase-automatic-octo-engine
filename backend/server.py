@@ -1846,7 +1846,7 @@ async def update_calendar_event(event_id: str, event_data: CalendarEventCreate, 
     
     await db.calendar_events.update_one(
         {"id": event_id},
-        {"$set": event_data.dict()}
+        {"$set": event_data.model_dump()}
     )
     updated = await db.calendar_events.find_one({"id": event_id}, {"_id": 0})
     return CalendarEvent(**updated)
