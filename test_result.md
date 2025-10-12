@@ -138,11 +138,14 @@ backend:
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Added payment_status, checkout_session_id, and registration_fee fields to both models"
+      - working: true
+        agent: "testing"
+        comment: "Payment fields working correctly. Registration models properly store payment_status (unpaid/pending_payment/paid), checkout_session_id for Stripe sessions, and registration_fee ($150 youth, $200 adult). Database operations successful."
 
   - task: "Create Stripe payment endpoints for approved registrations"
     implemented: true
