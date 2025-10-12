@@ -1712,8 +1712,10 @@ async def stripe_webhook(request: Request):
 @api_router.post("/contact", response_model=ContactSubmission)
 async def submit_contact_form(submission_data: ContactSubmissionCreate):
     """Submit a contact form"""
-    submission = ContactSubmission(**submission_data.dict())
-    await db.contact_submissions.insert_one(submission.dict())
+    submission = ContactSubmission(**submission_data.model_dump())
+    doc = submission.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.contact_submissions.insert_one(doc)
     return submission
 
 @api_router.get("/admin/contact-submissions", response_model=List[ContactSubmission])
