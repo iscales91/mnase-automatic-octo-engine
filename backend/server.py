@@ -2787,6 +2787,132 @@ async def update_news_post(
             slug = update_data["title"].lower()
             slug = slug.replace(' ', '-')
             slug = ''.join(c for c in slug if c.isalnum() or c == '-')
+
+
+# ============================================================================
+# TESTIMONIALS ENDPOINTS
+# ============================================================================
+
+@api_router.get("/testimonials")
+async def get_testimonials(
+    approved_only: bool = True,
+    featured_only: bool = False,
+    program: Optional[str] = None,
+    limit: int = 20
+):
+    """Get testimonials with optional filters"""
+    try:
+        query = {}
+        
+        if approved_only:
+            query["approved"] = True
+        
+        if featured_only:
+            query["featured"] = True
+        
+        if program:
+            query["program"] = program
+        
+        testimonials = await db.testimonials.find(query, {"_id": 0})\
+            .sort([("featured", -1), ("created_at", -1)])\
+            .limit(limit)\
+            .to_list(length=limit)
+        
+        # Convert datetime
+        for testimonial in testimonials:
+            if isinstance(testimonial.get('created_at'), datetime):
+                testimonial['created_at'] = testimonial['created_at'].isoformat()
+        
+        return testimonials
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch testimonials: {str(e)}")
+
+@api_router.post("/testimonials")
+async def submit_testimonial(testimonial_data: TestimonialCreate):
+    """Submit a new testimonial (public endpoint, requires approval)"""
+    try:
+        testimonial = Testimonial(
+            author_name=testimonial_data.author_name,
+            author_role=testimonial_data.author_role,
+            content=testimonial_data.content,
+            rating=testimonial_data.rating,
+            program=testimonial_data.program,
+            approved=False,  # Requires admin approval
+            featured=False
+        )
+        
+        testimonial_dict = testimonial.model_dump()
+        testimonial_dict['created_at'] = testimonial_dict['created_at'].isoformat()
+        
+        await db.testimonials.insert_one(testimonial_dict)
+        
+        return {
+            "message": "Thank you for your testimonial! It will be reviewed shortly.",
+            "testimonial": testimonial
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to submit testimonial: {str(e)}")
+
+@api_router.put("/admin/testimonials/{testimonial_id}")
+async def update_testimonial(
+    testimonial_id: str,
+    update_data: TestimonialUpdate,
+    admin: User = Depends(get_admin_user)
+):
+    """Update testimonial (admin only)"""
+    try:
+        update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+        
+        if not update_dict:
+            raise HTTPException(status_code=400, detail="No update data provided")
+        
+        result = await db.testimonials.update_one(
+            {"id": testimonial_id},
+            {"$set": update_dict}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Testimonial not found")
+        
+        return {"message": "Testimonial updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update testimonial: {str(e)}")
+
+@api_router.delete("/admin/testimonials/{testimonial_id}")
+async def delete_testimonial(testimonial_id: str, admin: User = Depends(get_admin_user)):
+    """Delete testimonial (admin only)"""
+    try:
+        result = await db.testimonials.delete_one({"id": testimonial_id})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Testimonial not found")
+        
+        return {"message": "Testimonial deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete testimonial: {str(e)}")
+
+@api_router.get("/admin/testimonials/pending")
+async def get_pending_testimonials(admin: User = Depends(get_admin_user)):
+    """Get all pending testimonials for review (admin only)"""
+    try:
+        testimonials = await db.testimonials.find(
+            {"approved": False},
+            {"_id": 0}
+        ).sort([("created_at", -1)]).to_list(length=None)
+        
+        # Convert datetime
+        for testimonial in testimonials:
+            if isinstance(testimonial.get('created_at'), datetime):
+                testimonial['created_at'] = testimonial['created_at'].isoformat()
+        
+        return testimonials
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch pending testimonials: {str(e)}")
+
             update_data["slug"] = slug
         
         # Set published_at if publishing for first time
