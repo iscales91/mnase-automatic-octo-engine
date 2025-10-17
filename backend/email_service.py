@@ -30,11 +30,53 @@ class EmailService:
         
     def send_email(self, to_email: str, subject: str, body: str, html_body: Optional[str] = None):
         """
-        Mock send email - logs to console
-        In production, this would use smtplib to send actual emails
+        Send email via SendGrid or mock logging
+        
+        Args:
+            to_email: Recipient email address
+            subject: Email subject line
+            body: Plain text email body
+            html_body: HTML email body (optional, takes precedence over plain text)
+        
+        Returns:
+            bool: True if email sent successfully
+        
+        Raises:
+            EmailDeliveryError: If email sending fails
         """
+        if self.use_sendgrid:
+            return self._send_via_sendgrid(to_email, subject, body, html_body)
+        else:
+            return self._send_mock(to_email, subject, body, html_body)
+    
+    def _send_via_sendgrid(self, to_email: str, subject: str, body: str, html_body: Optional[str] = None):
+        """Send email using SendGrid API"""
+        try:
+            message = Mail(
+                from_email=self.from_email,
+                to_emails=to_email,
+                subject=subject,
+                plain_text_content=body,
+                html_content=html_body if html_body else body
+            )
+            
+            sg = SendGridAPIClient(self.sendgrid_api_key)
+            response = sg.send(message)
+            
+            if response.status_code in [200, 202]:
+                print(f"✅ Email sent via SendGrid to {to_email}: {subject}")
+                return True
+            else:
+                raise EmailDeliveryError(f"SendGrid returned status {response.status_code}")
+                
+        except Exception as e:
+            print(f"❌ SendGrid email failed: {str(e)}")
+            raise EmailDeliveryError(f"Failed to send email via SendGrid: {str(e)}")
+    
+    def _send_mock(self, to_email: str, subject: str, body: str, html_body: Optional[str] = None):
+        """Mock email sending - logs to console"""
         print("\n" + "="*80)
-        print("📧 MOCK EMAIL SENT")
+        print("📧 MOCK EMAIL SENT (SendGrid not configured)")
         print("="*80)
         print(f"From: {self.from_email}")
         print(f"To: {to_email}")
@@ -42,38 +84,10 @@ class EmailService:
         print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print("-"*80)
         print("BODY:")
-        print(body)
+        print(body[:500] + "..." if len(body) > 500 else body)
         if html_body:
-            print("\nHTML BODY:")
-            print(html_body)
+            print("\n[HTML BODY PRESENT]")
         print("="*80 + "\n")
-        
-        # For production Gmail SMTP, uncomment this:
-        """
-        import smtplib
-        from email.mime.text import MIMEText
-        from email.mime.multipart import MIMEMultipart
-        
-        if not self.app_password:
-            raise Exception("Gmail App Password not configured")
-            
-        message = MIMEMultipart("alternative")
-        message["Subject"] = subject
-        message["From"] = self.from_email
-        message["To"] = to_email
-        
-        part1 = MIMEText(body, "plain")
-        message.attach(part1)
-        
-        if html_body:
-            part2 = MIMEText(html_body, "html")
-            message.attach(part2)
-        
-        with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
-            server.starttls()
-            server.login(self.from_email, self.app_password)
-            server.sendmail(self.from_email, to_email, message.as_string())
-        """
         
         return True
     
