@@ -618,6 +618,33 @@ class NewsPostUpdate(BaseModel):
     published: Optional[bool] = None
 
     season: str
+
+
+# Testimonial Model
+class Testimonial(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    author_name: str
+    author_role: str  # e.g., "Parent", "Player", "Coach", "Alumni"
+    content: str
+    rating: int  # 1-5 stars
+    program: Optional[str] = None  # Which program/service they're reviewing
+    featured: bool = False
+    approved: bool = False
+    avatar_url: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class TestimonialCreate(BaseModel):
+    author_name: str
+    author_role: str
+    content: str
+    rating: int
+    program: Optional[str] = None
+
+class TestimonialUpdate(BaseModel):
+    featured: Optional[bool] = None
+    approved: Optional[bool] = None
+
     coach_name: str
     coach_email: Optional[str] = None
     coach_phone: Optional[str] = None
