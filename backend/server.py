@@ -34,6 +34,94 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 SECRET_KEY = os.environ.get('JWT_SECRET', 'your-secret-key-change-this')
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
+SETUP_SECRET_TOKEN = os.environ.get('SETUP_SECRET_TOKEN', 'mnase-setup-token-2025')
+
+# Permissions Configuration
+PERMISSIONS = {
+    'user_management': ['view_users', 'create_users', 'edit_users', 'delete_users', 'assign_roles'],
+    'team_management': ['view_teams', 'create_teams', 'edit_teams', 'delete_teams', 'manage_players'],
+    'registration_management': ['view_registrations', 'approve_registrations', 'edit_registrations', 'delete_registrations'],
+    'payment_billing': ['view_payments', 'process_refunds', 'view_invoices', 'manage_payment_plans'],
+    'event_calendar': ['view_events', 'create_events', 'edit_events', 'delete_events', 'manage_calendar'],
+    'content_management': ['manage_news', 'manage_gallery', 'manage_testimonials', 'manage_pages'],
+    'analytics': ['view_analytics', 'export_reports'],
+    'form_submissions': ['view_forms', 'respond_forms', 'delete_forms'],
+    'facility_management': ['view_facilities', 'edit_facilities', 'manage_bookings'],
+    'system_settings': ['manage_roles', 'system_configuration', 'view_logs']
+}
+
+# Role Definitions with default permissions
+DEFAULT_ROLES = {
+    'super_admin': {
+        'display_name': 'Super Administrator',
+        'description': 'Full system access with ability to manage all roles and permissions',
+        'permissions': [perm for perms in PERMISSIONS.values() for perm in perms],  # All permissions
+        'is_system_role': True
+    },
+    'admin': {
+        'display_name': 'Administrator',
+        'description': 'Administrative access to manage users, teams, registrations, and content',
+        'permissions': [
+            'view_users', 'create_users', 'edit_users',
+            'view_teams', 'create_teams', 'edit_teams', 'manage_players',
+            'view_registrations', 'approve_registrations', 'edit_registrations',
+            'view_payments', 'view_invoices', 'manage_payment_plans',
+            'view_events', 'create_events', 'edit_events', 'manage_calendar',
+            'manage_news', 'manage_gallery', 'manage_testimonials',
+            'view_analytics',
+            'view_forms', 'respond_forms',
+            'view_facilities', 'edit_facilities'
+        ],
+        'is_system_role': True
+    },
+    'manager': {
+        'display_name': 'Manager',
+        'description': 'Manage specific operational areas like teams, events, and facilities',
+        'permissions': [
+            'view_users', 'view_teams', 'create_teams', 'edit_teams', 'manage_players',
+            'view_registrations', 'approve_registrations',
+            'view_events', 'create_events', 'edit_events', 'manage_calendar',
+            'view_forms', 'respond_forms',
+            'view_facilities', 'edit_facilities', 'manage_bookings'
+        ],
+        'is_system_role': True
+    },
+    'staff': {
+        'display_name': 'Staff Member',
+        'description': 'Limited management access for registrations, events, and forms',
+        'permissions': [
+            'view_users', 'view_teams', 'view_registrations', 'approve_registrations',
+            'view_events', 'create_events', 'view_forms', 'respond_forms'
+        ],
+        'is_system_role': True
+    },
+    'coach': {
+        'display_name': 'Coach',
+        'description': 'Team management and player communication',
+        'permissions': [
+            'view_users', 'view_teams', 'edit_teams', 'manage_players',
+            'view_events', 'view_forms'
+        ],
+        'is_system_role': True
+    },
+    'treasurer': {
+        'display_name': 'Treasurer',
+        'description': 'Financial and billing management',
+        'permissions': [
+            'view_users', 'view_registrations',
+            'view_payments', 'process_refunds', 'view_invoices', 'manage_payment_plans',
+            'view_analytics', 'export_reports'
+        ],
+        'is_system_role': True
+    },
+    'user': {
+        'display_name': 'Member',
+        'description': 'Standard member access',
+        'permissions': ['view_events', 'view_teams'],
+        'is_system_role': True
+    }
+}
+
 
 # Create the main app
 app = FastAPI()
