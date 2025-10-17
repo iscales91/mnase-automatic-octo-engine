@@ -1538,12 +1538,39 @@ async def get_all_enhanced_registrations(admin: User = Depends(get_admin_user)):
 @api_router.put("/admin/enhanced-registrations/{registration_id}/status")
 async def update_enhanced_registration_status(registration_id: str, status: str, admin: User = Depends(get_admin_user)):
     """Update enhanced registration status (admin only)"""
+    # Get registration details
+    registration = await db.enhanced_registrations.find_one({"id": registration_id}, {"_id": 0})
+    if not registration:
+        raise HTTPException(status_code=404, detail="Registration not found")
+    
+    # Update status
     result = await db.enhanced_registrations.update_one(
         {"id": registration_id},
         {"$set": {"status": status}}
     )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Registration not found")
+    
+    # Create notification
+    athlete_name = f"{registration['athlete_first_name']} {registration['athlete_last_name']}"
+    
+    if status == "approved":
+        notification = notification_service.create_registration_approved_notification(
+            user_id=registration['user_id'],
+            athlete_name=athlete_name,
+            registration_id=registration_id,
+            registration_type="youth"
+        )
+    elif status == "rejected":
+        notification = notification_service.create_registration_rejected_notification(
+            user_id=registration['user_id'],
+            athlete_name=athlete_name,
+            registration_id=registration_id
+        )
+    else:
+        notification = None
+    
+    if notification:
+        await db.notifications.insert_one(notification)
+    
     return {"message": "Status updated successfully"}
 
 # Youth Registration Payment Endpoints
