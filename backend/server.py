@@ -2083,6 +2083,359 @@ async def delete_image(
     except HTTPException:
         raise
     except Exception as e:
+
+
+# ============================================================================
+# SEARCH & FILTER ENDPOINTS
+# ============================================================================
+
+@api_router.get("/search/events")
+async def search_events(
+    search: Optional[str] = None,
+    event_type: Optional[str] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    location: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    sort: Optional[str] = "date_asc",
+    limit: int = 50
+):
+    """
+    Search and filter events
+    
+    Query Parameters:
+    - search: Text search across title, description, location
+    - event_type: Filter by event type
+    - date_from: Start date filter (YYYY-MM-DD)
+    - date_to: End date filter (YYYY-MM-DD)
+    - location: Filter by location
+    - min_price: Minimum price
+    - max_price: Maximum price
+    - sort: Sort order (date_asc, date_desc, price_asc, price_desc, newest)
+    - limit: Maximum results (default 50)
+    """
+    try:
+        query = search_service.build_event_search_query(
+            search=search,
+            event_type=event_type,
+            date_from=date_from,
+            date_to=date_to,
+            location=location,
+            min_price=min_price,
+            max_price=max_price
+        )
+        
+        sort_params = search_service.parse_sort_param(sort)
+        
+        events = await db.events.find(query, {"_id": 0}).sort(sort_params).limit(limit).to_list(length=limit)
+        
+        return {
+            "count": len(events),
+            "results": events,
+            "filters_applied": {
+                "search": search,
+                "event_type": event_type,
+                "date_from": date_from,
+                "date_to": date_to,
+                "location": location,
+                "price_range": f"{min_price}-{max_price}" if min_price or max_price else None
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@api_router.get("/search/programs")
+async def search_programs(
+    search: Optional[str] = None,
+    category: Optional[str] = None,
+    age_group: Optional[str] = None,
+    skill_level: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    sort: Optional[str] = "name_asc",
+    limit: int = 50
+):
+    """
+    Search and filter programs
+    
+    Query Parameters:
+    - search: Text search across name, description
+    - category: Program category (camp, clinic, workshop)
+    - age_group: Age group filter
+    - skill_level: Skill level filter (beginner, intermediate, advanced)
+    - min_price: Minimum price
+    - max_price: Maximum price
+    - sort: Sort order (name_asc, price_asc, newest)
+    - limit: Maximum results (default 50)
+    """
+    try:
+        query = search_service.build_program_search_query(
+            search=search,
+            category=category,
+            age_group=age_group,
+            skill_level=skill_level,
+            min_price=min_price,
+            max_price=max_price
+        )
+        
+        sort_params = search_service.parse_sort_param(sort)
+        
+        programs = await db.programs.find(query, {"_id": 0}).sort(sort_params).limit(limit).to_list(length=limit)
+        
+        return {
+            "count": len(programs),
+            "results": programs,
+            "filters_applied": {
+                "search": search,
+                "category": category,
+                "age_group": age_group,
+                "skill_level": skill_level,
+                "price_range": f"{min_price}-{max_price}" if min_price or max_price else None
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@api_router.get("/search/facilities")
+async def search_facilities(
+    search: Optional[str] = None,
+    facility_type: Optional[str] = None,
+    amenities: Optional[str] = None,  # Comma-separated list
+    sort: Optional[str] = "name_asc",
+    limit: int = 50
+):
+    """
+    Search and filter facilities
+    
+    Query Parameters:
+    - search: Text search across name, description, location
+    - facility_type: Type of facility
+    - amenities: Comma-separated list of required amenities
+    - sort: Sort order (name_asc, newest)
+    - limit: Maximum results (default 50)
+    """
+    try:
+        amenities_list = amenities.split(",") if amenities else None
+        
+        query = search_service.build_facility_search_query(
+            search=search,
+            facility_type=facility_type,
+            amenities=amenities_list
+        )
+        
+        sort_params = search_service.parse_sort_param(sort)
+        
+        facilities = await db.facilities.find(query, {"_id": 0}).sort(sort_params).limit(limit).to_list(length=limit)
+        
+        return {
+            "count": len(facilities),
+            "results": facilities,
+            "filters_applied": {
+                "search": search,
+                "facility_type": facility_type,
+                "amenities": amenities_list
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@api_router.get("/search/teams")
+async def search_teams(
+    search: Optional[str] = None,
+    division: Optional[str] = None,
+    age_group: Optional[str] = None,
+    sort: Optional[str] = "name_asc",
+    limit: int = 50
+):
+    """
+    Search and filter teams
+    
+    Query Parameters:
+    - search: Text search across team name, coach name
+    - division: Division filter
+    - age_group: Age group filter
+    - sort: Sort order (name_asc, newest)
+    - limit: Maximum results (default 50)
+    """
+    try:
+        query = search_service.build_team_search_query(
+            search=search,
+            division=division,
+            age_group=age_group
+        )
+        
+        sort_params = search_service.parse_sort_param(sort)
+        
+        teams = await db.teams.find(query, {"_id": 0}).sort(sort_params).limit(limit).to_list(length=limit)
+        
+        return {
+            "count": len(teams),
+            "results": teams,
+            "filters_applied": {
+                "search": search,
+                "division": division,
+                "age_group": age_group
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@api_router.get("/search/calendar")
+async def search_calendar_events(
+    search: Optional[str] = None,
+    event_type: Optional[str] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    sort: Optional[str] = "date_asc",
+    limit: int = 100
+):
+    """
+    Search calendar events with filters
+    
+    Query Parameters:
+    - search: Text search across title, description
+    - event_type: Filter by type (program, tournament, camp, clinic, workshop, event)
+    - date_from: Start date (YYYY-MM-DD)
+    - date_to: End date (YYYY-MM-DD)
+    - sort: Sort order (date_asc, date_desc, newest)
+    - limit: Maximum results (default 100)
+    """
+    try:
+        query = {}
+        conditions = []
+        
+        # Text search
+        if search:
+            text_query = search_service.create_text_search_query(
+                search,
+                ["title", "description", "location"]
+            )
+            conditions.append(text_query)
+        
+        # Type filter
+        if event_type:
+            query["type"] = event_type
+        
+        # Date range
+        if date_from:
+            query["date"] = query.get("date", {})
+            query["date"]["$gte"] = date_from
+        
+        if date_to:
+            query["date"] = query.get("date", {})
+            query["date"]["$lte"] = date_to
+        
+        if conditions:
+            query["$and"] = conditions
+        
+        sort_params = search_service.parse_sort_param(sort)
+        
+        events = await db.calendar_events.find(query, {"_id": 0}).sort(sort_params).limit(limit).to_list(length=limit)
+        
+        return {
+            "count": len(events),
+            "results": events,
+            "filters_applied": {
+                "search": search,
+                "event_type": event_type,
+                "date_from": date_from,
+                "date_to": date_to
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@api_router.get("/search/global")
+async def global_search(search: str, limit: int = 20):
+    """
+    Global search across all content types
+    
+    Returns results from events, programs, facilities, teams, and calendar
+    """
+    try:
+        if not search or len(search) < 2:
+            raise HTTPException(status_code=400, detail="Search term must be at least 2 characters")
+        
+        # Search across all collections
+        pattern = re.compile(search, re.IGNORECASE)
+        
+        # Events
+        events = await db.events.find(
+            {"$or": [
+                {"title": {"$regex": pattern}},
+                {"description": {"$regex": pattern}}
+            ]},
+            {"_id": 0}
+        ).limit(limit).to_list(length=limit)
+        
+        # Programs
+        programs = await db.programs.find(
+            {"$or": [
+                {"name": {"$regex": pattern}},
+                {"description": {"$regex": pattern}}
+            ]},
+            {"_id": 0}
+        ).limit(limit).to_list(length=limit)
+        
+        # Facilities
+        facilities = await db.facilities.find(
+            {"$or": [
+                {"name": {"$regex": pattern}},
+                {"description": {"$regex": pattern}}
+            ]},
+            {"_id": 0}
+        ).limit(limit).to_list(length=limit)
+        
+        # Teams
+        teams = await db.teams.find(
+            {"$or": [
+                {"name": {"$regex": pattern}},
+                {"coach_name": {"$regex": pattern}}
+            ]},
+            {"_id": 0}
+        ).limit(limit).to_list(length=limit)
+        
+        # Calendar Events
+        calendar_events = await db.calendar_events.find(
+            {"$or": [
+                {"title": {"$regex": pattern}},
+                {"description": {"$regex": pattern}}
+            ]},
+            {"_id": 0}
+        ).limit(limit).to_list(length=limit)
+        
+        # Add type to each result
+        for event in events:
+            event["result_type"] = "event"
+        for program in programs:
+            program["result_type"] = "program"
+        for facility in facilities:
+            facility["result_type"] = "facility"
+        for team in teams:
+            team["result_type"] = "team"
+        for cal_event in calendar_events:
+            cal_event["result_type"] = "calendar_event"
+        
+        all_results = events + programs + facilities + teams + calendar_events
+        
+        return {
+            "search_term": search,
+            "total_count": len(all_results),
+            "results_by_type": {
+                "events": len(events),
+                "programs": len(programs),
+                "facilities": len(facilities),
+                "teams": len(teams),
+                "calendar_events": len(calendar_events)
+            },
+            "results": all_results
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Global search failed: {str(e)}")
+
         raise HTTPException(status_code=500, detail=f"Failed to delete image: {str(e)}")
 
 
