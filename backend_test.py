@@ -33,7 +33,7 @@ class MNASEBasketballAPITester:
         self.created_role_id = None
         self.test_user_for_role_assignment = None
 
-    def run_test(self, name, method, endpoint, expected_status, data=None, headers=None, use_admin=False):
+    def run_test(self, name, method, endpoint, expected_status, data=None, headers=None, use_admin=False, use_super_admin=False):
         """Run a single API test"""
         url = f"{self.api_url}/{endpoint}"
         test_headers = {'Content-Type': 'application/json'}
