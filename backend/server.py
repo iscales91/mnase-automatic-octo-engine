@@ -190,6 +190,30 @@ class SetupAdminRequest(BaseModel):
     date_of_birth: str
 
 
+class ActivityLog(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: Optional[str] = None  # User who performed the action
+    user_email: Optional[str] = None  # Email for reference
+    action: str  # e.g., "login", "create_user", "update_role", "delete_event"
+    resource_type: str  # e.g., "user", "event", "role", "registration"
+    resource_id: Optional[str] = None  # ID of the affected resource
+    details: Optional[Dict] = Field(default_factory=dict)  # Additional context
+    ip_address: Optional[str] = None
+    status: str = "success"  # success, failure, error
+    error_message: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ActivityLogQuery(BaseModel):
+    user_id: Optional[str] = None
+    action: Optional[str] = None
+    resource_type: Optional[str] = None
+    status: Optional[str] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    limit: int = 100
+
+
 class Event(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
