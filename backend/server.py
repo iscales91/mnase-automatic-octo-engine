@@ -17,6 +17,7 @@ from emergentintegrations.payments.stripe.checkout import StripeCheckout, Checko
 from email_service import email_service
 from image_service import image_service
 from search_service import search_service
+from notification_service import notification_service
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
