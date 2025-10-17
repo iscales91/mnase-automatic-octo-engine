@@ -2797,6 +2797,24 @@ async def update_news_post(
             slug = update_data["title"].lower()
             slug = slug.replace(' ', '-')
             slug = ''.join(c for c in slug if c.isalnum() or c == '-')
+            update_data["slug"] = slug
+        
+        # Set published_at if publishing for first time
+        if "published" in update_data and update_data["published"] and not existing.get("published"):
+            update_data["published_at"] = datetime.now(timezone.utc).isoformat()
+        
+        update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+        
+        await db.news_posts.update_one(
+            {"id": post_id},
+            {"$set": update_data}
+        )
+        
+        return {"message": "Post updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update post: {str(e)}")
 
 
 # ============================================================================
