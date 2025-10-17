@@ -107,15 +107,18 @@ user_problem_statement: "MNASE Basketball League Website - Phase 1-2 Complete. P
 backend:
   - task: "Enhanced User Model with Roles and Permissions"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated User model to support role (super_admin, admin, manager, staff, coach, treasurer, user) and permissions list. Added Role model and permission configuration with DEFAULT_ROLES dictionary defining 7 system roles with detailed permissions."
+      - working: true
+        agent: "testing"
+        comment: "TESTED SUCCESSFULLY - Enhanced User model working correctly. Super admin login successful with provided credentials (mnasebasketball@gmail.com). All 7 system roles found: super_admin, admin, manager, staff, coach, treasurer, user. User model properly stores role and permissions fields. Role assignment updates user permissions correctly."
   
   - task: "Permission Checking Utilities and Middleware"
     implemented: true
