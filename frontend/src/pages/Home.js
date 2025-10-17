@@ -923,6 +923,9 @@ function Home() {
           </Tabs>
         </DialogContent>
       </Dialog>
+
+      {/* Global Search Modal */}
+      {showSearch && <GlobalSearch onClose={() => setShowSearch(false)} />}
     </div>
   );
 }
