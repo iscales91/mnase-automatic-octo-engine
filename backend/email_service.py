@@ -20,7 +20,7 @@ class EmailService:
     
     def __init__(self):
         self.sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
-        self.from_email = os.environ.get('SENDER_EMAIL', 'contact@mnasebasketball.com')
+        self.from_email = os.environ.get('SENDER_EMAIL', 'mnasebasketball@gmail.com')
         self.use_sendgrid = self.sendgrid_api_key and self.sendgrid_api_key != 'your_sendgrid_api_key_here'
         
         if self.use_sendgrid:
