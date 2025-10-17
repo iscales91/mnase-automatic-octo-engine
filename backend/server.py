@@ -3205,25 +3205,6 @@ async def get_pending_testimonials(admin: User = Depends(get_admin_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch pending testimonials: {str(e)}")
 
-            update_data["slug"] = slug
-        
-        # Set published_at if publishing for first time
-        if "published" in update_data and update_data["published"] and not existing.get("published"):
-            update_data["published_at"] = datetime.now(timezone.utc).isoformat()
-        
-        update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
-        
-        await db.news_posts.update_one(
-            {"id": post_id},
-            {"$set": update_data}
-        )
-        
-        return {"message": "Post updated successfully"}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update post: {str(e)}")
-
 @api_router.delete("/admin/news/{post_id}")
 async def delete_news_post(post_id: str, admin: User = Depends(get_admin_user)):
     """Delete a news/blog post (admin only)"""
