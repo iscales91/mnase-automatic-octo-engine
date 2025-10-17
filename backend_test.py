@@ -1455,6 +1455,7 @@ def main():
     print("\n📝 AUTHENTICATION TESTS")
     test_results.append(("User Registration", tester.test_user_registration()))
     test_results.append(("Admin Login", tester.test_admin_login()))
+    test_results.append(("Super Admin Login", tester.test_super_admin_login()))
     test_results.append(("Get Current User", tester.test_get_current_user()))
     
     # Public Endpoints Tests
