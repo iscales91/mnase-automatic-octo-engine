@@ -234,8 +234,9 @@ function AdminDashboard() {
           </div>
         </div>
 
-        <Tabs defaultValue="events" className="w-full">
+        <Tabs defaultValue="analytics" className="w-full">
           <TabsList>
+            <TabsTrigger value="analytics" data-testid="analytics-tab">📊 Analytics</TabsTrigger>
             <TabsTrigger value="users" data-testid="users-tab">Users</TabsTrigger>
             <TabsTrigger value="billing" data-testid="billing-tab">Billing</TabsTrigger>
             <TabsTrigger value="payment-plans" data-testid="payment-plans-tab">Payment Plans</TabsTrigger>
@@ -247,6 +248,10 @@ function AdminDashboard() {
             <TabsTrigger value="registrations" data-testid="registrations-tab">Registrations</TabsTrigger>
             <TabsTrigger value="bookings" data-testid="bookings-tab">Bookings</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="analytics" data-testid="analytics-content">
+            <AnalyticsDashboard />
+          </TabsContent>
 
           <TabsContent value="users" data-testid="users-content">
             <UserManagement token={token} />
