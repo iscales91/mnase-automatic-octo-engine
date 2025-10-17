@@ -259,6 +259,30 @@ backend:
         comment: "All 4 payment endpoints tested and working correctly. Youth checkout: cs_test_a1CgWKUdjVLlEK4doqyphzPx8I0EGsFqcU0RntTnv6jDSMW5kZ9MHIdjzU, Adult checkout: cs_test_a1DQig7QtOgnygx8OokyCtxFcDUxseSlJtgpygwqUR1sBBzeZD4EuqUmCm. Payment status checks returning correct unpaid status. Fixed backend model validation issues and missing return statements. Stripe integration fully functional."
 
 frontend:
+  - task: "RolesManagement Component - Admin Interface"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/admin/RolesManagement.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created comprehensive RolesManagement component with two tabs: 'Manage Roles' and 'Assign Roles'. Features include: viewing all roles with permissions, creating custom roles with permission selection UI, deleting custom roles (system roles protected), assigning roles to users with optional custom permissions, and viewing current user roles in a table."
+  
+  - task: "Integrate RolesManagement into AdminDashboard"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/AdminDashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added RolesManagement component import and created new 'Roles & Permissions' tab in AdminDashboard. Updated role check to allow both 'admin' and 'super_admin' access to dashboard."
+
   - task: "Add payment buttons and status to MemberDashboard"
     implemented: true
     working: "NA"
