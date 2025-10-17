@@ -297,6 +297,7 @@ class CalendarEventCreate(BaseModel):
     date: str
     time: Optional[str] = None
     location: Optional[str] = None
+    type: str  # program, tournament, camp, clinic, workshop, event, other
 
 # Contact Form Submission
 class ContactSubmission(BaseModel):
