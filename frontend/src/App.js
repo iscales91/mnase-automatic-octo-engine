@@ -71,6 +71,7 @@ function App() {
           <Route path="/news" element={<News />} />
           <Route path="/news/:postId" element={<News />} />
           <Route path="/gallery" element={<Gallery />} />
+          <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/register" element={<EnhancedRegistration />} />
           <Route path="/program-registration" element={<ProgramRegistration />} />
           <Route path="/dashboard" element={
