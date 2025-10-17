@@ -179,15 +179,18 @@ backend:
   
   - task: "Permissions List Endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Created GET /api/admin/permissions endpoint to retrieve all available permissions grouped by category (user_management, team_management, registration_management, payment_billing, event_calendar, content_management, analytics, form_submissions, facility_management, system_settings)."
+      - working: true
+        agent: "testing"
+        comment: "TESTED SUCCESSFULLY - Permissions list endpoint working correctly. GET /api/admin/permissions returns all 10 permission categories with proper grouping: user_management, team_management, registration_management, payment_billing, event_calendar, content_management, analytics, form_submissions, facility_management, system_settings. Both admin and super admin can access this endpoint. Permission structure matches the PERMISSIONS configuration in backend code."
   
   - task: "Initialize Default Roles in Database"
     implemented: true
