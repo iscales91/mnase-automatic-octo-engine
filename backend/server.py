@@ -1203,6 +1203,21 @@ async def assign_role_to_user(request: AssignRoleRequest, super_admin: User = De
     except Exception as e:
         logging.error(f"Failed to send role assignment email: {e}")
     
+    # Log the role assignment activity
+    await activity_log_service.log_activity(
+        action="assign_role",
+        resource_type="user",
+        user_id=super_admin.id,
+        user_email=super_admin.email,
+        resource_id=request.user_id,
+        details={
+            "assigned_role": request.role,
+            "role_display_name": role['display_name'],
+            "target_user_email": user['email'],
+            "custom_permissions": request.permissions is not None
+        }
+    )
+    
     updated_user = await db.users.find_one({"id": request.user_id}, {"_id": 0})
     if isinstance(updated_user['created_at'], str):
         updated_user['created_at'] = datetime.fromisoformat(updated_user['created_at'])
