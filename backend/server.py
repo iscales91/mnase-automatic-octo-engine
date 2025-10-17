@@ -23,6 +23,7 @@ from email_service import email_service
 from image_service import image_service
 from search_service import search_service
 from notification_service import notification_service
+from activity_log_service import activity_log_service
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
