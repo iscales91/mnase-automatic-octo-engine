@@ -129,6 +129,29 @@ class MNASEBasketballAPITester:
             return True
         return False
 
+    def test_super_admin_login(self):
+        """Test super admin login with provided credentials"""
+        super_admin_credentials = {
+            "email": "mnasebasketball@gmail.com",
+            "password": "IzaMina1612"
+        }
+        
+        success, response = self.run_test(
+            "Super Admin Login",
+            "POST",
+            "auth/login",
+            200,
+            data=super_admin_credentials
+        )
+        
+        if success and 'token' in response:
+            self.super_admin_token = response['token']
+            self.super_admin_user_id = response['user']['id']
+            print(f"✅ Super Admin logged in with ID: {self.super_admin_user_id}")
+            print(f"✅ Super Admin role: {response['user'].get('role', 'Unknown')}")
+            return True
+        return False
+
     def test_user_login(self):
         """Test user login with registered user"""
         # First register a user
