@@ -1222,6 +1222,121 @@ async def get_user_permissions(user_id: str, admin: User = Depends(get_admin_use
     }
 
 
+
+# Activity Log Endpoints
+@api_router.post("/admin/activity-logs")
+async def create_activity_log(
+    action: str,
+    resource_type: str,
+    resource_id: Optional[str] = None,
+    details: Optional[Dict] = None,
+    request: Request = None,
+    user: User = Depends(get_current_user)
+):
+    """Create an activity log entry"""
+    ip_address = request.client.host if request else None
+    
+    await activity_log_service.log_activity(
+        action=action,
+        resource_type=resource_type,
+        user_id=user.id,
+        user_email=user.email,
+        resource_id=resource_id,
+        details=details,
+        ip_address=ip_address
+    )
+    
+    return {"message": "Activity logged successfully"}
+
+@api_router.post("/admin/activity-logs/query", response_model=List[ActivityLog])
+async def query_activity_logs(
+    query: ActivityLogQuery,
+    admin: User = Depends(get_admin_user)
+):
+    """Query activity logs with filters - Admin only"""
+    start_date = None
+    end_date = None
+    
+    if query.start_date:
+        start_date = datetime.fromisoformat(query.start_date)
+    if query.end_date:
+        end_date = datetime.fromisoformat(query.end_date)
+    
+    logs = await activity_log_service.get_logs(
+        user_id=query.user_id,
+        action=query.action,
+        resource_type=query.resource_type,
+        status=query.status,
+        start_date=start_date,
+        end_date=end_date,
+        limit=query.limit
+    )
+    
+    # Convert to ActivityLog models
+    result = []
+    for log in logs:
+        if isinstance(log.get('created_at'), str):
+            log['created_at'] = datetime.fromisoformat(log['created_at'])
+        result.append(ActivityLog(**log))
+    
+    return result
+
+@api_router.get("/admin/activity-logs/recent", response_model=List[ActivityLog])
+async def get_recent_activity_logs(
+    limit: int = 100,
+    admin: User = Depends(get_admin_user)
+):
+    """Get recent activity logs - Admin only"""
+    logs = await activity_log_service.get_recent_logs(limit=limit)
+    
+    result = []
+    for log in logs:
+        if isinstance(log.get('created_at'), str):
+            log['created_at'] = datetime.fromisoformat(log['created_at'])
+        result.append(ActivityLog(**log))
+    
+    return result
+
+@api_router.get("/admin/activity-logs/user/{user_id}", response_model=List[ActivityLog])
+async def get_user_activity_logs(
+    user_id: str,
+    limit: int = 50,
+    admin: User = Depends(get_admin_user)
+):
+    """Get activity logs for a specific user - Admin only"""
+    logs = await activity_log_service.get_user_activity(user_id=user_id, limit=limit)
+    
+    result = []
+    for log in logs:
+        if isinstance(log.get('created_at'), str):
+            log['created_at'] = datetime.fromisoformat(log['created_at'])
+        result.append(ActivityLog(**log))
+    
+    return result
+
+@api_router.get("/admin/activity-logs/failed", response_model=List[ActivityLog])
+async def get_failed_activity_logs(
+    limit: int = 50,
+    admin: User = Depends(get_admin_user)
+):
+    """Get failed/error activity logs - Admin only"""
+    logs = await activity_log_service.get_failed_actions(limit=limit)
+    
+    result = []
+    for log in logs:
+        if isinstance(log.get('created_at'), str):
+            log['created_at'] = datetime.fromisoformat(log['created_at'])
+        result.append(ActivityLog(**log))
+    
+    return result
+
+@api_router.get("/admin/activity-logs/stats")
+async def get_activity_stats(admin: User = Depends(get_admin_user)):
+    """Get activity log statistics - Admin only"""
+    stats = await activity_log_service.get_stats()
+    return stats
+
+
 # Event endpoints
 @api_router.get("/events", response_model=List[Event])
 async def get_events():
