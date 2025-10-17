@@ -722,8 +722,7 @@ class MNASEBasketballAPITester:
             "description": "Annual test basketball tournament",
             "date": "2024-12-25",
             "time": "14:00",
-            "location": "Main Court",
-            "type": "tournament"
+            "location": "Main Court"
         }
         
         success, response = self.run_test(
