@@ -164,15 +164,18 @@ backend:
   
   - task: "User Role Assignment Endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Created POST /api/admin/users/assign-role endpoint for super admins to assign roles to users with optional custom permissions. Sends email notification and creates system notification. Also created GET /api/admin/users/{id}/permissions to view user permissions."
+      - working: true
+        agent: "testing"
+        comment: "TESTED SUCCESSFULLY - User role assignment working correctly. POST /api/admin/users/assign-role successfully assigns roles (super admin only, admin gets 403). Role assignment updates user permissions correctly. GET /api/admin/users/{id}/permissions retrieves user role and permissions (admin access). Tested assigning 'admin' role to test user - user permissions updated from 0 to 25 permissions. Email notifications and system notifications working as expected."
   
   - task: "Permissions List Endpoint"
     implemented: true
