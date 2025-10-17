@@ -1082,11 +1082,16 @@ def main():
     print("\n🌐 PUBLIC ENDPOINTS TESTS")
     test_results.append(("Get Events", tester.test_get_events()))
     test_results.append(("Get Facilities", tester.test_get_facilities()))
+    test_results.append(("Get Programs", tester.test_get_programs()))
+    test_results.append(("Get Teams", tester.test_get_teams()))
+    test_results.append(("Get Calendar Events", tester.test_get_calendar_events()))
+    test_results.append(("Get Memberships", tester.test_get_memberships()))
     
     # User Dashboard Tests
     print("\n👤 USER DASHBOARD TESTS")
     test_results.append(("Get User Registrations", tester.test_get_registrations()))
     test_results.append(("Get User Bookings", tester.test_get_bookings()))
+    test_results.append(("Get My Payment Plans", tester.test_get_my_payment_plans()))
     
     # Registration Tests
     print("\n📝 REGISTRATION TESTS")
@@ -1108,22 +1113,49 @@ def main():
     test_results.append(("Adult Registration Checkout", tester.test_adult_registration_checkout()))
     test_results.append(("Youth Payment Status Check", tester.test_youth_payment_status()))
     test_results.append(("Adult Payment Status Check", tester.test_adult_payment_status()))
+    test_results.append(("Facility Booking Checkout", tester.test_facility_booking_checkout()))
+    test_results.append(("Booking Payment Status Check", tester.test_booking_payment_status()))
     
     # Security Tests
     print("\n🔒 SECURITY TESTS")
     test_results.append(("Unauthorized Payment Access", tester.test_unauthorized_payment_access()))
     test_results.append(("Non-existent Registration Payment", tester.test_nonexistent_registration_payment()))
 
-    # Admin Tests
-    print("\n🔧 ADMIN FUNCTIONALITY TESTS")
+    # Admin Content Management Tests
+    print("\n🔧 ADMIN CONTENT MANAGEMENT TESTS")
     test_results.append(("Create Event (Admin)", tester.test_create_event_admin()))
     test_results.append(("Update Event (Admin)", tester.test_update_event_admin()))
     test_results.append(("Create Facility (Admin)", tester.test_create_facility_admin()))
     test_results.append(("Update Facility (Admin)", tester.test_update_facility_admin()))
+    test_results.append(("Create Program (Admin)", tester.test_create_program_admin()))
+    test_results.append(("Get Program by Slug", tester.test_get_program_by_slug()))
+    test_results.append(("Create Team (Admin)", tester.test_create_team_admin()))
+    test_results.append(("Get All Teams (Admin)", tester.test_get_admin_teams()))
+    test_results.append(("Create Calendar Event (Admin)", tester.test_create_calendar_event_admin()))
+    test_results.append(("Create Membership (Admin)", tester.test_create_membership_admin()))
     test_results.append(("Get All Registrations (Admin)", tester.test_get_admin_registrations()))
     test_results.append(("Get All Bookings (Admin)", tester.test_get_admin_bookings()))
     test_results.append(("Delete Event (Admin)", tester.test_delete_event_admin()))
     test_results.append(("Delete Facility (Admin)", tester.test_delete_facility_admin()))
+    
+    # Admin User Management Tests
+    print("\n👥 ADMIN USER MANAGEMENT TESTS")
+    test_results.append(("Get All Users (Admin)", tester.test_get_admin_users()))
+    test_results.append(("Update User Role (Admin)", tester.test_update_user_role_admin()))
+    
+    # Forms & Communications Tests
+    print("\n📋 FORMS & COMMUNICATIONS TESTS")
+    test_results.append(("Contact Form Submission", tester.test_contact_form_submission()))
+    test_results.append(("Volunteer Application", tester.test_volunteer_application()))
+    test_results.append(("Sponsorship Inquiry", tester.test_sponsorship_inquiry()))
+    test_results.append(("Get Contact Submissions (Admin)", tester.test_get_admin_contact_submissions()))
+    test_results.append(("Get Volunteer Applications (Admin)", tester.test_get_admin_volunteer_applications()))
+    test_results.append(("Get Sponsorship Inquiries (Admin)", tester.test_get_admin_sponsorship_inquiries()))
+    
+    # Payment Plans Tests
+    print("\n💰 PAYMENT PLANS TESTS")
+    test_results.append(("Get Payment Plans (Admin)", tester.test_get_payment_plans_admin()))
+    test_results.append(("Create Payment Plan (Admin)", tester.test_create_payment_plan_admin()))
     
     # Print results summary
     print("\n" + "=" * 50)
