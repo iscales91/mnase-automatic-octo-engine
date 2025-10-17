@@ -66,6 +66,8 @@ function App() {
           <Route path="/sponsorship" element={<Sponsorship />} />
           <Route path="/scores" element={<Scores />} />
           <Route path="/foundation" element={<Foundation />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/news/:postId" element={<News />} />
           <Route path="/register" element={<EnhancedRegistration />} />
           <Route path="/program-registration" element={<ProgramRegistration />} />
           <Route path="/dashboard" element={
