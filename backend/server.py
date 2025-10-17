@@ -950,6 +950,253 @@ async def login(credentials: UserLogin):
 async def get_me(user: User = Depends(get_current_user)):
     return user
 
+
+# Admin Setup endpoint (one-time use to create super admin)
+@api_router.post("/admin/setup")
+async def setup_super_admin(request: SetupAdminRequest):
+    """Create the first super admin user - secured by secret token"""
+    # Verify secret token
+    if request.secret_token != SETUP_SECRET_TOKEN:
+        raise HTTPException(status_code=403, detail="Invalid setup token")
+    
+    # Check if super admin already exists
+    existing_super_admin = await db.users.find_one({"role": "super_admin"}, {"_id": 0})
+    if existing_super_admin:
+        raise HTTPException(status_code=400, detail="Super admin already exists")
+    
+    # Check if email is already registered
+    existing = await db.users.find_one({"email": request.email}, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Create super admin user
+    hashed_password = hash_password(request.password)
+    user = User(
+        email=request.email,
+        name=request.name,
+        role="super_admin",
+        date_of_birth=request.date_of_birth,
+        permissions=DEFAULT_ROLES['super_admin']['permissions']
+    )
+    
+    user_doc = user.model_dump()
+    user_doc['created_at'] = user_doc['created_at'].isoformat()
+    user_doc['password'] = hashed_password
+    
+    await db.users.insert_one(user_doc)
+    
+    # Initialize default roles in database if not exists
+    for role_name, role_config in DEFAULT_ROLES.items():
+        existing_role = await db.roles.find_one({"name": role_name}, {"_id": 0})
+        if not existing_role:
+            role = Role(
+                name=role_name,
+                display_name=role_config['display_name'],
+                description=role_config['description'],
+                permissions=role_config['permissions'],
+                is_system_role=role_config['is_system_role']
+            )
+            role_doc = role.model_dump()
+            role_doc['created_at'] = role_doc['created_at'].isoformat()
+            await db.roles.insert_one(role_doc)
+    
+    # Send notification email
+    try:
+        await email_service.send_email(
+            to_email=request.email,
+            subject="Super Admin Account Created - MNASE Basketball League",
+            body=f"""
+            <h2>Welcome, {request.name}!</h2>
+            <p>Your Super Administrator account has been successfully created for the MNASE Basketball League management system.</p>
+            <p><strong>Email:</strong> {request.email}</p>
+            <p>You now have full access to manage all aspects of the system including:</p>
+            <ul>
+                <li>User and role management</li>
+                <li>System configuration</li>
+                <li>All administrative functions</li>
+            </ul>
+            <p>Please keep your credentials secure.</p>
+            """
+        )
+    except Exception as e:
+        logging.error(f"Failed to send super admin creation email: {e}")
+    
+    # Create notification
+    try:
+        await notification_service.create_notification(
+            user_id=user.id,
+            title="Welcome to MNASE!",
+            message=f"Your Super Administrator account has been created. You have full system access.",
+            notification_type="system"
+        )
+    except Exception as e:
+        logging.error(f"Failed to create notification: {e}")
+    
+    token = create_access_token({"user_id": user.id, "email": user.email})
+    return {"user": user, "token": token, "message": "Super admin created successfully"}
+
+# Role Management Endpoints
+@api_router.get("/admin/roles", response_model=List[Role])
+async def get_roles(admin: User = Depends(get_admin_user)):
+    """Get all roles - Admin access required"""
+    roles = await db.roles.find({}, {"_id": 0}).to_list(1000)
+    for role in roles:
+        if isinstance(role['created_at'], str):
+            role['created_at'] = datetime.fromisoformat(role['created_at'])
+    return roles
+
+@api_router.get("/admin/roles/{role_id}", response_model=Role)
+async def get_role(role_id: str, admin: User = Depends(get_admin_user)):
+    """Get a specific role by ID"""
+    role = await db.roles.find_one({"id": role_id}, {"_id": 0})
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    if isinstance(role['created_at'], str):
+        role['created_at'] = datetime.fromisoformat(role['created_at'])
+    return Role(**role)
+
+@api_router.post("/admin/roles", response_model=Role)
+async def create_role(role_data: RoleCreate, super_admin: User = Depends(get_super_admin_user)):
+    """Create a new custom role - Super Admin only"""
+    # Check if role name already exists
+    existing = await db.roles.find_one({"name": role_data.name}, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail="Role name already exists")
+    
+    role = Role(
+        name=role_data.name,
+        display_name=role_data.display_name,
+        description=role_data.description,
+        permissions=role_data.permissions,
+        is_system_role=False
+    )
+    
+    role_doc = role.model_dump()
+    role_doc['created_at'] = role_doc['created_at'].isoformat()
+    await db.roles.insert_one(role_doc)
+    
+    return role
+
+@api_router.put("/admin/roles/{role_id}", response_model=Role)
+async def update_role(role_id: str, role_data: RoleUpdate, super_admin: User = Depends(get_super_admin_user)):
+    """Update a role - Super Admin only"""
+    role = await db.roles.find_one({"id": role_id}, {"_id": 0})
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    # Cannot modify system roles
+    if role.get('is_system_role'):
+        raise HTTPException(status_code=403, detail="Cannot modify system roles")
+    
+    update_data = {k: v for k, v in role_data.model_dump().items() if v is not None}
+    if update_data:
+        await db.roles.update_one({"id": role_id}, {"$set": update_data})
+    
+    updated_role = await db.roles.find_one({"id": role_id}, {"_id": 0})
+    if isinstance(updated_role['created_at'], str):
+        updated_role['created_at'] = datetime.fromisoformat(updated_role['created_at'])
+    return Role(**updated_role)
+
+@api_router.delete("/admin/roles/{role_id}")
+async def delete_role(role_id: str, super_admin: User = Depends(get_super_admin_user)):
+    """Delete a custom role - Super Admin only"""
+    role = await db.roles.find_one({"id": role_id}, {"_id": 0})
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    # Cannot delete system roles
+    if role.get('is_system_role'):
+        raise HTTPException(status_code=403, detail="Cannot delete system roles")
+    
+    # Check if any users have this role
+    users_with_role = await db.users.count_documents({"role": role['name']})
+    if users_with_role > 0:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Cannot delete role. {users_with_role} user(s) are assigned this role"
+        )
+    
+    await db.roles.delete_one({"id": role_id})
+    return {"message": "Role deleted successfully"}
+
+@api_router.get("/admin/permissions")
+async def get_all_permissions(admin: User = Depends(get_admin_user)):
+    """Get all available permissions grouped by category"""
+    return PERMISSIONS
+
+# User Role Assignment Endpoints
+@api_router.post("/admin/users/assign-role")
+async def assign_role_to_user(request: AssignRoleRequest, super_admin: User = Depends(get_super_admin_user)):
+    """Assign a role to a user - Super Admin only"""
+    # Get user
+    user = await db.users.find_one({"id": request.user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Verify role exists
+    role = await db.roles.find_one({"name": request.role}, {"_id": 0})
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    # Get default permissions for the role
+    permissions = role['permissions']
+    
+    # Override with custom permissions if provided
+    if request.permissions:
+        permissions = request.permissions
+    
+    # Update user
+    await db.users.update_one(
+        {"id": request.user_id},
+        {"$set": {"role": request.role, "permissions": permissions}}
+    )
+    
+    # Create notification
+    try:
+        await notification_service.create_notification(
+            user_id=request.user_id,
+            title="Role Updated",
+            message=f"Your role has been updated to {role['display_name']}",
+            notification_type="system"
+        )
+    except Exception as e:
+        logging.error(f"Failed to create notification: {e}")
+    
+    # Send email
+    try:
+        await email_service.send_email(
+            to_email=user['email'],
+            subject="Role Assignment - MNASE Basketball League",
+            body=f"""
+            <h2>Role Updated</h2>
+            <p>Hi {user['name']},</p>
+            <p>Your role in the MNASE Basketball League system has been updated to <strong>{role['display_name']}</strong>.</p>
+            <p><strong>Description:</strong> {role['description']}</p>
+            <p>You now have access to new features and capabilities based on your role.</p>
+            """
+        )
+    except Exception as e:
+        logging.error(f"Failed to send role assignment email: {e}")
+    
+    updated_user = await db.users.find_one({"id": request.user_id}, {"_id": 0})
+    if isinstance(updated_user['created_at'], str):
+        updated_user['created_at'] = datetime.fromisoformat(updated_user['created_at'])
+    return {"message": "Role assigned successfully", "user": User(**updated_user)}
+
+@api_router.get("/admin/users/{user_id}/permissions")
+async def get_user_permissions(user_id: str, admin: User = Depends(get_admin_user)):
+    """Get a user's permissions"""
+    user = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {
+        "user_id": user_id,
+        "role": user.get('role', 'user'),
+        "permissions": user.get('permissions', [])
+    }
+
+
 # Event endpoints
 @api_router.get("/events", response_model=List[Event])
 async def get_events():
