@@ -1090,6 +1090,344 @@ class MNASEBasketballAPITester:
             print(f"✅ Found {len(response)} total enhanced registrations")
         return success
 
+    # ===== ROLES & PERMISSIONS MANAGEMENT TESTS =====
+    
+    def test_get_all_roles_admin(self):
+        """Test getting all roles as admin"""
+        success, response = self.run_test(
+            "Get All Roles (Admin)",
+            "GET",
+            "admin/roles",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} roles")
+            # Print role names for verification
+            role_names = [role.get('name', 'Unknown') for role in response]
+            print(f"✅ Roles found: {', '.join(role_names)}")
+        return success
+
+    def test_get_all_roles_super_admin(self):
+        """Test getting all roles as super admin"""
+        success, response = self.run_test(
+            "Get All Roles (Super Admin)",
+            "GET",
+            "admin/roles",
+            200,
+            use_super_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} roles")
+            # Store first role ID for later tests
+            if response and len(response) > 0:
+                for role in response:
+                    if not role.get('is_system_role', False):
+                        # Found a custom role we can use for testing
+                        break
+        return success
+
+    def test_get_permissions_list_admin(self):
+        """Test getting all available permissions as admin"""
+        success, response = self.run_test(
+            "Get All Permissions (Admin)",
+            "GET",
+            "admin/permissions",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} permission categories")
+            # Print categories for verification
+            categories = list(response.keys()) if isinstance(response, dict) else []
+            print(f"✅ Permission categories: {', '.join(categories)}")
+        return success
+
+    def test_get_permissions_list_super_admin(self):
+        """Test getting all available permissions as super admin"""
+        success, response = self.run_test(
+            "Get All Permissions (Super Admin)",
+            "GET",
+            "admin/permissions",
+            200,
+            use_super_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} permission categories")
+        return success
+
+    def test_create_custom_role_super_admin(self):
+        """Test creating a custom role as super admin"""
+        role_data = {
+            "name": "assistant_coach",
+            "display_name": "Assistant Coach",
+            "description": "Assistant coach with limited team management permissions",
+            "permissions": [
+                "view_teams", "view_users", "view_events", "manage_players"
+            ]
+        }
+        
+        success, response = self.run_test(
+            "Create Custom Role (Super Admin)",
+            "POST",
+            "admin/roles",
+            200,
+            data=role_data,
+            use_super_admin=True
+        )
+        
+        if success and 'id' in response:
+            self.created_role_id = response['id']
+            print(f"✅ Custom role created with ID: {self.created_role_id}")
+            print(f"✅ Role name: {response.get('name', 'Unknown')}")
+        return success
+
+    def test_create_custom_role_admin_should_fail(self):
+        """Test that admin cannot create custom roles (should fail)"""
+        role_data = {
+            "name": "test_role_admin",
+            "display_name": "Test Role Admin",
+            "description": "This should fail",
+            "permissions": ["view_teams"]
+        }
+        
+        success, response = self.run_test(
+            "Create Custom Role (Admin - Should Fail)",
+            "POST",
+            "admin/roles",
+            403,  # Should get 403 Forbidden
+            data=role_data,
+            use_admin=True
+        )
+        return success
+
+    def test_get_specific_role_admin(self):
+        """Test getting a specific role by ID as admin"""
+        if not self.created_role_id:
+            print("❌ No custom role ID available for specific role test")
+            return False
+            
+        success, response = self.run_test(
+            "Get Specific Role (Admin)",
+            "GET",
+            f"admin/roles/{self.created_role_id}",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ Retrieved role: {response.get('name', 'Unknown')}")
+        return success
+
+    def test_update_custom_role_super_admin(self):
+        """Test updating a custom role as super admin"""
+        if not self.created_role_id:
+            print("❌ No custom role ID available for update test")
+            return False
+            
+        update_data = {
+            "display_name": "Updated Assistant Coach",
+            "description": "Updated description for assistant coach role",
+            "permissions": [
+                "view_teams", "view_users", "view_events", "manage_players", "view_forms"
+            ]
+        }
+        
+        success, response = self.run_test(
+            "Update Custom Role (Super Admin)",
+            "PUT",
+            f"admin/roles/{self.created_role_id}",
+            200,
+            data=update_data,
+            use_super_admin=True
+        )
+        
+        if success:
+            print(f"✅ Updated role: {response.get('display_name', 'Unknown')}")
+        return success
+
+    def test_update_system_role_should_fail(self):
+        """Test that system roles cannot be updated (should fail)"""
+        # Try to update a system role (we'll use a fake ID that represents a system role)
+        update_data = {
+            "display_name": "Hacked Admin",
+            "permissions": ["view_teams"]
+        }
+        
+        # First get all roles to find a system role
+        success, roles_response = self.run_test(
+            "Get Roles for System Role Test",
+            "GET",
+            "admin/roles",
+            200,
+            use_super_admin=True
+        )
+        
+        if not success or not roles_response:
+            print("❌ Could not get roles for system role test")
+            return False
+            
+        # Find a system role
+        system_role_id = None
+        for role in roles_response:
+            if role.get('is_system_role', False):
+                system_role_id = role.get('id')
+                break
+                
+        if not system_role_id:
+            print("❌ No system role found for test")
+            return False
+            
+        success, response = self.run_test(
+            "Update System Role (Should Fail)",
+            "PUT",
+            f"admin/roles/{system_role_id}",
+            403,  # Should get 403 Forbidden
+            data=update_data,
+            use_super_admin=True
+        )
+        return success
+
+    def test_assign_role_to_user_super_admin(self):
+        """Test assigning a role to a user as super admin"""
+        # First create a test user for role assignment
+        if not self.user_id:
+            print("❌ No user ID available for role assignment test")
+            return False
+            
+        assign_data = {
+            "user_id": self.user_id,
+            "role": "admin",
+            "permissions": None  # Use default role permissions
+        }
+        
+        success, response = self.run_test(
+            "Assign Role to User (Super Admin)",
+            "POST",
+            "admin/users/assign-role",
+            200,
+            data=assign_data,
+            use_super_admin=True
+        )
+        
+        if success:
+            print(f"✅ Role assigned to user: {response.get('message', 'Success')}")
+        return success
+
+    def test_assign_role_admin_should_fail(self):
+        """Test that admin cannot assign roles (should fail)"""
+        if not self.user_id:
+            print("❌ No user ID available for role assignment test")
+            return False
+            
+        assign_data = {
+            "user_id": self.user_id,
+            "role": "manager"
+        }
+        
+        success, response = self.run_test(
+            "Assign Role (Admin - Should Fail)",
+            "POST",
+            "admin/users/assign-role",
+            403,  # Should get 403 Forbidden
+            data=assign_data,
+            use_admin=True
+        )
+        return success
+
+    def test_get_user_permissions_admin(self):
+        """Test getting user permissions as admin"""
+        if not self.user_id:
+            print("❌ No user ID available for permissions test")
+            return False
+            
+        success, response = self.run_test(
+            "Get User Permissions (Admin)",
+            "GET",
+            f"admin/users/{self.user_id}/permissions",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ User role: {response.get('role', 'Unknown')}")
+            print(f"✅ User permissions count: {len(response.get('permissions', []))}")
+        return success
+
+    def test_delete_custom_role_super_admin(self):
+        """Test deleting a custom role as super admin"""
+        if not self.created_role_id:
+            print("❌ No custom role ID available for delete test")
+            return False
+            
+        success, response = self.run_test(
+            "Delete Custom Role (Super Admin)",
+            "DELETE",
+            f"admin/roles/{self.created_role_id}",
+            200,
+            use_super_admin=True
+        )
+        
+        if success:
+            print(f"✅ Custom role deleted: {response.get('message', 'Success')}")
+        return success
+
+    def test_delete_system_role_should_fail(self):
+        """Test that system roles cannot be deleted (should fail)"""
+        # Get all roles to find a system role
+        success, roles_response = self.run_test(
+            "Get Roles for System Role Delete Test",
+            "GET",
+            "admin/roles",
+            200,
+            use_super_admin=True
+        )
+        
+        if not success or not roles_response:
+            print("❌ Could not get roles for system role delete test")
+            return False
+            
+        # Find a system role
+        system_role_id = None
+        for role in roles_response:
+            if role.get('is_system_role', False):
+                system_role_id = role.get('id')
+                break
+                
+        if not system_role_id:
+            print("❌ No system role found for delete test")
+            return False
+            
+        success, response = self.run_test(
+            "Delete System Role (Should Fail)",
+            "DELETE",
+            f"admin/roles/{system_role_id}",
+            403,  # Should get 403 Forbidden
+            use_super_admin=True
+        )
+        return success
+
+    def test_unauthorized_role_access(self):
+        """Test unauthorized access to role endpoints"""
+        # Test without authentication
+        temp_token = self.token
+        self.token = None
+        
+        success, response = self.run_test(
+            "Unauthorized Role Access",
+            "GET",
+            "admin/roles",
+            401  # Should get 401 Unauthorized
+        )
+        
+        # Restore token
+        self.token = temp_token
+        return success
+
     def test_get_admin_adult_registrations(self):
         """Test getting all adult registrations as admin"""
         success, response = self.run_test(
