@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar as CalendarIcon, MapPin, Users, DollarSign } from 'lucide-react';
 import Calendar from '@/components/Calendar';
+import AdvancedCalendar from '@/components/AdvancedCalendar';
 import axios from 'axios';
 import { toast } from 'sonner';
 
