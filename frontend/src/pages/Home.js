@@ -122,6 +122,21 @@ function Home() {
             <Link to="/about" className="navbar-link" data-testid="nav-about-link">About</Link>
             <Link to="/faq" className="navbar-link" data-testid="nav-faq-link">FAQ</Link>
             <Link to="/shop" className="navbar-link" data-testid="nav-shop-link">Shop</Link>
+            <button 
+              onClick={() => setShowSearch(true)} 
+              className="navbar-btn" 
+              style={{ 
+                background: 'transparent', 
+                border: '1px solid #e5e7eb',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              data-testid="search-btn"
+            >
+              <SearchIcon size={18} />
+              Search
+            </button>
             {token ? (
               <>
                 <Link to="/dashboard" className="navbar-link" data-testid="nav-dashboard-link">Dashboard</Link>
