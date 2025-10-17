@@ -2886,6 +2886,262 @@ async def delete_testimonial(testimonial_id: str, admin: User = Depends(get_admi
     try:
         result = await db.testimonials.delete_one({"id": testimonial_id})
         
+
+
+# ============================================================================
+# ANALYTICS ENDPOINTS
+# ============================================================================
+
+@api_router.get("/admin/analytics/overview")
+async def get_analytics_overview(admin: User = Depends(get_admin_user)):
+    """Get comprehensive analytics overview (admin only)"""
+    try:
+        # User stats
+        total_users = await db.users.count_documents({})
+        new_users_30d = await db.users.count_documents({
+            "created_at": {"$gte": (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()}
+        })
+        
+        # Registration stats
+        total_registrations = await db.enhanced_registrations.count_documents({})
+        adult_registrations = await db.adult_registrations.count_documents({})
+        pending_registrations = await db.enhanced_registrations.count_documents({"status": "pending"})
+        approved_registrations = await db.enhanced_registrations.count_documents({"status": "approved"})
+        
+        # Payment stats
+        total_transactions = await db.payment_transactions.count_documents({})
+        completed_payments = await db.payment_transactions.count_documents({"payment_status": "completed"})
+        
+        # Calculate total revenue
+        revenue_pipeline = [
+            {"$match": {"payment_status": "completed"}},
+            {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+        ]
+        revenue_result = await db.payment_transactions.aggregate(revenue_pipeline).to_list(length=1)
+        total_revenue = revenue_result[0]["total"] if revenue_result else 0
+        
+        # Event stats
+        total_events = await db.events.count_documents({})
+        upcoming_events = await db.events.count_documents({
+            "date": {"$gte": datetime.now(timezone.utc).isoformat()}
+        })
+        
+        # Facility stats
+        total_facilities = await db.facilities.count_documents({})
+        total_bookings = await db.bookings.count_documents({})
+        
+        # Team stats
+        total_teams = await db.teams.count_documents({})
+        
+        # Content stats
+        total_news = await db.news_posts.count_documents({})
+        published_news = await db.news_posts.count_documents({"published": True})
+        total_gallery = await db.gallery.count_documents({})
+        total_testimonials = await db.testimonials.count_documents({})
+        approved_testimonials = await db.testimonials.count_documents({"approved": True})
+        
+        # Notification stats
+        total_notifications = await db.notifications.count_documents({})
+        unread_notifications = await db.notifications.count_documents({"read": False})
+        
+        return {
+            "users": {
+                "total": total_users,
+                "new_30d": new_users_30d
+            },
+            "registrations": {
+                "total_youth": total_registrations,
+                "total_adult": adult_registrations,
+                "pending": pending_registrations,
+                "approved": approved_registrations
+            },
+            "payments": {
+                "total_transactions": total_transactions,
+                "completed": completed_payments,
+                "total_revenue": total_revenue
+            },
+            "events": {
+                "total": total_events,
+                "upcoming": upcoming_events
+            },
+            "facilities": {
+                "total": total_facilities,
+                "bookings": total_bookings
+            },
+            "teams": {
+                "total": total_teams
+            },
+            "content": {
+                "news_total": total_news,
+                "news_published": published_news,
+                "gallery_images": total_gallery,
+                "testimonials_total": total_testimonials,
+                "testimonials_approved": approved_testimonials
+            },
+            "notifications": {
+                "total": total_notifications,
+                "unread": unread_notifications
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch analytics: {str(e)}")
+
+@api_router.get("/admin/analytics/revenue")
+async def get_revenue_analytics(
+    period: str = "30d",
+    admin: User = Depends(get_admin_user)
+):
+    """Get revenue analytics by time period (admin only)"""
+    try:
+        # Calculate date range
+        if period == "7d":
+            start_date = datetime.now(timezone.utc) - timedelta(days=7)
+        elif period == "30d":
+            start_date = datetime.now(timezone.utc) - timedelta(days=30)
+        elif period == "90d":
+            start_date = datetime.now(timezone.utc) - timedelta(days=90)
+        else:
+            start_date = datetime.now(timezone.utc) - timedelta(days=365)
+        
+        # Get transactions
+        pipeline = [
+            {"$match": {
+                "payment_status": "completed",
+                "created_at": {"$gte": start_date.isoformat()}
+            }},
+            {"$group": {
+                "_id": {"$substr": ["$created_at", 0, 10]},
+                "revenue": {"$sum": "$amount"},
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}}
+        ]
+        
+        results = await db.payment_transactions.aggregate(pipeline).to_list(length=None)
+        
+        return {
+            "period": period,
+            "data": results
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch revenue analytics: {str(e)}")
+
+@api_router.get("/admin/analytics/registrations")
+async def get_registration_analytics(
+    period: str = "30d",
+    admin: User = Depends(get_admin_user)
+):
+    """Get registration analytics by time period (admin only)"""
+    try:
+        # Calculate date range
+        if period == "7d":
+            days = 7
+        elif period == "30d":
+            days = 30
+        elif period == "90d":
+            days = 90
+        else:
+            days = 365
+        
+        start_date = datetime.now(timezone.utc) - timedelta(days=days)
+        
+        # Youth registrations by day
+        youth_pipeline = [
+            {"$match": {"created_at": {"$gte": start_date.isoformat()}}},
+            {"$group": {
+                "_id": {"$substr": ["$created_at", 0, 10]},
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}}
+        ]
+        
+        youth_results = await db.enhanced_registrations.aggregate(youth_pipeline).to_list(length=None)
+        
+        # Adult registrations by day
+        adult_pipeline = [
+            {"$match": {"created_at": {"$gte": start_date.isoformat()}}},
+            {"$group": {
+                "_id": {"$substr": ["$created_at", 0, 10]},
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}}
+        ]
+        
+        adult_results = await db.adult_registrations.aggregate(adult_pipeline).to_list(length=None)
+        
+        # Status breakdown
+        youth_status = await db.enhanced_registrations.aggregate([
+            {"$group": {"_id": "$status", "count": {"$sum": 1}}}
+        ]).to_list(length=None)
+        
+        adult_status = await db.adult_registrations.aggregate([
+            {"$group": {"_id": "$status", "count": {"$sum": 1}}}
+        ]).to_list(length=None)
+        
+        return {
+            "period": period,
+            "youth_by_day": youth_results,
+            "adult_by_day": adult_results,
+            "youth_by_status": youth_status,
+            "adult_by_status": adult_status
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch registration analytics: {str(e)}")
+
+@api_router.get("/admin/analytics/users")
+async def get_user_analytics(admin: User = Depends(get_admin_user)):
+    """Get user analytics (admin only)"""
+    try:
+        # User growth by month
+        pipeline = [
+            {"$group": {
+                "_id": {"$substr": ["$created_at", 0, 7]},
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}},
+            {"$limit": 12}
+        ]
+        
+        growth_results = await db.users.aggregate(pipeline).to_list(length=None)
+        
+        # Users by role
+        role_pipeline = [
+            {"$group": {"_id": "$role", "count": {"$sum": 1}}}
+        ]
+        
+        role_results = await db.users.aggregate(role_pipeline).to_list(length=None)
+        
+        return {
+            "growth_by_month": growth_results,
+            "by_role": role_results
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch user analytics: {str(e)}")
+
+@api_router.get("/admin/analytics/popular-programs")
+async def get_popular_programs(admin: User = Depends(get_admin_user)):
+    """Get most popular programs by registrations (admin only)"""
+    try:
+        # Most registered programs
+        pipeline = [
+            {"$group": {
+                "_id": "$program",
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"count": -1}},
+            {"$limit": 10}
+        ]
+        
+        youth_programs = await db.enhanced_registrations.aggregate(pipeline).to_list(length=None)
+        adult_programs = await db.adult_registrations.aggregate(pipeline).to_list(length=None)
+        
+        return {
+            "youth_programs": youth_programs,
+            "adult_programs": adult_programs
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch program analytics: {str(e)}")
+
         if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Testimonial not found")
         
