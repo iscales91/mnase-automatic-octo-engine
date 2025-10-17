@@ -136,6 +136,43 @@ api_router = APIRouter(prefix="/api")
 # Mount static files for uploads
 app.mount("/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 
+
+# Global exception handlers
+@app.exception_handler(CustomHTTPException)
+async def custom_http_exception_handler(request: Request, exc: CustomHTTPException):
+    """Handle custom HTTP exceptions"""
+    return {
+        "error": exc.error,
+        "message": exc.message,
+        "details": exc.details,
+        "validation_errors": exc.validation_errors
+    }
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Handle standard HTTP exceptions"""
+    # Log the error for server-side tracking
+    if exc.status_code >= 500:
+        logging.error(f"Server error on {request.url}: {exc.detail}")
+    
+    return {
+        "error": "http_error",
+        "message": str(exc.detail) if exc.detail else "An error occurred",
+        "status_code": exc.status_code
+    }
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    """Handle any unhandled exceptions"""
+    logging.error(f"Unhandled exception on {request.url}: {str(exc)}")
+    
+    return {
+        "error": "internal_server_error",
+        "message": "An unexpected error occurred. Please try again later.",
+        "details": {"type": type(exc).__name__} if logging.getLogger().level == logging.DEBUG else None
+    }
+
+
 # Pydantic Models
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
