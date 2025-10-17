@@ -2914,6 +2914,14 @@ async def delete_testimonial(testimonial_id: str, admin: User = Depends(get_admi
     try:
         result = await db.testimonials.delete_one({"id": testimonial_id})
         
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Testimonial not found")
+        
+        return {"message": "Testimonial deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete testimonial: {str(e)}")
 
 
 # ============================================================================
