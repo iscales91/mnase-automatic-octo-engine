@@ -149,15 +149,18 @@ backend:
   
   - task: "Role Management CRUD Endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Created role management endpoints: GET /api/admin/roles (list all), GET /api/admin/roles/{id} (get one), POST /api/admin/roles (create custom role, super admin only), PUT /api/admin/roles/{id} (update custom role), DELETE /api/admin/roles/{id} (delete custom role). System roles cannot be modified or deleted."
+      - working: true
+        agent: "testing"
+        comment: "TESTED SUCCESSFULLY - All role management CRUD endpoints working correctly. GET /api/admin/roles returns all 7 system roles (admin and super admin access). GET /api/admin/roles/{id} retrieves specific roles. POST /api/admin/roles creates custom roles (super admin only, admin gets 403). PUT /api/admin/roles/{id} updates custom roles (super admin only). DELETE /api/admin/roles/{id} deletes custom roles. System role protection working: cannot modify/delete system roles (403 Forbidden). Created and tested 'assistant_coach' custom role successfully."
   
   - task: "User Role Assignment Endpoint"
     implemented: true
