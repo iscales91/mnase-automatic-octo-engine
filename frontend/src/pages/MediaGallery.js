@@ -120,18 +120,20 @@ function MediaGallery() {
               </CardFooter>
             </Card>
 
-            <Card style={{ cursor: 'pointer', transition: 'all 0.3s' }}>
-              <CardHeader>
-                <Image size={40} style={{ color: '#f59e0b', marginBottom: '1rem' }} />
-                <CardTitle style={{ color: '#92400e' }}>Photo Galleries</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p style={{ color: '#64748b' }}>Browse action shots and team photos from events and games</p>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="w-full">View Photos</Button>
-              </CardFooter>
-            </Card>
+            <Link to="/gallery" style={{ textDecoration: 'none' }}>
+              <Card style={{ cursor: 'pointer', transition: 'all 0.3s', height: '100%' }}>
+                <CardHeader>
+                  <Image size={40} style={{ color: '#f59e0b', marginBottom: '1rem' }} />
+                  <CardTitle style={{ color: '#92400e' }}>Photo Galleries</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p style={{ color: '#64748b' }}>Browse action shots and team photos from events and games</p>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full">View Photos</Button>
+                </CardFooter>
+              </Card>
+            </Link>
 
             <Card style={{ cursor: 'pointer', transition: 'all 0.3s' }}>
               <CardHeader>
