@@ -35,6 +35,9 @@ STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
+# Mount static files for uploads
+app.mount("/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
+
 # Pydantic Models
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
