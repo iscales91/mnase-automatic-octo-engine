@@ -197,8 +197,10 @@ test_plan:
   current_focus:
     - "Add payment buttons and status to MemberDashboard"
   stuck_tasks: []
-  test_all: false
+  test_all: true
   test_priority: "high_first"
+  backend_testing_complete: true
+  backend_success_rate: "94.2%"
 
 agent_communication:
   - agent: "main"
