@@ -137,7 +137,7 @@ function Events() {
             </TabsList>
 
             <TabsContent value="calendar" data-testid="calendar-content">
-              <Calendar />
+              <AdvancedCalendar />
             </TabsContent>
 
             <TabsContent value="list" data-testid="list-content">{loading ? (
