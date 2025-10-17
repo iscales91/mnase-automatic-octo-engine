@@ -2636,6 +2636,13 @@ async def mark_all_notifications_read(user: User = Depends(get_current_user)):
             {"user_id": user.id, "read": False},
             {"$set": {"read": True}}
         )
+        
+        return {
+            "message": "All notifications marked as read",
+            "count": result.modified_count
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update notifications: {str(e)}")
 
 
 # ============================================================================
