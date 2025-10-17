@@ -16,6 +16,7 @@ const API = `${BACKEND_URL}/api`;
 
 function Home() {
   const [showAuth, setShowAuth] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ 
     email: '', 
