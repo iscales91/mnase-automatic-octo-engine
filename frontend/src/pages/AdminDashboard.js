@@ -241,6 +241,7 @@ function AdminDashboard() {
             <TabsTrigger value="analytics" data-testid="analytics-tab">📊 Analytics</TabsTrigger>
             <TabsTrigger value="users" data-testid="users-tab">Users</TabsTrigger>
             <TabsTrigger value="roles" data-testid="roles-tab">🔐 Roles & Permissions</TabsTrigger>
+            <TabsTrigger value="activity-logs" data-testid="activity-logs-tab">📋 Activity Logs</TabsTrigger>
             <TabsTrigger value="billing" data-testid="billing-tab">Billing</TabsTrigger>
             <TabsTrigger value="payment-plans" data-testid="payment-plans-tab">Payment Plans</TabsTrigger>
             <TabsTrigger value="calendar" data-testid="calendar-tab">Calendar</TabsTrigger>
@@ -262,6 +263,10 @@ function AdminDashboard() {
 
           <TabsContent value="roles" data-testid="roles-content">
             <RolesManagement />
+          </TabsContent>
+
+          <TabsContent value="activity-logs" data-testid="activity-logs-content">
+            <ActivityLogs />
           </TabsContent>
 
           <TabsContent value="billing" data-testid="billing-content">
