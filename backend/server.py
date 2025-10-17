@@ -2210,6 +2210,7 @@ async def delete_image(
     except HTTPException:
         raise
     except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete image: {str(e)}")
 
 
 # ============================================================================
