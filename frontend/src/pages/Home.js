@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ImageCarousel from '@/components/ImageCarousel';
 import GlobalSearch from '@/components/GlobalSearch';
+import NotificationBell from '@/components/NotificationBell';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Search as SearchIcon } from 'lucide-react';
