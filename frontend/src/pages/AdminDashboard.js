@@ -48,7 +48,7 @@ function AdminDashboard() {
   });
 
   useEffect(() => {
-    if (!token || user.role !== 'admin') {
+    if (!token || !['admin', 'super_admin'].includes(user.role)) {
       navigate('/');
       return;
     }
