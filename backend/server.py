@@ -49,6 +49,7 @@ class User(BaseModel):
     phone: Optional[str] = None
     parent_account_id: Optional[str] = None  # Links youth to parent account
     is_parent: bool = False  # True if this account manages youth
+    profile_image: Optional[str] = None  # Path to profile image
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class UserCreate(BaseModel):
