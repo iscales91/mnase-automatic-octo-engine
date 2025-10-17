@@ -675,6 +675,10 @@ async def register(user_data: UserCreate):
     
     await db.users.insert_one(doc)
     
+    # Create welcome notification
+    welcome_notification = notification_service.create_welcome_notification(user.id, user.name)
+    await db.notifications.insert_one(welcome_notification)
+    
     token = create_access_token({"user_id": user.id, "email": user.email})
     return {"user": user, "token": token}
 
