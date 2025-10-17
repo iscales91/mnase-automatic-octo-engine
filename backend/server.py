@@ -959,9 +959,19 @@ async def register(user_data: UserCreate):
     return {"user": user, "token": token}
 
 @api_router.post("/auth/login")
-async def login(credentials: UserLogin):
+async def login(credentials: UserLogin, request: Request):
     user_doc = await db.users.find_one({"email": credentials.email}, {"_id": 0})
+    
+    # Log failed login attempt
     if not user_doc or not verify_password(credentials.password, user_doc['password']):
+        await activity_log_service.log_activity(
+            action="login",
+            resource_type="auth",
+            user_email=credentials.email,
+            ip_address=request.client.host if request else None,
+            status="failure",
+            error_message="Invalid credentials"
+        )
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     if isinstance(user_doc['created_at'], str):
@@ -969,6 +979,17 @@ async def login(credentials: UserLogin):
     
     user = User(**user_doc)
     token = create_access_token({"user_id": user.id, "email": user.email})
+    
+    # Log successful login
+    await activity_log_service.log_activity(
+        action="login",
+        resource_type="auth",
+        user_id=user.id,
+        user_email=user.email,
+        ip_address=request.client.host if request else None,
+        details={"role": user.role}
+    )
+    
     return {"user": user, "token": token}
 
 @api_router.get("/auth/me", response_model=User)
