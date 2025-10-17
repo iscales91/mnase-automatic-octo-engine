@@ -832,6 +832,66 @@ async def get_admin_user(user: User = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Admin access required")
     return user
 
+
+# Permission checking utilities
+def has_permission(user: User, required_permission: str) -> bool:
+    """Check if user has a specific permission"""
+    if user.role == "super_admin":
+        return True
+    return required_permission in user.permissions
+
+def has_any_permission(user: User, required_permissions: List[str]) -> bool:
+    """Check if user has at least one of the required permissions"""
+    if user.role == "super_admin":
+        return True
+    return any(perm in user.permissions for perm in required_permissions)
+
+def has_all_permissions(user: User, required_permissions: List[str]) -> bool:
+    """Check if user has all required permissions"""
+    if user.role == "super_admin":
+        return True
+    return all(perm in user.permissions for perm in required_permissions)
+
+async def require_permission(permission: str):
+    """Dependency for routes requiring specific permission"""
+    async def permission_checker(user: User = Depends(get_current_user)):
+        if not has_permission(user, permission):
+            raise HTTPException(
+                status_code=403, 
+                detail=f"Permission required: {permission}"
+            )
+        return user
+    return permission_checker
+
+async def require_any_permission(permissions: List[str]):
+    """Dependency for routes requiring any of the permissions"""
+    async def permission_checker(user: User = Depends(get_current_user)):
+        if not has_any_permission(user, permissions):
+            raise HTTPException(
+                status_code=403, 
+                detail=f"One of these permissions required: {', '.join(permissions)}"
+            )
+        return user
+    return permission_checker
+
+async def require_role(required_role: str):
+    """Dependency for routes requiring specific role"""
+    async def role_checker(user: User = Depends(get_current_user)):
+        if user.role != required_role and user.role != "super_admin":
+            raise HTTPException(
+                status_code=403, 
+                detail=f"Role required: {required_role}"
+            )
+        return user
+    return role_checker
+
+async def get_super_admin_user(user: User = Depends(get_current_user)):
+    """Get current user and verify they are super admin"""
+    if user.role != "super_admin":
+        raise HTTPException(status_code=403, detail="Super admin access required")
+    return user
+
+
 # Auth endpoints
 @api_router.post("/auth/register")
 async def register(user_data: UserCreate):
