@@ -578,6 +578,45 @@ class TeamCreate(BaseModel):
     name: str
     division: str
     age_group: str
+
+
+# News/Blog Post Model
+class NewsPost(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    slug: str  # URL-friendly version of title
+    content: str
+    excerpt: str  # Short summary
+    author_id: str
+    author_name: str
+    category: str  # news, announcement, feature, tournament, success-story
+    tags: List[str] = []
+    featured_image: Optional[str] = None
+    published: bool = False
+    views: int = 0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    published_at: Optional[datetime] = None
+
+class NewsPostCreate(BaseModel):
+    title: str
+    content: str
+    excerpt: str
+    category: str
+    tags: List[str] = []
+    featured_image: Optional[str] = None
+    published: bool = False
+
+class NewsPostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    excerpt: Optional[str] = None
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
+    featured_image: Optional[str] = None
+    published: Optional[bool] = None
+
     season: str
     coach_name: str
     coach_email: Optional[str] = None
