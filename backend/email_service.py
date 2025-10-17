@@ -1,12 +1,20 @@
 """
 Email Service for MNASE Basketball League
-Supports both SendGrid (production) and Mock mode (development)
+Supports Gmail SMTP, SendGrid, and Mock mode
 """
 import os
+import smtplib
 from datetime import datetime
 from typing import Optional
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Email, To, Content
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+try:
+    from sendgrid import SendGridAPIClient
+    from sendgrid.helpers.mail import Mail, Email, To, Content
+    SENDGRID_AVAILABLE = True
+except ImportError:
+    SENDGRID_AVAILABLE = False
 
 class EmailDeliveryError(Exception):
     """Raised when email delivery fails"""
@@ -14,19 +22,33 @@ class EmailDeliveryError(Exception):
 
 class EmailService:
     """
-    Email service with SendGrid integration and mock mode fallback
-    Set SENDGRID_API_KEY environment variable to enable real email sending
+    Email service with Gmail SMTP, SendGrid, and mock mode support
+    Priority: Gmail SMTP > SendGrid > Mock mode
     """
     
     def __init__(self):
-        self.sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
-        self.from_email = os.environ.get('SENDER_EMAIL', 'mnasebasketball@gmail.com')
-        self.use_sendgrid = self.sendgrid_api_key and self.sendgrid_api_key != 'your_sendgrid_api_key_here'
+        # Gmail SMTP settings
+        self.gmail_user = os.environ.get('GMAIL_USER')
+        self.gmail_password = os.environ.get('GMAIL_APP_PASSWORD')
+        self.smtp_server = "smtp.gmail.com"
+        self.smtp_port = 587
         
-        if self.use_sendgrid:
+        # SendGrid settings
+        self.sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
+        
+        # Common settings
+        self.from_email = os.environ.get('SENDER_EMAIL', 'mnasebasketball@gmail.com')
+        
+        # Determine which service to use
+        if self.gmail_user and self.gmail_password:
+            self.email_mode = 'gmail'
+            print("✅ EmailService initialized with Gmail SMTP")
+        elif SENDGRID_AVAILABLE and self.sendgrid_api_key and self.sendgrid_api_key != 'your_sendgrid_api_key_here':
+            self.email_mode = 'sendgrid'
             print("✅ EmailService initialized with SendGrid")
         else:
-            print("⚠️  EmailService running in MOCK mode (set SENDGRID_API_KEY to enable real emails)")
+            self.email_mode = 'mock'
+            print("⚠️  EmailService running in MOCK mode (configure Gmail or SendGrid for real emails)")
         
     def send_email(self, to_email: str, subject: str, body: str, html_body: Optional[str] = None):
         """
