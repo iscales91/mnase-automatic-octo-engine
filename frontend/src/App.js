@@ -76,7 +76,7 @@ function App() {
           <Route path="/program-registration" element={<ProgramRegistration />} />
           <Route path="/dashboard" element={
             token && user ? (
-              user.role === 'admin' ? <AdminDashboard /> : <MemberDashboard />
+              ['admin', 'super_admin'].includes(user.role) ? <AdminDashboard /> : <MemberDashboard />
             ) : <Navigate to="/" />
           } />
           <Route path="/registration-success" element={<RegistrationSuccess />} />
