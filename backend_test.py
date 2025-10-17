@@ -613,9 +613,11 @@ class MNASEBasketballAPITester:
 
     def test_facility_booking_checkout(self):
         """Test creating facility booking with payment"""
+        # First create a facility if we don't have one
         if not self.created_facility_id:
-            print("❌ No facility ID available for booking test")
-            return False
+            if not self.test_create_facility_admin():
+                print("❌ Failed to create facility for booking test")
+                return False
             
         booking_data = {
             "facility_id": self.created_facility_id,
@@ -629,6 +631,8 @@ class MNASEBasketballAPITester:
             "origin_url": self.base_url
         }
         
+        # The booking checkout endpoint expects booking data and checkout data separately
+        # Let's test this as a two-step process like the registration flow
         success, response = self.run_test(
             "Facility Booking Checkout",
             "POST",
