@@ -68,6 +68,40 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class Role(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str  # super_admin, admin, manager, staff, coach, treasurer, user
+    display_name: str  # Human-readable name
+    description: str
+    permissions: List[str]  # List of permission identifiers
+    is_system_role: bool = False  # Cannot be deleted if True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class RoleCreate(BaseModel):
+    name: str
+    display_name: str
+    description: str
+    permissions: List[str]
+
+class RoleUpdate(BaseModel):
+    display_name: Optional[str] = None
+    description: Optional[str] = None
+    permissions: Optional[List[str]] = None
+
+class AssignRoleRequest(BaseModel):
+    user_id: str
+    role: str
+    permissions: Optional[List[str]] = None  # Optional custom permissions
+
+class SetupAdminRequest(BaseModel):
+    secret_token: str
+    email: EmailStr
+    password: str
+    name: str
+    date_of_birth: str
+
+
 class Event(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
