@@ -2606,6 +2606,258 @@ async def mark_all_notifications_read(user: User = Depends(get_current_user)):
             {"user_id": user.id, "read": False},
             {"$set": {"read": True}}
         )
+
+
+# ============================================================================
+# NEWS/BLOG ENDPOINTS
+# ============================================================================
+
+@api_router.get("/news")
+async def get_news_posts(
+    published_only: bool = True,
+    category: Optional[str] = None,
+    tag: Optional[str] = None,
+    limit: int = 20,
+    skip: int = 0
+):
+    """
+    Get news/blog posts with optional filters
+    
+    Query Parameters:
+    - published_only: Only return published posts (default: true)
+    - category: Filter by category
+    - tag: Filter by tag
+    - limit: Maximum results (default: 20)
+    - skip: Skip results for pagination
+    """
+    try:
+        query = {}
+        
+        if published_only:
+            query["published"] = True
+        
+        if category:
+            query["category"] = category
+        
+        if tag:
+            query["tags"] = tag
+        
+        posts = await db.news_posts.find(query, {"_id": 0})\
+            .sort([("published_at", -1), ("created_at", -1)])\
+            .skip(skip)\
+            .limit(limit)\
+            .to_list(length=limit)
+        
+        # Convert datetime objects to strings
+        for post in posts:
+            if isinstance(post.get('created_at'), datetime):
+                post['created_at'] = post['created_at'].isoformat()
+            if isinstance(post.get('updated_at'), datetime):
+                post['updated_at'] = post['updated_at'].isoformat()
+            if isinstance(post.get('published_at'), datetime):
+                post['published_at'] = post['published_at'].isoformat()
+        
+        total = await db.news_posts.count_documents(query)
+        
+        return {
+            "posts": posts,
+            "total": total,
+            "limit": limit,
+            "skip": skip
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch news posts: {str(e)}")
+
+@api_router.get("/news/{post_id}")
+async def get_news_post(post_id: str):
+    """Get a single news post by ID or slug"""
+    try:
+        # Try to find by ID first, then by slug
+        post = await db.news_posts.find_one({"id": post_id}, {"_id": 0})
+        if not post:
+            post = await db.news_posts.find_one({"slug": post_id}, {"_id": 0})
+        
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        # Increment view count
+        await db.news_posts.update_one(
+            {"id": post["id"]},
+            {"$inc": {"views": 1}}
+        )
+        post["views"] = post.get("views", 0) + 1
+        
+        # Convert datetime objects
+        if isinstance(post.get('created_at'), datetime):
+            post['created_at'] = post['created_at'].isoformat()
+        if isinstance(post.get('updated_at'), datetime):
+            post['updated_at'] = post['updated_at'].isoformat()
+        if isinstance(post.get('published_at'), datetime):
+            post['published_at'] = post['published_at'].isoformat()
+        
+        return post
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch post: {str(e)}")
+
+@api_router.post("/admin/news")
+async def create_news_post(post_data: NewsPostCreate, admin: User = Depends(get_admin_user)):
+    """Create a new news/blog post (admin only)"""
+    try:
+        # Generate slug from title
+        slug = post_data.title.lower()
+        slug = slug.replace(' ', '-')
+        slug = ''.join(c for c in slug if c.isalnum() or c == '-')
+        
+        # Ensure slug is unique
+        existing = await db.news_posts.find_one({"slug": slug}, {"_id": 0})
+        if existing:
+            slug = f"{slug}-{str(uuid.uuid4())[:8]}"
+        
+        post = NewsPost(
+            title=post_data.title,
+            slug=slug,
+            content=post_data.content,
+            excerpt=post_data.excerpt,
+            author_id=admin.id,
+            author_name=admin.name,
+            category=post_data.category,
+            tags=post_data.tags,
+            featured_image=post_data.featured_image,
+            published=post_data.published,
+            published_at=datetime.now(timezone.utc) if post_data.published else None
+        )
+        
+        post_dict = post.model_dump()
+        post_dict['created_at'] = post_dict['created_at'].isoformat()
+        post_dict['updated_at'] = post_dict['updated_at'].isoformat()
+        if post_dict['published_at']:
+            post_dict['published_at'] = post_dict['published_at'].isoformat()
+        
+        await db.news_posts.insert_one(post_dict)
+        
+        return post
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create post: {str(e)}")
+
+@api_router.put("/admin/news/{post_id}")
+async def update_news_post(
+    post_id: str,
+    post_data: NewsPostUpdate,
+    admin: User = Depends(get_admin_user)
+):
+    """Update a news/blog post (admin only)"""
+    try:
+        existing = await db.news_posts.find_one({"id": post_id}, {"_id": 0})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        update_data = {k: v for k, v in post_data.model_dump().items() if v is not None}
+        
+        # Update slug if title changes
+        if "title" in update_data:
+            slug = update_data["title"].lower()
+            slug = slug.replace(' ', '-')
+            slug = ''.join(c for c in slug if c.isalnum() or c == '-')
+            update_data["slug"] = slug
+        
+        # Set published_at if publishing for first time
+        if "published" in update_data and update_data["published"] and not existing.get("published"):
+            update_data["published_at"] = datetime.now(timezone.utc).isoformat()
+        
+        update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+        
+        await db.news_posts.update_one(
+            {"id": post_id},
+            {"$set": update_data}
+        )
+        
+        return {"message": "Post updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update post: {str(e)}")
+
+@api_router.delete("/admin/news/{post_id}")
+async def delete_news_post(post_id: str, admin: User = Depends(get_admin_user)):
+    """Delete a news/blog post (admin only)"""
+    try:
+        result = await db.news_posts.delete_one({"id": post_id})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        return {"message": "Post deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete post: {str(e)}")
+
+@api_router.get("/news/categories/list")
+async def get_news_categories():
+    """Get all news categories with post counts"""
+    try:
+        pipeline = [
+            {"$match": {"published": True}},
+            {"$group": {"_id": "$category", "count": {"$sum": 1}}}
+        ]
+        
+        categories = []
+        async for doc in db.news_posts.aggregate(pipeline):
+            categories.append({
+                "category": doc["_id"],
+                "count": doc["count"]
+            })
+        
+        return categories
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch categories: {str(e)}")
+
+@api_router.get("/news/tags/list")
+async def get_news_tags():
+    """Get all tags with post counts"""
+    try:
+        pipeline = [
+            {"$match": {"published": True}},
+            {"$unwind": "$tags"},
+            {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]
+        
+        tags = []
+        async for doc in db.news_posts.aggregate(pipeline):
+            tags.append({
+                "tag": doc["_id"],
+                "count": doc["count"]
+            })
+        
+        return tags
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch tags: {str(e)}")
+
+@api_router.get("/news/featured")
+async def get_featured_news():
+    """Get most recent published posts (featured/homepage)"""
+    try:
+        posts = await db.news_posts.find(
+            {"published": True},
+            {"_id": 0}
+        ).sort([("published_at", -1)]).limit(5).to_list(length=5)
+        
+        # Convert datetime objects
+        for post in posts:
+            if isinstance(post.get('created_at'), datetime):
+                post['created_at'] = post['created_at'].isoformat()
+            if isinstance(post.get('updated_at'), datetime):
+                post['updated_at'] = post['updated_at'].isoformat()
+            if isinstance(post.get('published_at'), datetime):
+                post['published_at'] = post['published_at'].isoformat()
+        
+        return posts
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch featured posts: {str(e)}")
+
         
         return {
             "message": "All notifications marked as read",
