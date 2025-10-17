@@ -1537,6 +1537,24 @@ def main():
     test_results.append(("Get Payment Plans (Admin)", tester.test_get_payment_plans_admin()))
     test_results.append(("Create Payment Plan (Admin)", tester.test_create_payment_plan_admin()))
     
+    # Roles & Permissions Management Tests
+    print("\n🔐 ROLES & PERMISSIONS MANAGEMENT TESTS")
+    test_results.append(("Get All Roles (Admin)", tester.test_get_all_roles_admin()))
+    test_results.append(("Get All Roles (Super Admin)", tester.test_get_all_roles_super_admin()))
+    test_results.append(("Get Permissions List (Admin)", tester.test_get_permissions_list_admin()))
+    test_results.append(("Get Permissions List (Super Admin)", tester.test_get_permissions_list_super_admin()))
+    test_results.append(("Create Custom Role (Super Admin)", tester.test_create_custom_role_super_admin()))
+    test_results.append(("Create Custom Role (Admin - Should Fail)", tester.test_create_custom_role_admin_should_fail()))
+    test_results.append(("Get Specific Role (Admin)", tester.test_get_specific_role_admin()))
+    test_results.append(("Update Custom Role (Super Admin)", tester.test_update_custom_role_super_admin()))
+    test_results.append(("Update System Role (Should Fail)", tester.test_update_system_role_should_fail()))
+    test_results.append(("Assign Role to User (Super Admin)", tester.test_assign_role_to_user_super_admin()))
+    test_results.append(("Assign Role (Admin - Should Fail)", tester.test_assign_role_admin_should_fail()))
+    test_results.append(("Get User Permissions (Admin)", tester.test_get_user_permissions_admin()))
+    test_results.append(("Delete Custom Role (Super Admin)", tester.test_delete_custom_role_super_admin()))
+    test_results.append(("Delete System Role (Should Fail)", tester.test_delete_system_role_should_fail()))
+    test_results.append(("Unauthorized Role Access", tester.test_unauthorized_role_access()))
+    
     # Print results summary
     print("\n" + "=" * 50)
     print("📊 TEST RESULTS SUMMARY")
