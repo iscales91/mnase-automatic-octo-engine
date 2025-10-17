@@ -548,6 +548,438 @@ class MNASEBasketballAPITester:
             print(f"✅ Payment status: {response.get('payment_status', 'Unknown')}")
         return success
 
+    # Additional comprehensive tests for missing functionality
+    def test_get_programs(self):
+        """Test getting all programs"""
+        success, response = self.run_test(
+            "Get All Programs",
+            "GET",
+            "programs",
+            200
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} programs")
+        return success
+
+    def test_create_program_admin(self):
+        """Test creating a program as admin"""
+        program_data = {
+            "slug": "test-youth-league",
+            "name": "Test Youth Basketball League",
+            "season": "Winter 2024",
+            "description": "Test youth basketball program",
+            "long_description": "A comprehensive test program for youth basketball development",
+            "age_range": "8-12",
+            "price": 150.00,
+            "inclusions": ["Jersey", "Training", "Games"],
+            "schedule": "Saturdays 10AM-12PM",
+            "registration_info": "Register online",
+            "active": True
+        }
+        
+        success, response = self.run_test(
+            "Create Program (Admin)",
+            "POST",
+            "programs",
+            200,
+            data=program_data,
+            use_admin=True
+        )
+        
+        if success and 'id' in response:
+            self.created_program_id = response['id']
+            print(f"✅ Program created with ID: {self.created_program_id}")
+        return success
+
+    def test_get_program_by_slug(self):
+        """Test getting program by slug"""
+        success, response = self.run_test(
+            "Get Program by Slug",
+            "GET",
+            "programs/slug/test-youth-league",
+            200
+        )
+        return success
+
+    def test_facility_booking_checkout(self):
+        """Test creating facility booking with payment"""
+        if not self.created_facility_id:
+            print("❌ No facility ID available for booking test")
+            return False
+            
+        booking_data = {
+            "facility_id": self.created_facility_id,
+            "booking_date": "2024-12-31",
+            "start_time": "10:00",
+            "end_time": "12:00",
+            "hours": 2
+        }
+        
+        checkout_data = {
+            "origin_url": self.base_url
+        }
+        
+        success, response = self.run_test(
+            "Facility Booking Checkout",
+            "POST",
+            "bookings/checkout",
+            200,
+            data={**booking_data, **checkout_data}
+        )
+        
+        if success and 'session_id' in response:
+            self.booking_session_id = response['session_id']
+            print(f"✅ Booking checkout session created: {self.booking_session_id}")
+        return success
+
+    def test_booking_payment_status(self):
+        """Test checking booking payment status"""
+        if not hasattr(self, 'booking_session_id') or not self.booking_session_id:
+            print("❌ No booking session ID available for status check")
+            return False
+            
+        success, response = self.run_test(
+            "Booking Payment Status Check",
+            "GET",
+            f"bookings/status/{self.booking_session_id}",
+            200
+        )
+        
+        if success:
+            print(f"✅ Booking payment status: {response.get('payment_status', 'Unknown')}")
+        return success
+
+    def test_create_team_admin(self):
+        """Test creating a team as admin"""
+        team_data = {
+            "name": "Test Warriors",
+            "division": "U12",
+            "age_group": "10-12",
+            "season": "Winter 2024",
+            "coach_name": "Coach Smith",
+            "coach_email": "coach.smith@test.com",
+            "coach_phone": "555-0130",
+            "max_roster_size": 15,
+            "practice_schedule": "Tuesdays 6PM",
+            "home_venue": "Test Gym"
+        }
+        
+        success, response = self.run_test(
+            "Create Team (Admin)",
+            "POST",
+            "admin/teams",
+            200,
+            data=team_data,
+            use_admin=True
+        )
+        
+        if success and 'id' in response:
+            self.created_team_id = response['id']
+            print(f"✅ Team created with ID: {self.created_team_id}")
+        return success
+
+    def test_get_teams(self):
+        """Test getting all teams"""
+        success, response = self.run_test(
+            "Get All Teams",
+            "GET",
+            "teams",
+            200
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} teams")
+        return success
+
+    def test_get_admin_teams(self):
+        """Test getting all teams as admin"""
+        success, response = self.run_test(
+            "Get All Teams (Admin)",
+            "GET",
+            "admin/teams",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} teams (admin view)")
+        return success
+
+    def test_create_calendar_event_admin(self):
+        """Test creating a calendar event as admin"""
+        calendar_data = {
+            "title": "Test Tournament",
+            "description": "Annual test basketball tournament",
+            "date": "2024-12-25",
+            "time": "14:00",
+            "location": "Main Court",
+            "type": "tournament"
+        }
+        
+        success, response = self.run_test(
+            "Create Calendar Event (Admin)",
+            "POST",
+            "admin/calendar-events",
+            200,
+            data=calendar_data,
+            use_admin=True
+        )
+        
+        if success and 'id' in response:
+            self.created_calendar_event_id = response['id']
+            print(f"✅ Calendar event created with ID: {self.created_calendar_event_id}")
+        return success
+
+    def test_get_calendar_events(self):
+        """Test getting calendar events"""
+        success, response = self.run_test(
+            "Get Calendar Events",
+            "GET",
+            "calendar-events",
+            200
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} calendar events")
+        return success
+
+    def test_contact_form_submission(self):
+        """Test contact form submission"""
+        contact_data = {
+            "name": "John Test",
+            "email": "john.test@example.com",
+            "phone": "555-0140",
+            "subject": "Test Inquiry",
+            "message": "This is a test contact form submission"
+        }
+        
+        success, response = self.run_test(
+            "Contact Form Submission",
+            "POST",
+            "contact",
+            200,
+            data=contact_data
+        )
+        
+        if success and 'id' in response:
+            self.contact_submission_id = response['id']
+            print(f"✅ Contact submission created with ID: {self.contact_submission_id}")
+        return success
+
+    def test_volunteer_application(self):
+        """Test volunteer application submission"""
+        volunteer_data = {
+            "name": "Jane Volunteer",
+            "email": "jane.volunteer@example.com",
+            "phone": "555-0141",
+            "interest": "Coaching",
+            "availability": "Weekends",
+            "experience": "5 years coaching youth basketball",
+            "message": "I would love to help coach the youth teams"
+        }
+        
+        success, response = self.run_test(
+            "Volunteer Application",
+            "POST",
+            "volunteer",
+            200,
+            data=volunteer_data
+        )
+        
+        if success and 'id' in response:
+            self.volunteer_application_id = response['id']
+            print(f"✅ Volunteer application created with ID: {self.volunteer_application_id}")
+        return success
+
+    def test_sponsorship_inquiry(self):
+        """Test sponsorship inquiry submission"""
+        sponsorship_data = {
+            "company": "Test Sports Inc",
+            "contact": "Mike Sponsor",
+            "email": "mike@testsports.com",
+            "phone": "555-0142",
+            "interest": "Team Sponsorship",
+            "message": "We are interested in sponsoring a youth team"
+        }
+        
+        success, response = self.run_test(
+            "Sponsorship Inquiry",
+            "POST",
+            "sponsorship",
+            200,
+            data=sponsorship_data
+        )
+        
+        if success and 'id' in response:
+            self.sponsorship_inquiry_id = response['id']
+            print(f"✅ Sponsorship inquiry created with ID: {self.sponsorship_inquiry_id}")
+        return success
+
+    def test_get_admin_contact_submissions(self):
+        """Test getting contact submissions as admin"""
+        success, response = self.run_test(
+            "Get Contact Submissions (Admin)",
+            "GET",
+            "admin/contact-submissions",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} contact submissions")
+        return success
+
+    def test_get_admin_volunteer_applications(self):
+        """Test getting volunteer applications as admin"""
+        success, response = self.run_test(
+            "Get Volunteer Applications (Admin)",
+            "GET",
+            "admin/volunteer-applications",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} volunteer applications")
+        return success
+
+    def test_get_admin_sponsorship_inquiries(self):
+        """Test getting sponsorship inquiries as admin"""
+        success, response = self.run_test(
+            "Get Sponsorship Inquiries (Admin)",
+            "GET",
+            "admin/sponsorship-inquiries",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} sponsorship inquiries")
+        return success
+
+    def test_get_memberships(self):
+        """Test getting all memberships"""
+        success, response = self.run_test(
+            "Get All Memberships",
+            "GET",
+            "memberships",
+            200
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} memberships")
+        return success
+
+    def test_create_membership_admin(self):
+        """Test creating a membership as admin"""
+        membership_data = {
+            "type": "Individual",
+            "tier": "Premium",
+            "price": 99.99,
+            "benefits": ["Court Access", "Equipment Rental", "Training Sessions"],
+            "description": "Premium individual membership with full access",
+            "active": True
+        }
+        
+        success, response = self.run_test(
+            "Create Membership (Admin)",
+            "POST",
+            "memberships",
+            200,
+            data=membership_data,
+            use_admin=True
+        )
+        
+        if success and 'id' in response:
+            self.created_membership_id = response['id']
+            print(f"✅ Membership created with ID: {self.created_membership_id}")
+        return success
+
+    def test_get_payment_plans_admin(self):
+        """Test getting payment plans as admin"""
+        success, response = self.run_test(
+            "Get Payment Plans (Admin)",
+            "GET",
+            "admin/payment-plans",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} payment plans")
+        return success
+
+    def test_create_payment_plan_admin(self):
+        """Test creating a payment plan as admin"""
+        if not self.user_id:
+            print("❌ No user ID available for payment plan test")
+            return False
+            
+        payment_plan_data = {
+            "user_id": self.user_id,
+            "total_amount": 300.00,
+            "num_installments": 3,
+            "frequency": "monthly",
+            "first_payment_date": "2024-01-15"
+        }
+        
+        success, response = self.run_test(
+            "Create Payment Plan (Admin)",
+            "POST",
+            "admin/payment-plans",
+            200,
+            data=payment_plan_data,
+            use_admin=True
+        )
+        
+        if success and 'id' in response:
+            self.created_payment_plan_id = response['id']
+            print(f"✅ Payment plan created with ID: {self.created_payment_plan_id}")
+        return success
+
+    def test_get_my_payment_plans(self):
+        """Test getting user's payment plans"""
+        success, response = self.run_test(
+            "Get My Payment Plans",
+            "GET",
+            "payment-plans/me",
+            200
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} payment plans for user")
+        return success
+
+    def test_get_admin_users(self):
+        """Test getting all users as admin"""
+        success, response = self.run_test(
+            "Get All Users (Admin)",
+            "GET",
+            "admin/users",
+            200,
+            use_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} users")
+        return success
+
+    def test_update_user_role_admin(self):
+        """Test updating user role as admin"""
+        if not self.user_id:
+            print("❌ No user ID available for role update test")
+            return False
+            
+        success, response = self.run_test(
+            "Update User Role (Admin)",
+            "PUT",
+            f"admin/users/{self.user_id}/role?role=member",
+            200,
+            use_admin=True
+        )
+        return success
+
     def test_unauthorized_payment_access(self):
         """Test unauthorized access to payment endpoints"""
         # Test without authentication
