@@ -48,7 +48,8 @@ class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     email: EmailStr
     name: str
-    role: str = "member"  # member or admin
+    role: str = "user"  # super_admin, admin, manager, staff, coach, treasurer, user
+    permissions: List[str] = Field(default_factory=list)  # List of permission strings
     date_of_birth: Optional[str] = None  # YYYY-MM-DD format
     phone: Optional[str] = None
     parent_account_id: Optional[str] = None  # Links youth to parent account
