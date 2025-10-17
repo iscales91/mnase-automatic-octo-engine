@@ -2437,6 +2437,176 @@ async def global_search(search: str, limit: int = 20):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Global search failed: {str(e)}")
 
+
+
+# ============================================================================
+# NOTIFICATION ENDPOINTS
+# ============================================================================
+
+@api_router.get("/notifications")
+async def get_user_notifications(
+    unread_only: bool = False,
+    limit: int = 50,
+    user: User = Depends(get_current_user)
+):
+    """
+    Get notifications for current user
+    
+    Query Parameters:
+    - unread_only: Only return unread notifications
+    - limit: Maximum number of notifications (default 50)
+    """
+    try:
+        query = {"user_id": user.id}
+        
+        if unread_only:
+            query["read"] = False
+        
+        notifications = await db.notifications.find(query, {"_id": 0})\
+            .sort([("created_at", -1)])\
+            .limit(limit)\
+            .to_list(length=limit)
+        
+        unread_count = await db.notifications.count_documents({
+            "user_id": user.id,
+            "read": False
+        })
+        
+        return {
+            "notifications": notifications,
+            "unread_count": unread_count,
+            "total_count": len(notifications)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch notifications: {str(e)}")
+
+@api_router.put("/notifications/{notification_id}/read")
+async def mark_notification_read(
+    notification_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Mark a notification as read"""
+    try:
+        result = await db.notifications.update_one(
+            {"id": notification_id, "user_id": user.id},
+            {"$set": {"read": True}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        return {"message": "Notification marked as read"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update notification: {str(e)}")
+
+@api_router.put("/notifications/mark-all-read")
+async def mark_all_notifications_read(user: User = Depends(get_current_user)):
+    """Mark all notifications as read for current user"""
+    try:
+        result = await db.notifications.update_many(
+            {"user_id": user.id, "read": False},
+            {"$set": {"read": True}}
+        )
+        
+        return {
+            "message": "All notifications marked as read",
+            "count": result.modified_count
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update notifications: {str(e)}")
+
+@api_router.delete("/notifications/{notification_id}")
+async def delete_notification(
+    notification_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Delete a notification"""
+    try:
+        result = await db.notifications.delete_one({
+            "id": notification_id,
+            "user_id": user.id
+        })
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        return {"message": "Notification deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete notification: {str(e)}")
+
+@api_router.post("/admin/notifications/broadcast")
+async def broadcast_notification(
+    title: str,
+    message: str,
+    target_users: Optional[List[str]] = None,
+    admin: User = Depends(get_admin_user)
+):
+    """
+    Broadcast notification to all users or specific users (admin only)
+    
+    Args:
+        title: Notification title
+        message: Notification message
+        target_users: Optional list of user IDs. If None, sends to all users.
+    """
+    try:
+        # Get target users
+        if target_users:
+            users = await db.users.find({"id": {"$in": target_users}}, {"_id": 0, "id": 1}).to_list(length=None)
+        else:
+            users = await db.users.find({}, {"_id": 0, "id": 1}).to_list(length=None)
+        
+        # Create notifications for all users
+        notifications = []
+        for user in users:
+            notification = notification_service.create_announcement_notification(
+                user_id=user["id"],
+                title=title,
+                message=message
+            )
+            notifications.append(notification)
+        
+        # Insert all notifications
+        if notifications:
+            await db.notifications.insert_many(notifications)
+        
+        return {
+            "message": "Notification broadcast successfully",
+            "recipient_count": len(notifications)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to broadcast notification: {str(e)}")
+
+@api_router.get("/notifications/stats")
+async def get_notification_stats(user: User = Depends(get_current_user)):
+    """Get notification statistics for current user"""
+    try:
+        total = await db.notifications.count_documents({"user_id": user.id})
+        unread = await db.notifications.count_documents({"user_id": user.id, "read": False})
+        
+        # Get counts by type
+        pipeline = [
+            {"$match": {"user_id": user.id}},
+            {"$group": {"_id": "$type", "count": {"$sum": 1}}}
+        ]
+        
+        type_counts = {}
+        async for doc in db.notifications.aggregate(pipeline):
+            type_counts[doc["_id"]] = doc["count"]
+        
+        return {
+            "total": total,
+            "unread": unread,
+            "read": total - unread,
+            "by_type": type_counts
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get stats: {str(e)}")
+
         raise HTTPException(status_code=500, detail=f"Failed to delete image: {str(e)}")
 
 
