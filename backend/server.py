@@ -24,6 +24,11 @@ from image_service import image_service
 from search_service import search_service
 from notification_service import notification_service
 from activity_log_service import activity_log_service
+from error_utils import (
+    ValidationUtils, ValidationError, CustomHTTPException,
+    not_found_error, validation_error, unauthorized_error, 
+    forbidden_error, conflict_error, server_error
+)
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
