@@ -43,6 +43,8 @@ class MNASEBasketballAPITester:
         
         if use_admin and self.admin_token:
             test_headers['Authorization'] = f'Bearer {self.admin_token}'
+        elif hasattr(self, 'use_super_admin') and getattr(self, 'use_super_admin', False) and self.super_admin_token:
+            test_headers['Authorization'] = f'Bearer {self.super_admin_token}'
         elif self.token and not use_admin:
             test_headers['Authorization'] = f'Bearer {self.token}'
 
