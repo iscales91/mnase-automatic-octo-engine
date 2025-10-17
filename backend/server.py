@@ -924,44 +924,129 @@ async def get_super_admin_user(user: User = Depends(get_current_user)):
 
 # Auth endpoints
 @api_router.post("/auth/register")
-async def register(user_data: UserCreate):
-    existing = await db.users.find_one({"email": user_data.email}, {"_id": 0})
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Verify user is 18+ years old
-    from datetime import date
-    dob = datetime.strptime(user_data.date_of_birth, "%Y-%m-%d").date()
-    today = date.today()
-    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-    
-    if age < 18:
-        raise HTTPException(
-            status_code=400, 
-            detail="You must be 18 years or older to create an account. Youth registrations must be completed by a parent or guardian."
+async def register(user_data: UserCreate, request: Request):
+    """Register a new user with comprehensive validation"""
+    try:
+        # Validation errors list
+        errors = []
+        
+        # Validate email format
+        if not ValidationUtils.validate_email(user_data.email):
+            errors.append(ValidationError(
+                field="email",
+                message="Invalid email format",
+                code="invalid_email"
+            ))
+        
+        # Validate password strength
+        is_strong, pwd_message = ValidationUtils.validate_password_strength(user_data.password)
+        if not is_strong:
+            errors.append(ValidationError(
+                field="password",
+                message=pwd_message,
+                code="weak_password"
+            ))
+        
+        # Validate date of birth format
+        if not ValidationUtils.validate_date_format(user_data.date_of_birth):
+            errors.append(ValidationError(
+                field="date_of_birth",
+                message="Invalid date format. Use YYYY-MM-DD",
+                code="invalid_date"
+            ))
+        
+        # Validate phone number if provided
+        if user_data.phone and not ValidationUtils.validate_phone(user_data.phone):
+            errors.append(ValidationError(
+                field="phone",
+                message="Invalid phone number format",
+                code="invalid_phone"
+            ))
+        
+        # If there are validation errors, return them
+        if errors:
+            raise validation_error(errors)
+        
+        # Check if email already exists
+        existing = await db.users.find_one({"email": user_data.email}, {"_id": 0})
+        if existing:
+            raise conflict_error("user", "Email already registered")
+        
+        # Verify user is 18+ years old
+        is_adult, age = ValidationUtils.validate_age(user_data.date_of_birth, 18)
+        if not is_adult:
+            raise CustomHTTPException(
+                status_code=400,
+                error="age_requirement",
+                message="You must be 18 years or older to create an account",
+                details={"current_age": age, "required_age": 18}
+            )
+        
+        # Create user
+        user = User(
+            email=ValidationUtils.sanitize_input(user_data.email.lower()),
+            name=ValidationUtils.sanitize_input(user_data.name),
+            role="user",
+            date_of_birth=user_data.date_of_birth,
+            phone=user_data.phone,
+            is_parent=True,  # All adult accounts can manage youth
+            permissions=[]
         )
-    
-    user = User(
-        email=user_data.email,
-        name=user_data.name,
-        role="member",
-        date_of_birth=user_data.date_of_birth,
-        phone=user_data.phone,
-        is_parent=True  # All adult accounts can manage youth
-    )
-    
-    doc = user.model_dump()
-    doc['password'] = hash_password(user_data.password)
-    doc['created_at'] = doc['created_at'].isoformat()
-    
-    await db.users.insert_one(doc)
-    
-    # Create welcome notification
-    welcome_notification = notification_service.create_welcome_notification(user.id, user.name)
-    await db.notifications.insert_one(welcome_notification)
-    
-    token = create_access_token({"user_id": user.id, "email": user.email})
-    return {"user": user, "token": token}
+        
+        doc = user.model_dump()
+        doc['password'] = hash_password(user_data.password)
+        doc['created_at'] = doc['created_at'].isoformat()
+        
+        await db.users.insert_one(doc)
+        
+        # Log registration activity
+        await activity_log_service.log_activity(
+            action="register",
+            resource_type="user",
+            user_id=user.id,
+            user_email=user.email,
+            ip_address=request.client.host if request else None,
+            details={"role": user.role}
+        )
+        
+        # Create welcome notification
+        try:
+            welcome_notification = notification_service.create_welcome_notification(user.id, user.name)
+            await db.notifications.insert_one(welcome_notification)
+        except Exception as e:
+            logging.error(f"Failed to create welcome notification: {e}")
+        
+        # Send welcome email
+        try:
+            await email_service.send_email(
+                to_email=user.email,
+                subject="Welcome to MNASE Basketball League!",
+                body=f"""
+                <h2>Welcome to MNASE, {user.name}!</h2>
+                <p>Your account has been successfully created.</p>
+                <p>You can now access your member dashboard to:</p>
+                <ul>
+                    <li>Register for programs and events</li>
+                    <li>Manage your profile</li>
+                    <li>Book facilities</li>
+                    <li>View upcoming activities</li>
+                </ul>
+                <p>Thank you for joining MNASE Basketball League!</p>
+                """
+            )
+        except Exception as e:
+            logging.error(f"Failed to send welcome email: {e}")
+        
+        token = create_access_token({"user_id": user.id, "email": user.email})
+        return {"user": user, "token": token, "message": "Registration successful"}
+        
+    except CustomHTTPException:
+        raise
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Registration error: {e}")
+        raise server_error("An error occurred during registration")
 
 @api_router.post("/auth/login")
 async def login(credentials: UserLogin, request: Request):
