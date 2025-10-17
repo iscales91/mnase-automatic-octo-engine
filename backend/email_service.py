@@ -52,7 +52,7 @@ class EmailService:
         
     def send_email(self, to_email: str, subject: str, body: str, html_body: Optional[str] = None):
         """
-        Send email via SendGrid or mock logging
+        Send email via Gmail SMTP, SendGrid, or mock logging
         
         Args:
             to_email: Recipient email address
@@ -66,10 +66,49 @@ class EmailService:
         Raises:
             EmailDeliveryError: If email sending fails
         """
-        if self.use_sendgrid:
+        if self.email_mode == 'gmail':
+            return self._send_via_gmail(to_email, subject, body, html_body)
+        elif self.email_mode == 'sendgrid':
             return self._send_via_sendgrid(to_email, subject, body, html_body)
         else:
             return self._send_mock(to_email, subject, body, html_body)
+    
+    def _send_via_gmail(self, to_email: str, subject: str, body: str, html_body: Optional[str] = None):
+        """Send email using Gmail SMTP"""
+        try:
+            # Create message
+            message = MIMEMultipart("alternative")
+            message["Subject"] = subject
+            message["From"] = self.from_email
+            message["To"] = to_email
+            
+            # Add plain text part
+            part1 = MIMEText(body, "plain")
+            message.attach(part1)
+            
+            # Add HTML part if provided
+            if html_body:
+                part2 = MIMEText(html_body, "html")
+                message.attach(part2)
+            
+            # Connect to Gmail SMTP server
+            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                server.starttls()  # Secure the connection
+                server.login(self.gmail_user, self.gmail_password)
+                server.sendmail(self.from_email, to_email, message.as_string())
+            
+            print(f"✅ Email sent via Gmail SMTP to {to_email}: {subject}")
+            return True
+            
+        except smtplib.SMTPAuthenticationError:
+            print(f"❌ Gmail authentication failed - check GMAIL_APP_PASSWORD")
+            raise EmailDeliveryError("Gmail authentication failed. Please check your app password.")
+        except smtplib.SMTPException as e:
+            print(f"❌ Gmail SMTP error: {str(e)}")
+            raise EmailDeliveryError(f"Failed to send email via Gmail: {str(e)}")
+        except Exception as e:
+            print(f"❌ Email sending failed: {str(e)}")
+            raise EmailDeliveryError(f"Failed to send email: {str(e)}")
     
     def _send_via_sendgrid(self, to_email: str, subject: str, body: str, html_body: Optional[str] = None):
         """Send email using SendGrid API"""
@@ -98,7 +137,7 @@ class EmailService:
     def _send_mock(self, to_email: str, subject: str, body: str, html_body: Optional[str] = None):
         """Mock email sending - logs to console"""
         print("\n" + "="*80)
-        print("📧 MOCK EMAIL SENT (SendGrid not configured)")
+        print("📧 MOCK EMAIL SENT (No email service configured)")
         print("="*80)
         print(f"From: {self.from_email}")
         print(f"To: {to_email}")
