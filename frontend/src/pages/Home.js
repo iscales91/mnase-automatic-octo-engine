@@ -138,6 +138,7 @@ function Home() {
               <SearchIcon size={18} />
               Search
             </button>
+            {token && <NotificationBell />}
             {token ? (
               <>
                 <Link to="/dashboard" className="navbar-link" data-testid="nav-dashboard-link">Dashboard</Link>
