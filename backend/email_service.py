@@ -1,23 +1,32 @@
 """
-Mock Email Service for MNASE Basketball League
-Logs emails to console and can be easily switched to real SMTP
+Email Service for MNASE Basketball League
+Supports both SendGrid (production) and Mock mode (development)
 """
 import os
 from datetime import datetime
 from typing import Optional
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Email, To, Content
+
+class EmailDeliveryError(Exception):
+    """Raised when email delivery fails"""
+    pass
 
 class EmailService:
     """
-    Mock email service that logs to console
-    Can be easily switched to real SMTP by changing send_email method
+    Email service with SendGrid integration and mock mode fallback
+    Set SENDGRID_API_KEY environment variable to enable real email sending
     """
     
     def __init__(self):
-        self.smtp_server = "smtp.gmail.com"
-        self.smtp_port = 587
-        self.from_email = "contact@mnasebasketball.com"
-        # In production, use: os.environ.get('GMAIL_APP_PASSWORD')
-        self.app_password = None  # Mock mode
+        self.sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
+        self.from_email = os.environ.get('SENDER_EMAIL', 'contact@mnasebasketball.com')
+        self.use_sendgrid = self.sendgrid_api_key and self.sendgrid_api_key != 'your_sendgrid_api_key_here'
+        
+        if self.use_sendgrid:
+            print("✅ EmailService initialized with SendGrid")
+        else:
+            print("⚠️  EmailService running in MOCK mode (set SENDGRID_API_KEY to enable real emails)")
         
     def send_email(self, to_email: str, subject: str, body: str, html_body: Optional[str] = None):
         """
