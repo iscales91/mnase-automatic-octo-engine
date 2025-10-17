@@ -27,6 +27,7 @@ import Scores from '@/pages/Scores';
 import Foundation from '@/pages/Foundation';
 import News from '@/pages/News';
 import Gallery from '@/pages/Gallery';
+import Testimonials from '@/pages/Testimonials';
 import EnhancedRegistration from '@/pages/EnhancedRegistration';
 import ProgramRegistration from '@/pages/ProgramRegistration';
 import MemberDashboard from '@/pages/MemberDashboard';
