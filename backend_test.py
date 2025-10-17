@@ -28,6 +28,10 @@ class MNASEBasketballAPITester:
         self.contact_submission_id = None
         self.volunteer_application_id = None
         self.sponsorship_inquiry_id = None
+        self.super_admin_token = None
+        self.super_admin_user_id = None
+        self.created_role_id = None
+        self.test_user_for_role_assignment = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None, use_admin=False):
         """Run a single API test"""
