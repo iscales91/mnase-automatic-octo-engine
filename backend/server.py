@@ -1908,6 +1908,183 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+# ============================================================================
+# IMAGE UPLOAD ENDPOINTS
+# ============================================================================
+
+@api_router.post("/upload/profile-image")
+async def upload_profile_image(
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user)
+):
+    """Upload user profile image"""
+    try:
+        # Save image
+        image_path = image_service.save_profile_image(file, user.id)
+        
+        # Update user record
+        await db.users.update_one(
+            {"id": user.id},
+            {"$set": {"profile_image": image_path}}
+        )
+        
+        # Get full URL
+        image_url = image_service.get_image_url(image_path, "/uploads")
+        
+        return {
+            "message": "Profile image uploaded successfully",
+            "image_path": image_path,
+            "image_url": image_url
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload image: {str(e)}")
+
+@api_router.post("/upload/team-logo/{team_id}")
+async def upload_team_logo(
+    team_id: str,
+    file: UploadFile = File(...),
+    user: User = Depends(get_admin_user)
+):
+    """Upload team logo (admin only)"""
+    try:
+        # Check if team exists
+        team = await db.teams.find_one({"id": team_id}, {"_id": 0})
+        if not team:
+            raise HTTPException(status_code=404, detail="Team not found")
+        
+        # Save image
+        image_path = image_service.save_team_logo(file, team_id)
+        
+        # Update team record
+        await db.teams.update_one(
+            {"id": team_id},
+            {"$set": {"logo": image_path}}
+        )
+        
+        image_url = image_service.get_image_url(image_path, "/uploads")
+        
+        return {
+            "message": "Team logo uploaded successfully",
+            "image_path": image_path,
+            "image_url": image_url
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload logo: {str(e)}")
+
+@api_router.post("/upload/event-image/{event_id}")
+async def upload_event_image(
+    event_id: str,
+    file: UploadFile = File(...),
+    user: User = Depends(get_admin_user)
+):
+    """Upload event image (admin only)"""
+    try:
+        # Check if event exists
+        event = await db.events.find_one({"id": event_id}, {"_id": 0})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        # Save image
+        image_path = image_service.save_event_image(file, event_id)
+        
+        # Update event record
+        await db.events.update_one(
+            {"id": event_id},
+            {"$set": {"image": image_path}}
+        )
+        
+        image_url = image_service.get_image_url(image_path, "/uploads")
+        
+        return {
+            "message": "Event image uploaded successfully",
+            "image_path": image_path,
+            "image_url": image_url
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload image: {str(e)}")
+
+@api_router.post("/upload/gallery-image")
+async def upload_gallery_image(
+    file: UploadFile = File(...),
+    category: str = "general",
+    user: User = Depends(get_admin_user)
+):
+    """Upload gallery image (admin only)"""
+    try:
+        # Save image
+        image_path = image_service.save_gallery_image(file, category)
+        
+        # Save to gallery collection
+        gallery_item = {
+            "id": str(uuid.uuid4()),
+            "image_path": image_path,
+            "category": category,
+            "uploaded_by": user.id,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.gallery.insert_one(gallery_item)
+        
+        image_url = image_service.get_image_url(image_path, "/uploads")
+        
+        return {
+            "message": "Gallery image uploaded successfully",
+            "image_path": image_path,
+            "image_url": image_url,
+            "category": category
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload image: {str(e)}")
+
+@api_router.get("/gallery")
+async def get_gallery_images(category: Optional[str] = None):
+    """Get all gallery images, optionally filtered by category"""
+    try:
+        query = {}
+        if category:
+            query["category"] = category
+        
+        images = await db.gallery.find(query, {"_id": 0}).to_list(length=None)
+        
+        # Add full URLs
+        for image in images:
+            image["image_url"] = image_service.get_image_url(image["image_path"], "/uploads")
+        
+        return images
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch gallery images: {str(e)}")
+
+@api_router.delete("/upload/image")
+async def delete_image(
+    image_path: str,
+    user: User = Depends(get_admin_user)
+):
+    """Delete an uploaded image (admin only)"""
+    try:
+        success = image_service.delete_image(image_path)
+        
+        if success:
+            # Remove from gallery if it's a gallery image
+            if image_path.startswith("gallery/"):
+                await db.gallery.delete_one({"image_path": image_path})
+            
+            return {"message": "Image deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail="Image not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete image: {str(e)}")
+
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
