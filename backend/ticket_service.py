@@ -41,6 +41,12 @@ class TicketService:
         ticket_types = await self.db.ticket_types.find(
             {"event_id": event_id, "status": {"$ne": "inactive"}}
         ).to_list(length=100)
+        
+        # Convert ObjectIds to strings
+        for ticket_type in ticket_types:
+            if "_id" in ticket_type:
+                ticket_type["_id"] = str(ticket_type["_id"])
+        
         return ticket_types
     
     async def get_ticket_type(self, ticket_type_id: str):
