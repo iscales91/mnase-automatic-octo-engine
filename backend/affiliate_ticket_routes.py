@@ -556,7 +556,6 @@ async def validate_ticket(
 @router.get("/admin/tickets/sales-stats")
 async def get_sales_statistics(
     admin: dict = Depends(get_admin_user),
-    ,
     event_id: Optional[str] = None
 ):
     """Get ticket sales statistics (admin)"""
