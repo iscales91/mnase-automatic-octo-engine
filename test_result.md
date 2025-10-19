@@ -105,6 +105,18 @@
 user_problem_statement: "MNASE Basketball League Website - Phase 1-2 Complete. Phase 3: Implement comprehensive Roles & Permissions Management System with Super Admin creation"
 
 backend:
+  - task: "Affiliate Ticket Sales System - Backend Services"
+    implemented: true
+    working: false
+    file: "backend/affiliate_service.py, backend/ticket_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created affiliate_service.py and ticket_service.py backend services. Affiliate service includes: application management (create, approve, reject), unique referral code generation, affiliate account creation, sales tracking with commission calculation (15% default), earnings summary, monthly payout processing, commission rate updates (super admin only). Ticket service includes: ticket type creation (general/VIP with seat numbers), inventory management, seat reservation system, ticket purchase and validation, sales statistics. Ready for API endpoint integration and Stripe Connect setup."
+
   - task: "Enhanced User Model with Roles and Permissions"
     implemented: true
     working: true
