@@ -2024,9 +2024,8 @@ class MNASEBasketballAPITester:
             
         child_data = {
             "name": "Test Child 2",
-            "date_of_birth": "2017-08-20",  # Child under 18
-            "email": "",  # Test without email
-            "phone": ""   # Test without phone
+            "date_of_birth": "2017-08-20"  # Child under 18
+            # No email or phone (optional fields)
         }
         
         success, response = self.run_test(
