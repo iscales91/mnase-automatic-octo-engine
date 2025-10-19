@@ -115,7 +115,7 @@ const ActivityLogs = () => {
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow mb-6">
         <h3 className="text-lg font-semibold mb-3">Filter Logs</h3>
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
           <Input
             placeholder="Action (e.g., login)"
             value={filter.action}
