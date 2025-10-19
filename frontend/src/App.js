@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/sonner';
 import Home from '@/pages/Home';
 import Programs from '@/pages/Programs';
 import Memberships from '@/pages/Memberships';
+import MembershipPlans from '@/pages/MembershipPlans';
 import IndividualMemberships from '@/pages/IndividualMemberships';
 import TeamMemberships from '@/pages/TeamMemberships';
 import Camps from '@/pages/Camps';
