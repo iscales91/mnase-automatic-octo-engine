@@ -11,6 +11,7 @@ import Camps from '@/pages/Camps';
 import Clinics from '@/pages/Clinics';
 import Workshops from '@/pages/Workshops';
 import Events from '@/pages/Events';
+import CalendarPage from '@/pages/CalendarPage';
 import ShootNHoops from '@/pages/ShootNHoops';
 import SummerSizzle from '@/pages/SummerSizzle';
 import WinterWars from '@/pages/WinterWars';
