@@ -11,7 +11,7 @@ import NotificationBell from '@/components/NotificationBell';
 import MobileNav from '@/components/MobileNav';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Search as SearchIcon } from 'lucide-react';
+import { Search as SearchIcon, Menu, X } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
