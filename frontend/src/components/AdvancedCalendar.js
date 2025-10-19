@@ -71,18 +71,18 @@ export default function AdvancedCalendar() {
 
   const eventTypes = [
     { value: 'all', label: 'All Events', color: '#6b7280' },
-    { value: 'program', label: 'Program', color: '#3b82f6' },
-    { value: 'tournament', label: 'Tournament', color: '#f59e0b' },
-    { value: 'camp', label: 'Camp', color: '#10b981' },
-    { value: 'clinic', label: 'Clinic', color: '#8b5cf6' },
-    { value: 'workshop', label: 'Workshop', color: '#ec4899' },
-    { value: 'event', label: 'Event', color: '#06b6d4' },
+    { value: 'tournament', label: 'Tournament', color: '#dc2626' },
+    { value: 'game', label: 'Game', color: '#ea580c' },
+    { value: 'camp', label: 'Camp', color: '#16a34a' },
+    { value: 'clinic', label: 'Clinic', color: '#0891b2' },
+    { value: 'workshop', label: 'Workshop', color: '#8b5cf6' },
+    { value: 'orientation', label: 'Orientation', color: '#2563eb' },
     { value: 'other', label: 'Other', color: '#64748b' }
   ];
 
   const getTypeColor = (type) => {
-    const eventType = eventTypes.find(t => t.value === type);
-    return eventType ? eventType.color : '#6b7280';
+    const colors = getCategoryColor(type);
+    return colors.color;
   };
 
   const getDaysInMonth = (month, year) => {
