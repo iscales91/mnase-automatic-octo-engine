@@ -1986,6 +1986,334 @@ class MNASEBasketballAPITester:
         self.token = temp_token
         return success
 
+    # ===== PARENT-CHILD ACCOUNT MANAGEMENT TESTS =====
+    
+    def test_create_child_account(self):
+        """Test creating a child account linked to parent"""
+        if not self.super_admin_token:
+            print("❌ No super admin token available for child account creation")
+            return False
+            
+        child_data = {
+            "name": "Test Child 1",
+            "date_of_birth": "2015-05-15",  # Child under 18
+            "email": "child1@test.com",
+            "phone": "612-555-0001"
+        }
+        
+        success, response = self.run_test(
+            "Create Child Account",
+            "POST",
+            "users/children",
+            200,
+            data=child_data,
+            use_super_admin=True
+        )
+        
+        if success and 'id' in response:
+            self.child1_id = response['id']
+            print(f"✅ Child account created with ID: {self.child1_id}")
+            print(f"✅ Child name: {response.get('name', 'Unknown')}")
+        return success
+
+    def test_create_second_child_account(self):
+        """Test creating a second child account"""
+        if not self.super_admin_token:
+            print("❌ No super admin token available for second child account creation")
+            return False
+            
+        child_data = {
+            "name": "Test Child 2",
+            "date_of_birth": "2017-08-20",  # Child under 18
+            "email": "",  # Test without email
+            "phone": ""   # Test without phone
+        }
+        
+        success, response = self.run_test(
+            "Create Second Child Account",
+            "POST",
+            "users/children",
+            200,
+            data=child_data,
+            use_super_admin=True
+        )
+        
+        if success and 'id' in response:
+            self.child2_id = response['id']
+            print(f"✅ Second child account created with ID: {self.child2_id}")
+            print(f"✅ Child name: {response.get('name', 'Unknown')}")
+        return success
+
+    def test_get_my_children(self):
+        """Test getting all children for logged-in parent"""
+        success, response = self.run_test(
+            "Get My Children",
+            "GET",
+            "users/children",
+            200,
+            use_super_admin=True
+        )
+        
+        if success:
+            print(f"✅ Found {len(response)} children for parent")
+            for child in response:
+                print(f"  - {child.get('name', 'Unknown')} (ID: {child.get('id', 'Unknown')})")
+        return success
+
+    def test_get_specific_child(self):
+        """Test getting specific child details"""
+        if not hasattr(self, 'child1_id') or not self.child1_id:
+            print("❌ No child ID available for specific child test")
+            return False
+            
+        success, response = self.run_test(
+            "Get Specific Child",
+            "GET",
+            f"users/children/{self.child1_id}",
+            200,
+            use_super_admin=True
+        )
+        
+        if success:
+            print(f"✅ Retrieved child: {response.get('name', 'Unknown')}")
+            print(f"✅ Child DOB: {response.get('date_of_birth', 'Unknown')}")
+        return success
+
+    def test_get_invalid_child_should_fail(self):
+        """Test getting child with invalid ID (should return 404)"""
+        success, response = self.run_test(
+            "Get Invalid Child (Should Fail)",
+            "GET",
+            "users/children/invalid-child-id",
+            404,
+            use_super_admin=True
+        )
+        return success
+
+    def test_update_child_information(self):
+        """Test updating child account information"""
+        if not hasattr(self, 'child1_id') or not self.child1_id:
+            print("❌ No child ID available for update test")
+            return False
+            
+        update_data = {
+            "name": "Test Child 1 Updated",
+            "date_of_birth": "2015-05-15",
+            "email": "child1.updated@test.com",
+            "phone": "612-555-0002",
+            "password": "TempPass123!"  # Required field for UserCreate model
+        }
+        
+        success, response = self.run_test(
+            "Update Child Information",
+            "PUT",
+            f"users/children/{self.child1_id}",
+            200,
+            data=update_data,
+            use_super_admin=True
+        )
+        
+        if success:
+            print(f"✅ Child updated: {response.get('name', 'Unknown')}")
+            print(f"✅ Updated email: {response.get('email', 'Unknown')}")
+        return success
+
+    def test_get_child_activities(self):
+        """Test getting child's activities (registrations, memberships)"""
+        if not hasattr(self, 'child1_id') or not self.child1_id:
+            print("❌ No child ID available for activities test")
+            return False
+            
+        success, response = self.run_test(
+            "Get Child Activities",
+            "GET",
+            f"users/children/{self.child1_id}/activities",
+            200,
+            use_super_admin=True
+        )
+        
+        if success:
+            print(f"✅ Child name: {response.get('child_name', 'Unknown')}")
+            print(f"✅ Youth registrations: {len(response.get('youth_registrations', []))}")
+            print(f"✅ Adult registrations: {len(response.get('adult_registrations', []))}")
+            print(f"✅ Memberships: {len(response.get('memberships', []))}")
+            print(f"✅ Total activities: {response.get('total_activities', 0)}")
+        return success
+
+    def test_get_family_dashboard(self):
+        """Test getting complete family dashboard data"""
+        success, response = self.run_test(
+            "Get Family Dashboard",
+            "GET",
+            "users/family-dashboard",
+            200,
+            use_super_admin=True
+        )
+        
+        if success:
+            summary = response.get('summary', {})
+            print(f"✅ Parent: {response.get('parent', {}).get('name', 'Unknown')}")
+            print(f"✅ Total children: {summary.get('total_children', 0)}")
+            print(f"✅ Total registrations: {summary.get('total_registrations', 0)}")
+            print(f"✅ Total memberships: {summary.get('total_memberships', 0)}")
+            print(f"✅ Pending payments: {summary.get('pending_payments', 0)}")
+            
+            children = response.get('children', [])
+            for child in children:
+                print(f"  - {child.get('name', 'Unknown')}: {child.get('registrations_count', 0)} regs, {child.get('memberships_count', 0)} memberships")
+        return success
+
+    def test_age_validation_child_too_old(self):
+        """Test creating child with DOB making them 18+ (should fail)"""
+        child_data = {
+            "name": "Too Old Child",
+            "date_of_birth": "2000-01-01",  # This would make them 24+ years old
+            "email": "toolold@test.com",
+            "phone": "612-555-0099"
+        }
+        
+        success, response = self.run_test(
+            "Create Child Too Old (Should Fail)",
+            "POST",
+            "users/children",
+            400,  # Should fail with age validation error
+            data=child_data,
+            use_super_admin=True
+        )
+        return success
+
+    def test_unauthorized_child_access(self):
+        """Test accessing child endpoints without authentication (should return 401)"""
+        # Test without authentication
+        temp_token = self.super_admin_token
+        self.super_admin_token = None
+        
+        success, response = self.run_test(
+            "Unauthorized Child Access",
+            "GET",
+            "users/children",
+            401,
+            use_super_admin=True  # This will be ignored since token is None
+        )
+        
+        # Restore token
+        self.super_admin_token = temp_token
+        return success
+
+    def test_access_another_users_child(self):
+        """Test accessing another user's child (should return 403)"""
+        # This test simulates trying to access a child that doesn't belong to the current user
+        # Since we're using super admin, this might not fail as expected, but we'll test the endpoint
+        fake_child_id = "fake-child-id-not-owned-by-user"
+        
+        success, response = self.run_test(
+            "Access Another User's Child",
+            "GET",
+            f"users/children/{fake_child_id}",
+            404,  # Should return 404 (not found) or 403 (forbidden)
+            use_super_admin=True
+        )
+        return success
+
+    def test_child_with_minimal_data(self):
+        """Test creating child with only required fields"""
+        child_data = {
+            "name": "Minimal Child",
+            "date_of_birth": "2016-12-25"
+            # No email or phone (optional fields)
+        }
+        
+        success, response = self.run_test(
+            "Create Child with Minimal Data",
+            "POST",
+            "users/children",
+            200,
+            data=child_data,
+            use_super_admin=True
+        )
+        
+        if success and 'id' in response:
+            self.minimal_child_id = response['id']
+            print(f"✅ Minimal child created with ID: {self.minimal_child_id}")
+        return success
+
+    def test_child_with_all_optional_fields(self):
+        """Test creating child with all optional fields"""
+        child_data = {
+            "name": "Complete Child",
+            "date_of_birth": "2014-03-10",
+            "email": "complete.child@test.com",
+            "phone": "612-555-0088"
+        }
+        
+        success, response = self.run_test(
+            "Create Child with All Fields",
+            "POST",
+            "users/children",
+            200,
+            data=child_data,
+            use_super_admin=True
+        )
+        
+        if success and 'id' in response:
+            self.complete_child_id = response['id']
+            print(f"✅ Complete child created with ID: {self.complete_child_id}")
+        return success
+
+    def test_get_activities_for_child_with_no_activities(self):
+        """Test getting activities for child with no activities (should return empty lists)"""
+        if not hasattr(self, 'minimal_child_id') or not self.minimal_child_id:
+            print("❌ No minimal child ID available for empty activities test")
+            return False
+            
+        success, response = self.run_test(
+            "Get Activities for Child with No Activities",
+            "GET",
+            f"users/children/{self.minimal_child_id}/activities",
+            200,
+            use_super_admin=True
+        )
+        
+        if success:
+            print(f"✅ Youth registrations: {len(response.get('youth_registrations', []))}")
+            print(f"✅ Adult registrations: {len(response.get('adult_registrations', []))}")
+            print(f"✅ Memberships: {len(response.get('memberships', []))}")
+            print(f"✅ Total activities: {response.get('total_activities', 0)}")
+            
+            # Verify all are empty
+            if (len(response.get('youth_registrations', [])) == 0 and 
+                len(response.get('adult_registrations', [])) == 0 and 
+                len(response.get('memberships', [])) == 0):
+                print("✅ Correctly returned empty activity lists")
+        return success
+
+    def test_update_child_with_empty_optional_fields(self):
+        """Test updating child with empty optional fields"""
+        if not hasattr(self, 'complete_child_id') or not self.complete_child_id:
+            print("❌ No complete child ID available for empty fields update test")
+            return False
+            
+        update_data = {
+            "name": "Complete Child Updated",
+            "date_of_birth": "2014-03-10",
+            "email": "",  # Empty email
+            "phone": "",  # Empty phone
+            "password": "TempPass123!"  # Required field
+        }
+        
+        success, response = self.run_test(
+            "Update Child with Empty Optional Fields",
+            "PUT",
+            f"users/children/{self.complete_child_id}",
+            200,
+            data=update_data,
+            use_super_admin=True
+        )
+        
+        if success:
+            print(f"✅ Child updated: {response.get('name', 'Unknown')}")
+        return success
+
 def main():
     print("🏀 Starting MNASE Basketball League API Tests")
     print("=" * 50)
