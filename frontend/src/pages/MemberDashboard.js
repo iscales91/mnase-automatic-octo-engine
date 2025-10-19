@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, MapPin, Clock, DollarSign, Users, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { canAccessMemberDashboard } from '@/utils/roleUtils';
+import RestrictedAccess from '@/components/RestrictedAccess';
 import FamilyDashboard from '@/components/FamilyDashboard';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -22,6 +24,17 @@ function MemberDashboard() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem('token');
+  const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+
+  // Check authentication
+  if (!token || !canAccessMemberDashboard(storedUser)) {
+    return (
+      <RestrictedAccess 
+        message="You need to be logged in to access the Member Dashboard."
+        requiredRole="Member (logged in user)"
+      />
+    );
+  }
 
   useEffect(() => {
     if (!token) {
