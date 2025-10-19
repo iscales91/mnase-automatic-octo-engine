@@ -1,0 +1,25 @@
+# Robots.txt for MNASE Basketball League
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://courtside-22.preview.emergentagent.com/sitemap.xml
+
+# Disallow admin pages
+Disallow: /admin-dashboard
+Disallow: /dashboard
+
+# Allow all other pages
+Allow: /
+Allow: /programs
+Allow: /memberships
+Allow: /events
+Allow: /facilities
+Allow: /about
+Allow: /contact
+Allow: /faq
+Allow: /news
+Allow: /gallery
+
+# Crawl delay
+Crawl-delay: 1
