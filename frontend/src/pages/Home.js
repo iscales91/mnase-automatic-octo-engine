@@ -160,7 +160,9 @@ function Home() {
             {token && <NotificationBell />}
             {token ? (
               <>
-                <Link to="/dashboard" className="navbar-link" data-testid="nav-dashboard-link">Dashboard</Link>
+                <Link to={dashboardRoute} className="navbar-link" data-testid="nav-dashboard-link">
+                  {userIsAdmin ? 'Admin Dashboard' : 'Dashboard'}
+                </Link>
                 <button onClick={handleLogout} className="navbar-btn btn-secondary" data-testid="logout-btn">Logout</button>
               </>
             ) : (
