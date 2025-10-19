@@ -197,10 +197,12 @@ export default function AdvancedCalendar() {
           style={{
             border: '1px solid #e5e7eb',
             padding: '0.5rem',
-            minHeight: '100px',
+            minHeight: '75px',
+            maxHeight: '90px',
             background: isToday ? '#eff6ff' : 'white',
             cursor: dayEvents.length > 0 ? 'pointer' : 'default',
-            position: 'relative'
+            position: 'relative',
+            overflow: 'hidden'
           }}
           onClick={() => {
             if (dayEvents.length > 0) {
@@ -211,20 +213,21 @@ export default function AdvancedCalendar() {
           <div
             style={{
               fontWeight: isToday ? '700' : '600',
-              marginBottom: '0.5rem',
-              color: isToday ? '#2563eb' : '#1f2937'
+              marginBottom: '0.4rem',
+              color: isToday ? '#2563eb' : '#1f2937',
+              fontSize: '0.9rem'
             }}
           >
             {day}
           </div>
-          {dayEvents.slice(0, 3).map((event, idx) => (
+          {dayEvents.slice(0, 2).map((event, idx) => (
             <div
               key={event.id}
               style={{
-                fontSize: '0.7rem',
-                padding: '0.2rem 0.4rem',
-                marginBottom: '0.2rem',
-                borderRadius: '4px',
+                fontSize: '0.65rem',
+                padding: '0.15rem 0.35rem',
+                marginBottom: '0.15rem',
+                borderRadius: '3px',
                 background: getTypeColor(event.type),
                 color: 'white',
                 overflow: 'hidden',
@@ -236,9 +239,9 @@ export default function AdvancedCalendar() {
               {event.title}
             </div>
           ))}
-          {dayEvents.length > 3 && (
-            <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '0.2rem' }}>
-              +{dayEvents.length - 3} more
+          {dayEvents.length > 2 && (
+            <div style={{ fontSize: '0.65rem', color: '#64748b', marginTop: '0.15rem' }}>
+              +{dayEvents.length - 2} more
             </div>
           )}
         </div>
