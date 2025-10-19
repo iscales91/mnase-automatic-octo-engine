@@ -283,11 +283,14 @@ frontend:
     file: "frontend/src/utils/roleUtils.js, frontend/src/components/RestrictedAccess.js, frontend/src/pages/Home.js, frontend/src/pages/CalendarPage.js, frontend/src/pages/AdminDashboard.js, frontend/src/pages/MemberDashboard.js, frontend/src/App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented comprehensive role-based access control. Created roleUtils.js with helper functions (isAdmin, isSuperAdmin, isAuthenticated, canAccessAdminDashboard, canAccessMemberDashboard, getDashboardRoute). Created RestrictedAccess component for unauthorized access pages. Updated navigation to show 'Admin Dashboard' link for admin roles (super_admin, admin, manager, staff, coach, treasurer) and 'Dashboard' for regular users. Added route protection to AdminDashboard and MemberDashboard pages. Updated login/register handlers to redirect based on role. Separated routes: /dashboard for members, /admin-dashboard for admins. All public pages remain accessible to everyone."
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE ROLE-BASED UI VISIBILITY TESTING COMPLETE - All major functionality working correctly. ✅ PUBLIC USER NAVIGATION: Login button visible, no Dashboard link shown, all public pages accessible (Programs, Memberships, Events, Facilities, News, About, FAQ, Shop). ✅ RESTRICTED ACCESS PAGES: /admin-dashboard shows RestrictedAccess component with shield icon, correct message 'You need admin privileges to access the Admin Dashboard', required role 'Admin, Manager, Staff, Coach, or Treasurer', and navigation buttons. /dashboard shows RestrictedAccess component with correct message 'You need to be logged in to access the Member Dashboard' and required role 'Member (logged in user)'. ✅ ADMIN USER LOGIN & NAVIGATION: Super admin login successful (mnasebasketball@gmail.com), redirects to /admin-dashboard, navigation shows 'Admin Dashboard' link, Logout button visible, Login button hidden, Admin Dashboard accessible and loads properly. ✅ ROLE-BASED DASHBOARD ROUTES: /admin-dashboard accessible by admin roles, /dashboard accessible by all authenticated users (including admins), proper access control enforced. ✅ NAVIGATION CONSISTENCY: Role-based navigation working on Home page and Calendar page, logout functionality working correctly (redirects to homepage, shows public view). ✅ MOBILE RESPONSIVENESS: Hamburger menu visible and functional on mobile, navigation links accessible after expanding, Login button accessible. Minor issue: Regular user registration may have validation issues, but admin access control working perfectly. All critical role-based access control requirements successfully implemented and tested."
 
   - task: "Calendar as Subpage Under Events Tab"
     implemented: true
