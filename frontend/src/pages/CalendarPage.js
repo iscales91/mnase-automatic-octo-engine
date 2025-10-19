@@ -70,7 +70,9 @@ function CalendarPage() {
             <Link to="/shop" className="navbar-link">Shop</Link>
             {token ? (
               <>
-                <Link to="/dashboard" className="navbar-link">Dashboard</Link>
+                <Link to={dashboardRoute} className="navbar-link">
+                  {userIsAdmin ? 'Admin Dashboard' : 'Dashboard'}
+                </Link>
                 <button onClick={() => {
                   localStorage.removeItem('token');
                   localStorage.removeItem('user');
