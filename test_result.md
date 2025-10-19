@@ -451,7 +451,7 @@ test_plan:
   backend_testing_complete: true
   backend_success_rate: "72.9%"
   backend_critical_systems_verified: true
-  frontend_testing_complete: true
+  frontend_testing_complete: false
   frontend_success_rate: "100%"
   frontend_critical_systems_verified: true
 
