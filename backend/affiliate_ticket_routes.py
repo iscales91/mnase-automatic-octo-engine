@@ -66,29 +66,21 @@ class TicketValidation(BaseModel):
     ticket_id: str
     qr_code: str
 
-# Dependency to get database
-async def get_db(request: Request):
-    return request.app.state.db
+# Import the authentication functions from main server
+import sys
+import os
+sys.path.append('/app/backend')
 
-# Dependency to get current user
-async def get_current_user(request: Request):
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    
-    # Decode token and get user
-    # This should match your existing auth logic in server.py
-    from jose import jwt
-    try:
-        payload = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=["HS256"])
-        user_id = payload.get("sub")
-        db = request.app.state.db
-        user = await db.users.find_one({"id": user_id})
-        if not user:
-            raise HTTPException(status_code=401, detail="User not found")
-        return user
-    except:
-        raise HTTPException(status_code=401, detail="Invalid token")
+# Import from server.py
+from server import get_current_user as server_get_current_user, get_admin_user as server_get_admin_user, get_super_admin_user as server_get_super_admin_user
+
+# Use the same authentication as main server
+async def get_current_user(credentials = Depends(server_get_current_user)):
+    return credentials
+
+async def get_db():
+    from server import db
+    return db
 
 # Dependency to check super admin
 async def get_super_admin(user: dict = Depends(get_current_user)):
