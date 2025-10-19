@@ -512,8 +512,7 @@ function MemberDashboard() {
                 ))}
               </div>
             )}
-          </TabsContent>
-        </Tabs>
+          )}
       </div>
     </div>
   );
