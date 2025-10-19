@@ -5,8 +5,9 @@
 
 /* Navigation Bar Fixes */
 .navbar {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  position: relative;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .navbar-container {
@@ -14,6 +15,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 0.75rem;
+  max-width: 100%;
 }
 
 .navbar-links {
@@ -22,6 +24,29 @@
   align-items: center;
   flex-wrap: nowrap;
   gap: 0.25rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  flex: 1;
+  margin-left: 1rem;
+}
+
+/* Scrollbar styling for webkit browsers */
+.navbar-links::-webkit-scrollbar {
+  height: 4px;
+}
+
+.navbar-links::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.navbar-links::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.navbar-links::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .navbar-link,
@@ -30,24 +55,63 @@
   writing-mode: horizontal-tb !important;
   text-orientation: mixed !important;
   display: inline-block !important;
+  flex-shrink: 0;
 }
 
 .navbar-dropdown {
   position: relative;
+  flex-shrink: 0;
+}
+
+.navbar-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1000;
+  border-radius: 4px;
+  padding: 0.5rem 0;
+}
+
+.navbar-dropdown-content a {
+  color: black;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  display: block;
+}
+
+.navbar-dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+.navbar-dropdown:hover .navbar-dropdown-content {
+  display: block;
 }
 
 @media (max-width: 640px) {
   .navbar-container {
     padding: 0.25rem 0.5rem;
+    flex-direction: column;
+    align-items: stretch;
   }
   
   .navbar-brand {
     font-size: 0.875rem;
     padding: 0.25rem;
+    text-align: center;
+  }
+  
+  .navbar-brand img {
+    height: 35px !important;
   }
   
   .navbar-links {
     gap: 0.15rem;
+    margin-left: 0;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid #e5e7eb;
   }
   
   .navbar-link {
@@ -64,6 +128,11 @@
   
   .navbar-dropdown-content {
     font-size: 0.75rem;
+    min-width: 150px;
+  }
+  
+  .navbar-dropdown-content a {
+    padding: 0.5rem 0.75rem;
   }
   
   /* Target all navigation elements directly */
@@ -76,7 +145,7 @@
   
   /* Reduce logo size on mobile */
   nav img {
-    max-height: 30px !important;
+    max-height: 35px !important;
     width: auto;
   }
   
