@@ -472,6 +472,8 @@ test_plan:
 
 agent_communication:
   - agent: "main"
+    message: "Implemented Role-Based UI Visibility system. Created roleUtils.js with access control functions. Created RestrictedAccess component displaying professional 'Access Restricted' message with shield icon, required role info, and navigation options. Updated navigation to show 'Admin Dashboard' for admin roles (super_admin, admin, manager, staff, coach, treasurer) and 'Dashboard' for regular users. Protected routes: /admin-dashboard requires admin role, /dashboard requires authentication. Login/register now redirect based on role. Public pages accessible to all. Ready for comprehensive testing."
+  - agent: "main"
     message: "Moved calendar to subpage under Events tab. Created new CalendarPage component at /calendar route. Updated Events dropdown navigation to include 'Calendar' as first option (before Shoot N HOOPS, Summer Sizzle, Winter Wars, Media Gallery). Calendar page displays full month AdvancedCalendar with all events, navigation controls, filters, and responsive design. Updated navigation in Home.js, Events.js, and CalendarPage.js. Ready for testing."
   - agent: "main"
     message: "Fixed full month calendar display. Updated AdvancedCalendar component to reduce cell height (75px min, 90px max) so all 5-6 weeks of the month are visible without scrolling. Calendar now shows complete month grid with all days (1-31), week headers (Sun-Sat), and color-coded events on their respective dates. Tested on multiple viewport sizes (1920x1080, 1440x900, 1366x768, 1280x720) - full month visible in all views. Ready for testing."
