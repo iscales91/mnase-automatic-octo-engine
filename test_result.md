@@ -105,6 +105,18 @@
 user_problem_statement: "MNASE Basketball League Website - Phase 1-2 Complete. Phase 3: Implement comprehensive Roles & Permissions Management System with Super Admin creation"
 
 backend:
+  - task: "Collapsible Sidebar for Member Dashboard"
+    implemented: true
+    working: true
+    file: "frontend/src/components/DashboardSidebar.js, frontend/src/pages/MemberDashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created collapsible left sidebar navigation for MemberDashboard. Replaced horizontal tabs with vertical sidebar menu. Created reusable DashboardSidebar component with collapsible feature (expand/collapse button), mobile hamburger menu, slide-in animation, dark gradient background, active state highlighting, icon support, smooth transitions. Updated MemberDashboard layout to two-column (sidebar + content), added top bar with user greeting and logout, converted TabsContent to conditional rendering based on activeTab state. Sidebar shows 6 menu items (My Registrations, Family & Children, Affiliate Earnings, My Teams, Upcoming Schedule, Facility Bookings) with emoji icons. Mobile responsive with overlay and slide-in menu."
+
   - task: "Event Category System with Color Coding"
     implemented: true
     working: true
