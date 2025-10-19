@@ -330,7 +330,7 @@ const RolesManagement = () => {
                         <h4 className="font-semibold mb-2 capitalize">
                           {category.replace(/_/g, ' ')}
                         </h4>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           {perms.map(perm => (
                             <label key={perm} className="flex items-center space-x-2 text-sm">
                               <input
@@ -418,7 +418,7 @@ const RolesManagement = () => {
                         <h4 className="font-semibold mb-1 text-sm capitalize">
                           {category.replace(/_/g, ' ')}
                         </h4>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           {perms.map(perm => (
                             <label key={perm} className="flex items-center space-x-2 text-xs">
                               <input
