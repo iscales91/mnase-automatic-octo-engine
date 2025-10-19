@@ -79,6 +79,7 @@ function Events() {
             <div className="navbar-dropdown">
               <button className="navbar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'inherit' }}>Events ▾</button>
               <div className="navbar-dropdown-content">
+                <Link to="/calendar">Calendar</Link>
                 <Link to="/shoot-n-hoops">Shoot N HOOPS</Link>
                 <Link to="/summer-sizzle">Summer Sizzle Circuit</Link>
                 <Link to="/winter-wars">Winter Wars Circuit</Link>
