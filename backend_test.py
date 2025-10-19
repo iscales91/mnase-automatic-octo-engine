@@ -2095,10 +2095,14 @@ class MNASEBasketballAPITester:
             print("❌ No child ID available for update test")
             return False
             
+        # Use unique email to avoid conflicts
+        import time
+        unique_email = f"child1.updated.{int(time.time())}@test.com"
+        
         update_data = {
             "name": "Test Child 1 Updated",
             "date_of_birth": "2015-05-15",
-            "email": "child1.updated@test.com",
+            "email": unique_email,
             "phone": "612-555-0002",
             "password": "TempPass123!"  # Required field for UserCreate model
         }
