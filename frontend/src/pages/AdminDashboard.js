@@ -24,6 +24,7 @@ import RolesManagement from '@/components/admin/RolesManagement';
 import ActivityLogs from '@/components/admin/ActivityLogs';
 import StatsManagement from '@/components/admin/StatsManagement';
 import AffiliateManagement from '@/components/admin/AffiliateManagement';
+import TicketManagement from '@/components/admin/TicketManagement';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
