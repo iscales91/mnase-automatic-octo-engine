@@ -173,7 +173,7 @@ const ActivityLogs = () => {
       {/* Logs Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full">
+          <table className="min-w-full responsive-table">
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Timestamp</th>
