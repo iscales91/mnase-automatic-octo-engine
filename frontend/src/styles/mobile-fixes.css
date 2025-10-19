@@ -3,6 +3,64 @@
  * Ensures no horizontal scrolling and proper viewport usage
  */
 
+/* Navigation Bar Fixes */
+.navbar {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.navbar-links {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+}
+
+.navbar-link,
+.navbar-btn {
+  white-space: nowrap;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  display: inline-block !important;
+}
+
+@media (max-width: 768px) {
+  .navbar-link {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+  
+  .navbar-btn {
+    font-size: 0.875rem;
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .navbar-link {
+    font-size: 0.9rem;
+  }
+  
+  .navbar-btn {
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .navbar-link {
+    font-size: 1rem;
+  }
+  
+  .navbar-btn {
+    font-size: 1rem;
+  }
+}
+
 /* Prevent horizontal overflow on all elements */
 * {
   box-sizing: border-box;
