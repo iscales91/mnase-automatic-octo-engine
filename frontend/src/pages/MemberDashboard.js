@@ -517,6 +517,7 @@ function MemberDashboard() {
                 ))}
               </div>
             )}
+            </div>
           )}
       </div>
     </div>
