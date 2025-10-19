@@ -377,7 +377,8 @@ function MemberDashboard() {
 
           {/* Teams Tab */}
           {activeTab === 'teams' && (
-            {myTeams.length === 0 ? (
+            <div>
+              {myTeams.length === 0 ? (
               <Card>
                 <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
                   <Users size={48} style={{ color: '#94a3b8', margin: '0 auto 1rem' }} />
