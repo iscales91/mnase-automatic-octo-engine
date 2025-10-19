@@ -38,16 +38,18 @@ function DashboardSidebar({ items, activeItem, onItemChange, className = '' }) {
         style={{
           width: isCollapsed ? '70px' : '250px',
           minWidth: isCollapsed ? '70px' : '250px',
+          maxWidth: isCollapsed ? '70px' : '250px',
           height: '100vh',
           position: 'sticky',
           top: 0,
           background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
           color: 'white',
-          transition: 'width 0.3s ease, min-width 0.3s ease',
+          transition: 'width 0.3s ease, min-width 0.3s ease, max-width 0.3s ease',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          zIndex: 100
+          zIndex: 100,
+          flexShrink: 0
         }}
       >
         {/* Sidebar Header */}
