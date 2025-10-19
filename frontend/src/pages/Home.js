@@ -63,10 +63,14 @@ function Home() {
     e.preventDefault();
     try {
       const response = await axios.post(`${API}/auth/login`, loginData);
+      const userData = response.data.user;
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('user', JSON.stringify(userData));
       toast.success('Welcome back!');
-      window.location.href = '/dashboard';
+      
+      // Redirect based on role
+      const route = getDashboardRoute(userData);
+      window.location.href = route;
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Login failed');
     }
