@@ -552,16 +552,16 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Affiliate Ticket Sales System - Backend Testing"
     - "Affiliate Ticket Sales System - Frontend Testing"
-    - "Parent-Child Account Management Testing"
     - "Application Optimizations"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
   backend_testing_complete: true
-  backend_success_rate: "72.9%"
+  backend_success_rate: "80.0%"
   backend_critical_systems_verified: true
+  parent_child_testing_complete: true
+  parent_child_success_rate: "80.0%"
   frontend_testing_complete: false
   frontend_success_rate: "100%"
   frontend_critical_systems_verified: true
