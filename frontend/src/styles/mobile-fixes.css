@@ -65,6 +65,25 @@
   .navbar-dropdown-content {
     font-size: 0.75rem;
   }
+  
+  /* Target all navigation elements directly */
+  nav a,
+  nav button,
+  nav span {
+    font-size: 0.7rem !important;
+    padding: 0.3rem 0.4rem !important;
+  }
+  
+  /* Reduce logo size on mobile */
+  nav img {
+    max-height: 30px !important;
+    width: auto;
+  }
+  
+  /* Compact header elements */
+  header {
+    padding: 0.25rem !important;
+  }
 }
 
 @media (min-width: 641px) and (max-width: 768px) {
