@@ -10,6 +10,7 @@ import RestrictedAccess from '@/components/RestrictedAccess';
 import FamilyDashboard from '@/components/FamilyDashboard';
 import AffiliateEarningsDashboard from '@/components/AffiliateEarningsDashboard';
 import DashboardSidebar from '@/components/DashboardSidebar';
+import '@/styles/dashboard.css';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
