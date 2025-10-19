@@ -70,6 +70,7 @@ function App() {
           <Route path="/recruitment" element={<Recruitment />} />
           <Route path="/sponsorship" element={<Sponsorship />} />
           <Route path="/scores" element={<Scores />} />
+          <Route path="/stats" element={<Stats />} />
           <Route path="/foundation" element={<Foundation />} />
           <Route path="/news" element={<News />} />
           <Route path="/news/:postId" element={<News />} />
