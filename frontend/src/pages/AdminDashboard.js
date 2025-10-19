@@ -426,6 +426,11 @@ function AdminDashboard() {
                     </div>
                   </CardHeader>
                   <CardContent>
+                    <div style={{ marginBottom: '1rem' }}>
+                      <span style={getCategoryBadgeStyle(event.category)} data-testid={`event-category-badge-${event.id}`}>
+                        {event.category}
+                      </span>
+                    </div>
                     <p style={{ color: '#64748b', marginBottom: '1rem' }} data-testid={`event-description-${event.id}`}>{event.description}</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.9rem', color: '#64748b' }}>
                       <div><Calendar size={14} style={{ display: 'inline', marginRight: '0.5rem' }} /><span data-testid={`event-date-${event.id}`}>{event.date} at {event.time}</span></div>
