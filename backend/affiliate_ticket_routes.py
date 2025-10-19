@@ -281,8 +281,7 @@ async def get_all_affiliates(
 @router.put("/admin/affiliates/commission-rate")
 async def update_affiliate_commission(
     update: CommissionRateUpdate,
-    admin: dict = Depends(get_super_admin),
-    db = Depends(get_db)
+    admin: dict = Depends(get_super_admin_user)
 ):
     """Update affiliate commission rate (super admin only)"""
     affiliate_service = AffiliateService(db)
