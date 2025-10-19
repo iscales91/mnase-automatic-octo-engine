@@ -105,6 +105,18 @@
 user_problem_statement: "MNASE Basketball League Website - Phase 1-2 Complete. Phase 3: Implement comprehensive Roles & Permissions Management System with Super Admin creation"
 
 backend:
+  - task: "FAQ Management System"
+    implemented: true
+    working: true
+    file: "backend/server.py, frontend/src/components/admin/FAQManagement.js, frontend/src/pages/AdminDashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Complete FAQ management system implemented. Backend: Added FAQ, FAQCreate, FAQUpdate Pydantic models. Created 6 API endpoints (GET /faqs public, GET /faqs/{id}, POST /admin/faqs create, PUT /admin/faqs/{id} update, DELETE /admin/faqs/{id}, GET /admin/faqs/all). Frontend: FAQManagement component with statistics cards (total/published/draft/categories), grouped display by category, order management, publish/unpublish toggle, create/edit dialog, delete confirmation, draft system. Activity logging for all admin actions. Integrated into AdminDashboard as FAQs tab."
+
   - task: "Affiliate Ticket Sales System - Backend API Endpoints"
     implemented: true
     working: true
