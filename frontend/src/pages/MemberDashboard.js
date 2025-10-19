@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, MapPin, Clock, DollarSign, Users, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import FamilyDashboard from '@/components/FamilyDashboard';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
