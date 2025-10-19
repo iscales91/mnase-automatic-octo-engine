@@ -105,6 +105,18 @@
 user_problem_statement: "MNASE Basketball League Website - Phase 1-2 Complete. Phase 3: Implement comprehensive Roles & Permissions Management System with Super Admin creation"
 
 backend:
+  - task: "Event Category System with Color Coding"
+    implemented: true
+    working: true
+    file: "frontend/src/utils/eventCategories.js, frontend/src/pages/AdminDashboard.js, frontend/src/pages/Events.js, frontend/src/components/AdvancedCalendar.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented event category dropdown system with color coding. Created eventCategories.js utility with 7 predefined categories (Tournament-red, Game-orange, Camp-green, Clinic-cyan, Workshop-purple, Orientation-blue, Other-gray). Each category has unique color and background color. Updated AdminDashboard event creation form to use dropdown with emoji icons. Updated Events page and AdvancedCalendar to display color-coded category badges. Added getCategoryBadgeStyle utility for consistent badge styling. All event displays now show color-coded categories matching the dropdown selection."
+
   - task: "FAQ Management System"
     implemented: true
     working: true
