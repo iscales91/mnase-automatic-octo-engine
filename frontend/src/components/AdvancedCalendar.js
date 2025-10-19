@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Filter, Download, X, Search } from 'lucide-react';
+import { getCategoryColor } from '@/utils/eventCategories';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
