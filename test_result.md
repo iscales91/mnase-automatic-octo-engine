@@ -277,6 +277,18 @@ backend:
         comment: "All 4 payment endpoints tested and working correctly. Youth checkout: cs_test_a1CgWKUdjVLlEK4doqyphzPx8I0EGsFqcU0RntTnv6jDSMW5kZ9MHIdjzU, Adult checkout: cs_test_a1DQig7QtOgnygx8OokyCtxFcDUxseSlJtgpygwqUR1sBBzeZD4EuqUmCm. Payment status checks returning correct unpaid status. Fixed backend model validation issues and missing return statements. Stripe integration fully functional."
 
 frontend:
+  - task: "Collapsible Home Navigation Bar"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/Home.js, frontend/src/styles/mobile-fixes.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented accordion-style collapsible navigation on mobile. Added hamburger menu button that toggles between Menu icon (collapsed) and X icon (expanded). Navigation slides down smoothly with 0.3s ease-in-out animation. Logo remains visible at all times. Desktop navigation unchanged - full horizontal bar. Mobile shows all menu items in vertical scrollable list when expanded. Dropdowns work within the collapsible menu."
+  
   - task: "RolesManagement Component - Admin Interface"
     implemented: true
     working: true
