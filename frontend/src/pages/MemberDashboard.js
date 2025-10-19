@@ -422,10 +422,10 @@ function MemberDashboard() {
                 ))}
               </div>
             )}
-          </TabsContent>
+          )}
 
           {/* Schedule Tab */}
-          <TabsContent value="schedule">
+          {activeTab === 'schedule' && (
             {upcomingEvents.length === 0 ? (
               <Card>
                 <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
