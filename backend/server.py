@@ -25,6 +25,7 @@ from search_service import search_service
 from notification_service import notification_service
 from activity_log_service import activity_log_service
 from membership_service import membership_service, MEMBERSHIP_PRICING
+from calendar_service import calendar_service
 from error_utils import (
     ValidationUtils, ValidationError, CustomHTTPException,
     not_found_error, validation_error, unauthorized_error, 
