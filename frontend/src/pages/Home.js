@@ -20,6 +20,7 @@ function Home() {
   const [showAuth, setShowAuth] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ 
     email: '', 
