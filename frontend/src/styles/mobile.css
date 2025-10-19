@@ -1,0 +1,191 @@
+/**
+ * Mobile Responsive Utilities and CSS
+ * Provides mobile-first responsive design utilities
+ */
+
+/* Mobile Navigation Styles */
+.mobile-menu-button {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-button {
+    display: block;
+  }
+  
+  .desktop-nav {
+    display: none;
+  }
+  
+  .mobile-nav {
+    display: block;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-nav {
+    display: none;
+  }
+  
+  .desktop-nav {
+    display: block;
+  }
+}
+
+/* Responsive Table Styles */
+.responsive-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.responsive-table {
+  min-width: 600px;
+}
+
+@media (max-width: 768px) {
+  .responsive-table {
+    font-size: 0.875rem;
+  }
+  
+  .responsive-table th,
+  .responsive-table td {
+    padding: 0.5rem;
+  }
+}
+
+/* Mobile Form Styles */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Mobile Dashboard Styles */
+@media (max-width: 768px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  
+  .admin-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .admin-tabs button {
+    white-space: nowrap;
+  }
+}
+
+/* Mobile Card Styles */
+@media (max-width: 768px) {
+  .card-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .card-actions {
+    flex-direction: column;
+  }
+  
+  .card-actions button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Mobile Modal Styles */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95vw !important;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+  }
+}
+
+/* Touch-Friendly Button Sizes */
+@media (max-width: 768px) {
+  button,
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Responsive Padding */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .section-padding {
+    padding: 2rem 1rem;
+  }
+}
+
+/* Hide on Mobile */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* Show only on Mobile */
+.show-mobile {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .show-mobile {
+    display: block !important;
+  }
+}
+
+/* Responsive Text Sizes */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.875rem !important;
+  }
+  
+  h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  h3 {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Stack columns on mobile */
+@media (max-width: 768px) {
+  .stack-mobile {
+    flex-direction: column !important;
+  }
+  
+  .stack-mobile > * {
+    width: 100% !important;
+    margin-bottom: 1rem;
+  }
+}
