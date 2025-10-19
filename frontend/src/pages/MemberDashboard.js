@@ -428,7 +428,8 @@ function MemberDashboard() {
 
           {/* Schedule Tab */}
           {activeTab === 'schedule' && (
-            {upcomingEvents.length === 0 ? (
+            <div>
+              {upcomingEvents.length === 0 ? (
               <Card>
                 <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
                   <Calendar size={48} style={{ color: '#94a3b8', margin: '0 auto 1rem' }} />
