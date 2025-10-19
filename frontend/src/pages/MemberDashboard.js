@@ -471,10 +471,10 @@ function MemberDashboard() {
                 ))}
               </div>
             )}
-          </TabsContent>
+          )}
 
           {/* Bookings Tab - Keep existing */}
-          <TabsContent value="bookings">
+          {activeTab === 'bookings' && (
             {bookings.length === 0 ? (
               <Card>
                 <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
