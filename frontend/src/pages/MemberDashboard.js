@@ -154,33 +154,76 @@ function MemberDashboard() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f8f9ff 0%, #e8eeff 100%)' }}>
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-container">
-          <Link to="/" className="navbar-brand">
-            <img src="https://customer-assets.emergentagent.com/job_bball-league-hub/artifacts/tglx13e4_MNASE%20Logo%20Big" alt="MNASE Basketball" style={{ height: '50px' }} />
-          </Link>
-          <div className="navbar-links">
-            <Link to="/programs" className="navbar-link">Programs</Link>
-            <Link to="/events" className="navbar-link">Events</Link>
-            <Link to="/facilities" className="navbar-link">Facilities</Link>
-            <Link to="/dashboard" className="navbar-link">Dashboard</Link>
-            <button onClick={handleLogout} className="navbar-btn btn-secondary">Logout</button>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc' }}>
+      {/* Sidebar */}
+      <DashboardSidebar
+        items={sidebarItems}
+        activeItem={activeTab}
+        onItemChange={setActiveTab}
+      />
+
+      {/* Main Content */}
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        {/* Top Bar */}
+        <div style={{
+          background: 'white',
+          borderBottom: '1px solid #e5e7eb',
+          padding: '1.5rem 2rem',
+          position: 'sticky',
+          top: 0,
+          zIndex: 10
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b', marginBottom: '0.25rem' }}>
+                Welcome, {user?.name}!
+              </h1>
+              <p style={{ fontSize: '0.95rem', color: '#64748b' }}>
+                Manage your registrations, teams, and upcoming activities
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <Link to="/">
+                <Button variant="outline" size="sm">Home</Button>
+              </Link>
+              <Button onClick={handleLogout} variant="outline" size="sm">Logout</Button>
+            </div>
           </div>
         </div>
-      </nav>
 
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '3rem 2rem' }}>
-        {/* Header */}
-        <div style={{ marginBottom: '3rem' }}>
-          <h1 style={{ fontSize: '3rem', fontWeight: '700', color: '#1e293b', marginBottom: '0.5rem' }}>
-            Welcome, {user?.name}!
-          </h1>
-          <p style={{ fontSize: '1.2rem', color: '#64748b' }}>
-            Manage your registrations, teams, and upcoming activities
-          </p>
-        </div>
+        <div style={{ padding: '2rem' }}>
+          {/* Stats Grid */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '1.5rem',
+            marginBottom: '2rem'
+          }}>
+            <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>Program Registrations</div>
+              <div style={{ fontSize: '2rem', fontWeight: '700', color: '#1e293b' }}>
+                {youthRegistrations.length + adultRegistrations.length}
+              </div>
+            </div>
+            <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>My Teams</div>
+              <div style={{ fontSize: '2rem', fontWeight: '700', color: '#1e293b' }}>
+                {myTeams.length}
+              </div>
+            </div>
+            <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>Upcoming Events</div>
+              <div style={{ fontSize: '2rem', fontWeight: '700', color: '#1e293b' }}>
+                {upcomingEvents.length}
+              </div>
+            </div>
+            <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>Facility Bookings</div>
+              <div style={{ fontSize: '2rem', fontWeight: '700', color: '#1e293b' }}>
+                {bookings.length}
+              </div>
+            </div>
+          </div>
 
         {/* Stats Grid */}
         <div style={{ 
