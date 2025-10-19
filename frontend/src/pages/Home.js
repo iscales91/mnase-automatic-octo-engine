@@ -93,10 +93,20 @@ function Home() {
       {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-container">
-          <Link to="/" className="navbar-brand" data-testid="navbar-brand">
-            <img src="https://customer-assets.emergentagent.com/job_bball-league-hub/artifacts/tglx13e4_MNASE%20Logo%20Big" alt="MNASE Basketball" style={{ height: '50px' }} />
-          </Link>
-          <div className="navbar-links" style={{ overflowX: 'auto', display: 'flex', flexWrap: 'nowrap' }}>
+          <div className="navbar-header">
+            <Link to="/" className="navbar-brand" data-testid="navbar-brand">
+              <img src="https://customer-assets.emergentagent.com/job_bball-league-hub/artifacts/tglx13e4_MNASE%20Logo%20Big" alt="MNASE Basketball" style={{ height: '50px' }} />
+            </Link>
+            <button 
+              className="navbar-hamburger"
+              onClick={() => setIsNavCollapsed(!isNavCollapsed)}
+              aria-label="Toggle navigation"
+              data-testid="hamburger-btn"
+            >
+              {isNavCollapsed ? <Menu size={24} /> : <X size={24} />}
+            </button>
+          </div>
+          <div className={`navbar-links ${isNavCollapsed ? 'collapsed' : 'expanded'}`}>
             <Link to="/programs" className="navbar-link" data-testid="nav-programs-link">Programs</Link>
             <div className="navbar-dropdown">
               <button className="navbar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'inherit' }}>Memberships ▾</button>
