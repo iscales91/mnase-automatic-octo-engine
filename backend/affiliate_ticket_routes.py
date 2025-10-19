@@ -333,14 +333,14 @@ async def create_ticket_type(
     }
 
 @router.get("/tickets/event/{event_id}")
-async def get_event_tickets(event_id: str, db = Depends(get_db)):
+async def get_event_tickets(event_id: str):
     """Get all ticket types for an event (public)"""
     ticket_service = TicketService(db)
     ticket_types = await ticket_service.get_ticket_types_by_event(event_id)
     return {"ticket_types": ticket_types}
 
 @router.get("/tickets/type/{ticket_type_id}")
-async def get_ticket_type(ticket_type_id: str, db = Depends(get_db)):
+async def get_ticket_type(ticket_type_id: str):
     """Get specific ticket type details"""
     ticket_service = TicketService(db)
     ticket_type = await ticket_service.get_ticket_type(ticket_type_id)
