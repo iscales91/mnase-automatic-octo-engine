@@ -429,7 +429,6 @@ function MemberDashboard() {
           {/* Schedule Tab */}
           {activeTab === 'schedule' && (
             <div>
-            <div>
               {upcomingEvents.length === 0 ? (
               <Card>
                 <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
