@@ -144,14 +144,22 @@ app.mount("/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 @app.exception_handler(CustomHTTPException)
 async def custom_http_exception_handler(request: Request, exc: CustomHTTPException):
     """Handle custom HTTP exceptions"""
+    content = {
+        "error": exc.error,
+        "message": exc.message,
+        "details": exc.details
+    }
+    
+    # Convert ValidationError objects to dictionaries
+    if exc.validation_errors:
+        content["validation_errors"] = [
+            {"field": e.field, "message": e.message, "code": e.code}
+            for e in exc.validation_errors
+        ]
+    
     return JSONResponse(
         status_code=exc.status_code,
-        content={
-            "error": exc.error,
-            "message": exc.message,
-            "details": exc.details,
-            "validation_errors": exc.validation_errors
-        }
+        content=content
     )
 
 @app.exception_handler(HTTPException)
