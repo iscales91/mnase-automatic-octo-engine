@@ -140,8 +140,7 @@ async def apply_for_affiliate(
 
 @router.get("/affiliates/my-application")
 async def get_my_application(
-    user: dict = Depends(get_current_user),
-    db = Depends(get_db)
+    user: dict = Depends(get_current_user)
 ):
     """Get current user's affiliate application status"""
     application = await db.affiliate_applications.find_one({"user_id": user["id"]})
