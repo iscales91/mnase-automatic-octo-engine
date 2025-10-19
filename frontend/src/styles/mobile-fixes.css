@@ -1,0 +1,269 @@
+/**
+ * Mobile Responsiveness Fixes
+ * Ensures no horizontal scrolling and proper viewport usage
+ */
+
+/* Prevent horizontal overflow on all elements */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
+#root {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Fix container widths */
+.container,
+[class*="container"] {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Fix tables on mobile */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Ensure table containers don't overflow */
+  .table-container,
+  [class*="table"] {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Fix wide content */
+img,
+video,
+canvas,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Fix pre and code blocks */
+pre,
+code {
+  max-width: 100%;
+  overflow-x: auto;
+  word-wrap: break-word;
+}
+
+/* Fix forms on mobile */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea,
+  button {
+    max-width: 100%;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Stack form elements */
+  form > div {
+    width: 100%;
+  }
+}
+
+/* Fix navigation on mobile */
+@media (max-width: 768px) {
+  nav {
+    flex-wrap: wrap;
+  }
+  
+  nav ul {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  nav li {
+    width: 100%;
+  }
+}
+
+/* Fix cards and grids on mobile */
+@media (max-width: 768px) {
+  .grid,
+  [class*="grid"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .card,
+  [class*="card"] {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+/* Fix modals on mobile */
+@media (max-width: 768px) {
+  .modal,
+  [role="dialog"],
+  [class*="modal"] {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 1rem auto;
+  }
+}
+
+/* Fix admin dashboard tabs */
+@media (max-width: 768px) {
+  [role="tablist"] {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+    display: flex;
+  }
+  
+  [role="tab"] {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
+
+/* Fix Shadcn UI specific components */
+@media (max-width: 768px) {
+  /* Dialog */
+  [data-radix-dialog-content] {
+    max-width: 95vw !important;
+    width: 95vw !important;
+  }
+  
+  /* Dropdown menus */
+  [data-radix-dropdown-menu-content] {
+    max-width: 90vw;
+  }
+  
+  /* Tabs */
+  [data-radix-tabs-list] {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  
+  [data-radix-tabs-trigger] {
+    flex-shrink: 0;
+  }
+}
+
+/* Fix carousel on mobile */
+@media (max-width: 768px) {
+  .carousel,
+  [class*="carousel"] {
+    width: 100%;
+  }
+  
+  .carousel img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+/* Fix dashboard stats on mobile */
+@media (max-width: 768px) {
+  .stats-grid,
+  .dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem;
+  }
+}
+
+/* Ensure text doesn't overflow */
+p, h1, h2, h3, h4, h5, h6, span, div {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Fix long URLs */
+a {
+  word-break: break-word;
+}
+
+/* Responsive padding */
+@media (max-width: 768px) {
+  .p-8 {
+    padding: 1rem !important;
+  }
+  
+  .px-8 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  .py-8 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+}
+
+/* Fix membership cards on mobile */
+@media (max-width: 768px) {
+  .membership-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Fix activity logs table on mobile */
+@media (max-width: 768px) {
+  .activity-logs-table {
+    font-size: 0.875rem;
+  }
+  
+  .activity-logs-table th,
+  .activity-logs-table td {
+    padding: 0.5rem;
+  }
+}
+
+/* Responsive font sizes */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem !important;
+  }
+  
+  h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  h3 {
+    font-size: 1.25rem !important;
+  }
+  
+  .text-4xl {
+    font-size: 2rem !important;
+  }
+  
+  .text-3xl {
+    font-size: 1.75rem !important;
+  }
+  
+  .text-2xl {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* Prevent zoom on input focus (iOS) */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="date"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
