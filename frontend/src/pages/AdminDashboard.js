@@ -237,7 +237,8 @@ function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="analytics" className="w-full">
-          <TabsList>
+          <div className="overflow-x-auto">
+            <TabsList className="flex flex-nowrap min-w-max">
             <TabsTrigger value="analytics" data-testid="analytics-tab">📊 Analytics</TabsTrigger>
             <TabsTrigger value="users" data-testid="users-tab">Users</TabsTrigger>
             <TabsTrigger value="roles" data-testid="roles-tab">🔐 Roles & Permissions</TabsTrigger>
