@@ -234,6 +234,14 @@ class SetupAdminRequest(BaseModel):
     date_of_birth: str
 
 
+class ChildAccountCreate(BaseModel):
+    name: str
+    date_of_birth: str  # YYYY-MM-DD format
+    email: Optional[EmailStr] = None  # Optional for youth
+    phone: Optional[str] = None
+
+
+
 class ActivityLog(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
