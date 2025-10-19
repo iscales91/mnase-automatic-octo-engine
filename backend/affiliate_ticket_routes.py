@@ -204,7 +204,6 @@ async def get_my_sales(
 @router.get("/admin/affiliates/applications")
 async def get_affiliate_applications(
     admin: dict = Depends(get_admin_user),
-    ,
     status: Optional[str] = None
 ):
     """Get affiliate applications (admin)"""
