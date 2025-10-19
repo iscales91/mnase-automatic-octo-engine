@@ -534,7 +534,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Role-Based UI Visibility"
+    - "Affiliate Ticket Sales System - Backend Testing"
+    - "Affiliate Ticket Sales System - Frontend Testing"
+    - "Parent-Child Account Management Testing"
+    - "Application Optimizations"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
