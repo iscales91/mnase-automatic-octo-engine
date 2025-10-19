@@ -94,7 +94,14 @@ function Home() {
           <Link to="/" className="navbar-brand" data-testid="navbar-brand">
             <img src="https://customer-assets.emergentagent.com/job_bball-league-hub/artifacts/tglx13e4_MNASE%20Logo%20Big" alt="MNASE Basketball" style={{ height: '50px' }} />
           </Link>
-          <div className="navbar-links">
+          
+          {/* Mobile Navigation */}
+          <div className="md:hidden">
+            <MobileNav user={user} onLogout={handleLogout} />
+          </div>
+          
+          {/* Desktop Navigation */}
+          <div className="navbar-links hidden md:flex">
             <Link to="/programs" className="navbar-link" data-testid="nav-programs-link">Programs</Link>
             <div className="navbar-dropdown">
               <button className="navbar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'inherit' }}>Memberships ▾</button>
