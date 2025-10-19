@@ -297,8 +297,7 @@ async def update_affiliate_commission(
 
 @router.post("/admin/affiliates/process-payouts")
 async def process_monthly_payouts(
-    admin: dict = Depends(get_super_admin),
-    db = Depends(get_db)
+    admin: dict = Depends(get_super_admin_user)
 ):
     """Process monthly payouts for all affiliates (super admin only)"""
     affiliate_service = AffiliateService(db)
