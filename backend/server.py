@@ -2657,6 +2657,148 @@ async def delete_event(event_id: str, admin: User = Depends(get_admin_user)):
     return {"message": "Event deleted"}
 
 # Facility endpoints
+
+
+# Advanced Calendar Endpoints
+@api_router.get("/events/filter")
+async def filter_events(
+    category: Optional[str] = None,
+    tags: Optional[str] = None,  # Comma-separated
+    location: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None
+):
+    """Filter events by various criteria"""
+    all_events = await db.events.find({}, {"_id": 0}).to_list(1000)
+    
+    tag_list = tags.split(',') if tags else None
+    
+    filtered = calendar_service.filter_events(
+        all_events,
+        category=category,
+        tags=tag_list,
+        location=location,
+        start_date=start_date,
+        end_date=end_date
+    )
+    
+    result = []
+    for event in filtered:
+        if isinstance(event.get('created_at'), str):
+            event['created_at'] = datetime.fromisoformat(event['created_at'])
+        result.append(Event(**event))
+    
+    return result
+
+@api_router.get("/events/upcoming")
+async def get_upcoming_events(days: int = 7):
+    """Get events happening in the next N days"""
+    all_events = await db.events.find({}, {"_id": 0}).to_list(1000)
+    upcoming = calendar_service.get_upcoming_events(all_events, days)
+    
+    result = []
+    for event in upcoming:
+        if isinstance(event.get('created_at'), str):
+            event['created_at'] = datetime.fromisoformat(event['created_at'])
+        result.append(Event(**event))
+    
+    return result
+
+@api_router.get("/events/export/ical")
+async def export_calendar_ical(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    user: User = Depends(get_current_user)
+):
+    """Export calendar in iCal format"""
+    query = {}
+    if start_date:
+        query["date"] = {"$gte": start_date}
+    if end_date:
+        if "date" in query:
+            query["date"]["$lte"] = end_date
+        else:
+            query["date"] = {"$lte": end_date}
+    
+    events = await db.events.find(query, {"_id": 0}).to_list(1000)
+    ical_content = calendar_service.generate_ical(events)
+    
+    from fastapi.responses import Response
+    return Response(
+        content=ical_content,
+        media_type="text/calendar",
+        headers={
+            "Content-Disposition": "attachment; filename=mnase_calendar.ics"
+        }
+    )
+
+@api_router.post("/admin/events/send-reminders")
+async def send_event_reminders(admin: User = Depends(get_admin_user)):
+    """Send reminders for upcoming events - Admin only"""
+    try:
+        all_events = await db.events.find({}, {"_id": 0}).to_list(1000)
+        reminders_sent = 0
+        
+        for event in all_events:
+            if calendar_service.should_send_reminder(event, hours_before=24):
+                # Get registered users for this event (if applicable)
+                # For now, send to all users or implement registration tracking
+                
+                # Mark reminder as sent
+                await db.events.update_one(
+                    {"id": event['id']},
+                    {"$set": {"reminder_sent": True}}
+                )
+                
+                reminders_sent += 1
+                
+                # Log activity
+                await activity_log_service.log_activity(
+                    action="send_event_reminder",
+                    resource_type="event",
+                    user_id=admin.id,
+                    user_email=admin.email,
+                    resource_id=event['id'],
+                    details={"event_title": event['title'], "event_date": event['date']}
+                )
+        
+        return {
+            "message": f"Sent {reminders_sent} event reminders",
+            "count": reminders_sent
+        }
+        
+    except Exception as e:
+        logging.error(f"Error sending reminders: {e}")
+        raise server_error("Failed to send reminders")
+
+@api_router.post("/events/{event_id}/check-conflict")
+async def check_event_conflict(
+    event_id: str,
+    date: str,
+    start_time: str,
+    end_time: str,
+    location: str,
+    admin: User = Depends(get_admin_user)
+):
+    """Check if event would conflict with existing events"""
+    all_events = await db.events.find({}, {"_id": 0}).to_list(1000)
+    
+    has_conflict = calendar_service.check_event_conflict(
+        location,
+        date,
+        start_time,
+        end_time,
+        all_events,
+        exclude_event_id=event_id
+    )
+    
+    return {
+        "has_conflict": has_conflict,
+        "location": location,
+        "date": date,
+        "time_range": f"{start_time} - {end_time}"
+    }
+
 @api_router.get("/facilities", response_model=List[Facility])
 async def get_facilities():
     facilities = await db.facilities.find({}, {"_id": 0}).to_list(1000)
