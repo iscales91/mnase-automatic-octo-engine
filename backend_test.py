@@ -2295,8 +2295,7 @@ class MNASEBasketballAPITester:
         update_data = {
             "name": "Complete Child Updated",
             "date_of_birth": "2014-03-10",
-            "email": "",  # Empty email
-            "phone": "",  # Empty phone
+            "phone": "612-555-0099",  # Update phone instead of empty email
             "password": "TempPass123!"  # Required field
         }
         
