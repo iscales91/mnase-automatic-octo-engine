@@ -154,7 +154,7 @@ function MemberDashboard() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc', overflow: 'hidden' }}>
       {/* Sidebar */}
       <DashboardSidebar
         items={sidebarItems}
@@ -163,7 +163,7 @@ function MemberDashboard() {
       />
 
       {/* Main Content */}
-      <div style={{ flex: 1, overflow: 'auto' }}>
+      <div style={{ flex: 1, overflow: 'auto', maxWidth: '100%' }}>
         {/* Top Bar */}
         <div style={{
           background: 'white',
