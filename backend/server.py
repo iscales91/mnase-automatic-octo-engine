@@ -1534,6 +1534,294 @@ async def get_activity_stats(admin: User = Depends(get_admin_user)):
     return stats
 
 
+
+# Membership Endpoints
+@api_router.get("/memberships/pricing")
+async def get_membership_pricing():
+    """Get all membership pricing and tiers - Public endpoint"""
+    return MEMBERSHIP_PRICING
+
+@api_router.post("/memberships", response_model=Membership)
+async def create_membership(
+    membership_data: MembershipCreate,
+    user: User = Depends(get_current_user)
+):
+    """Create a new membership for the current user"""
+    try:
+        # Validate membership configuration
+        if not membership_service.validate_membership_config(
+            membership_data.membership_type,
+            membership_data.tier,
+            membership_data.billing_cycle
+        ):
+            raise validation_error([ValidationError(
+                field="membership_type",
+                message="Invalid membership configuration",
+                code="invalid_config"
+            )])
+        
+        # Get pricing and benefits
+        price = membership_service.get_pricing(
+            membership_data.membership_type,
+            membership_data.tier,
+            membership_data.billing_cycle
+        )
+        benefits = membership_service.get_benefits(
+            membership_data.membership_type,
+            membership_data.tier
+        )
+        
+        # Calculate end date
+        start_date = datetime.now(timezone.utc)
+        end_date = membership_service.calculate_end_date(
+            start_date,
+            membership_data.billing_cycle
+        )
+        
+        # Create membership
+        membership = Membership(
+            user_id=user.id,
+            membership_type=membership_data.membership_type,
+            tier=membership_data.tier,
+            price=price,
+            billing_cycle=membership_data.billing_cycle,
+            start_date=start_date,
+            end_date=end_date,
+            team_name=membership_data.team_name,
+            team_size=membership_data.team_size,
+            benefits=benefits,
+            status="pending",
+            payment_status="unpaid"
+        )
+        
+        doc = membership.model_dump()
+        doc['start_date'] = doc['start_date'].isoformat()
+        doc['end_date'] = doc['end_date'].isoformat()
+        doc['created_at'] = doc['created_at'].isoformat()
+        
+        await db.memberships.insert_one(doc)
+        
+        # Log activity
+        await activity_log_service.log_activity(
+            action="create_membership",
+            resource_type="membership",
+            user_id=user.id,
+            user_email=user.email,
+            resource_id=membership.id,
+            details={
+                "type": membership_data.membership_type,
+                "tier": membership_data.tier,
+                "price": price
+            }
+        )
+        
+        return membership
+        
+    except CustomHTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating membership: {e}")
+        raise server_error("Failed to create membership")
+
+@api_router.post("/memberships/{membership_id}/checkout")
+async def create_membership_checkout(
+    membership_id: str,
+    checkout_request: CheckoutRequest,
+    user: User = Depends(get_current_user)
+):
+    """Create Stripe checkout session for membership payment"""
+    try:
+        # Get membership
+        membership = await db.memberships.find_one({"id": membership_id}, {"_id": 0})
+        if not membership:
+            raise not_found_error("Membership", membership_id)
+        
+        # Verify ownership
+        if membership["user_id"] != user.id:
+            raise forbidden_error("You don't have access to this membership")
+        
+        # Check if already paid
+        if membership["payment_status"] == "paid":
+            raise conflict_error("membership", "Membership already paid")
+        
+        # Create Stripe checkout session
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY)
+        
+        session_request = CheckoutSessionRequest(
+            success_url=f"{checkout_request.origin_url}/membership-success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{checkout_request.origin_url}/memberships",
+            line_items=[{
+                "price_data": {
+                    "currency": "usd",
+                    "unit_amount": int(membership["price"] * 100),
+                    "product_data": {
+                        "name": f"{membership['tier'].title()} {membership['membership_type'].title()} Membership",
+                        "description": f"{membership['billing_cycle'].title()} billing"
+                    }
+                },
+                "quantity": 1
+            }],
+            mode="payment",
+            metadata={
+                "membership_id": membership_id,
+                "user_id": user.id
+            }
+        )
+        
+        session = stripe_checkout.create_checkout_session(session_request)
+        
+        # Update membership with session ID
+        await db.memberships.update_one(
+            {"id": membership_id},
+            {"$set": {
+                "checkout_session_id": session.id,
+                "payment_status": "pending"
+            }}
+        )
+        
+        return {"checkout_url": session.url, "session_id": session.id}
+        
+    except CustomHTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating checkout: {e}")
+        raise server_error("Failed to create checkout session")
+
+@api_router.get("/memberships/payment-status/{session_id}")
+async def get_membership_payment_status(
+    session_id: str,
+    user: User = Depends(get_current_user)
+):
+    """Get payment status for a membership checkout session"""
+    try:
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY)
+        status = stripe_checkout.get_checkout_status(session_id)
+        
+        # If payment succeeded, update membership
+        if status.status == "complete":
+            membership = await db.memberships.find_one(
+                {"checkout_session_id": session_id},
+                {"_id": 0}
+            )
+            
+            if membership and membership["payment_status"] != "paid":
+                await db.memberships.update_one(
+                    {"id": membership["id"]},
+                    {"$set": {
+                        "payment_status": "paid",
+                        "status": "active"
+                    }}
+                )
+                
+                # Log activity
+                await activity_log_service.log_activity(
+                    action="membership_payment",
+                    resource_type="membership",
+                    user_id=user.id,
+                    user_email=user.email,
+                    resource_id=membership["id"],
+                    details={"amount": membership["price"]}
+                )
+                
+                # Send confirmation email
+                try:
+                    await email_service.send_email(
+                        to_email=user.email,
+                        subject="Membership Activated - MNASE Basketball League",
+                        body=f"""
+                        <h2>Welcome to {membership['tier'].title()} Membership!</h2>
+                        <p>Hi {user.name},</p>
+                        <p>Your membership has been activated successfully.</p>
+                        <p><strong>Membership Details:</strong></p>
+                        <ul>
+                            <li>Type: {membership['membership_type'].title()}</li>
+                            <li>Tier: {membership['tier'].title()}</li>
+                            <li>Billing: {membership['billing_cycle'].title()}</li>
+                            <li>Price: ${membership['price']}</li>
+                        </ul>
+                        <p>Thank you for being part of MNASE Basketball League!</p>
+                        """
+                    )
+                except Exception as e:
+                    logging.error(f"Failed to send membership confirmation email: {e}")
+        
+        return {"status": status.status, "amount_total": status.amount_total}
+        
+    except Exception as e:
+        logging.error(f"Error getting payment status: {e}")
+        raise server_error("Failed to get payment status")
+
+@api_router.get("/memberships/my-memberships", response_model=List[Membership])
+async def get_my_memberships(user: User = Depends(get_current_user)):
+    """Get current user's memberships"""
+    memberships = await db.memberships.find({"user_id": user.id}, {"_id": 0}).to_list(1000)
+    
+    result = []
+    for membership in memberships:
+        if isinstance(membership.get('start_date'), str):
+            membership['start_date'] = datetime.fromisoformat(membership['start_date'])
+        if isinstance(membership.get('end_date'), str):
+            membership['end_date'] = datetime.fromisoformat(membership['end_date'])
+        if isinstance(membership.get('created_at'), str):
+            membership['created_at'] = datetime.fromisoformat(membership['created_at'])
+        result.append(Membership(**membership))
+    
+    return result
+
+@api_router.get("/admin/memberships", response_model=List[Membership])
+async def get_all_memberships(admin: User = Depends(get_admin_user)):
+    """Get all memberships - Admin only"""
+    memberships = await db.memberships.find({}, {"_id": 0}).to_list(1000)
+    
+    result = []
+    for membership in memberships:
+        if isinstance(membership.get('start_date'), str):
+            membership['start_date'] = datetime.fromisoformat(membership['start_date'])
+        if isinstance(membership.get('end_date'), str):
+            membership['end_date'] = datetime.fromisoformat(membership['end_date'])
+        if isinstance(membership.get('created_at'), str):
+            membership['created_at'] = datetime.fromisoformat(membership['created_at'])
+        result.append(Membership(**membership))
+    
+    return result
+
+@api_router.put("/admin/memberships/{membership_id}")
+async def update_membership_admin(
+    membership_id: str,
+    update_data: MembershipUpdate,
+    admin: User = Depends(get_admin_user)
+):
+    """Update membership - Admin only"""
+    membership = await db.memberships.find_one({"id": membership_id}, {"_id": 0})
+    if not membership:
+        raise not_found_error("Membership", membership_id)
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    
+    if update_dict:
+        await db.memberships.update_one({"id": membership_id}, {"$set": update_dict})
+        
+        # Log activity
+        await activity_log_service.log_activity(
+            action="update_membership",
+            resource_type="membership",
+            user_id=admin.id,
+            user_email=admin.email,
+            resource_id=membership_id,
+            details=update_dict
+        )
+    
+    updated = await db.memberships.find_one({"id": membership_id}, {"_id": 0})
+    if isinstance(updated.get('start_date'), str):
+        updated['start_date'] = datetime.fromisoformat(updated['start_date'])
+    if isinstance(updated.get('end_date'), str):
+        updated['end_date'] = datetime.fromisoformat(updated['end_date'])
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    
+    return Membership(**updated)
+
+
 # Event endpoints
 @api_router.get("/events", response_model=List[Event])
 async def get_events():
