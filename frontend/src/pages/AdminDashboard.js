@@ -253,6 +253,7 @@ function AdminDashboard() {
             <TabsTrigger value="registrations" data-testid="registrations-tab">Registrations</TabsTrigger>
             <TabsTrigger value="bookings" data-testid="bookings-tab">Bookings</TabsTrigger>
           </TabsList>
+          </div>
 
           <TabsContent value="analytics" data-testid="analytics-content">
             <AnalyticsDashboard />
