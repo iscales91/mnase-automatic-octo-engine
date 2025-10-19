@@ -80,11 +80,8 @@ function App() {
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/register" element={<EnhancedRegistration />} />
           <Route path="/program-registration" element={<ProgramRegistration />} />
-          <Route path="/dashboard" element={
-            token && user ? (
-              ['admin', 'super_admin'].includes(user.role) ? <AdminDashboard /> : <MemberDashboard />
-            ) : <Navigate to="/" />
-          } />
+          <Route path="/dashboard" element={<MemberDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/registration-success" element={<RegistrationSuccess />} />
           <Route path="/booking-success" element={<BookingSuccess />} />
         </Routes>
