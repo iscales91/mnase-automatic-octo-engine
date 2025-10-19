@@ -223,6 +223,28 @@
   }
 }
 
+@media (min-width: 641px) {
+  /* Hide hamburger on tablet and desktop */
+  .navbar-hamburger {
+    display: none !important;
+  }
+  
+  /* Ensure navbar-links is always visible on larger screens */
+  .navbar-links {
+    display: flex !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  
+  .navbar-links.collapsed {
+    max-height: none !important;
+  }
+  
+  .navbar-header {
+    width: auto;
+  }
+}
+
 @media (min-width: 641px) and (max-width: 768px) {
   .navbar-link {
     font-size: 0.8rem;
