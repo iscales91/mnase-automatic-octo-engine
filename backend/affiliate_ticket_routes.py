@@ -157,8 +157,7 @@ async def get_my_application(
 
 @router.get("/affiliates/my-account")
 async def get_my_affiliate_account(
-    user: dict = Depends(get_current_user),
-    db = Depends(get_db)
+    user: dict = Depends(get_current_user)
 ):
     """Get current user's affiliate account details"""
     affiliate_service = AffiliateService(db)
