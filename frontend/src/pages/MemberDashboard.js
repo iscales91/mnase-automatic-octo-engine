@@ -195,10 +195,16 @@ function MemberDashboard() {
         <Tabs defaultValue="registrations" className="w-full">
           <TabsList style={{ marginBottom: '2rem', display: 'flex', flexWrap: 'wrap' }}>
             <TabsTrigger value="registrations">My Registrations</TabsTrigger>
+            <TabsTrigger value="family">Family & Children</TabsTrigger>
             <TabsTrigger value="teams">My Teams</TabsTrigger>
             <TabsTrigger value="schedule">Upcoming Schedule</TabsTrigger>
             <TabsTrigger value="bookings">Facility Bookings</TabsTrigger>
           </TabsList>
+
+          {/* Family Dashboard Tab */}
+          <TabsContent value="family">
+            <FamilyDashboard />
+          </TabsContent>
 
           {/* Registrations Tab */}
           <TabsContent value="registrations">
