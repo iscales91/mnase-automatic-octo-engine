@@ -475,6 +475,31 @@ class FacilityCreate(BaseModel):
     capacity: int
     available: bool = True
 
+class FAQ(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    question: str
+    answer: str
+    category: Optional[str] = "General"
+    order: int = 0
+    is_published: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class FAQCreate(BaseModel):
+    question: str
+    answer: str
+    category: Optional[str] = "General"
+    order: Optional[int] = 0
+    is_published: Optional[bool] = True
+
+class FAQUpdate(BaseModel):
+    question: Optional[str] = None
+    answer: Optional[str] = None
+    category: Optional[str] = None
+    order: Optional[int] = None
+    is_published: Optional[bool] = None
+
 class Registration(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
