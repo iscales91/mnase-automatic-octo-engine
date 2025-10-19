@@ -18,6 +18,29 @@
   max-width: 100%;
 }
 
+/* Navbar header for logo and hamburger */
+.navbar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Hamburger button - hidden by default, shown on mobile */
+.navbar-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #374151;
+  transition: color 0.2s;
+}
+
+.navbar-hamburger:hover {
+  color: #1e40af;
+}
+
 .navbar-links {
   display: flex;
   flex-direction: row !important;
