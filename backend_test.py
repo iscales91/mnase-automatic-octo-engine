@@ -32,6 +32,16 @@ class MNASEBasketballAPITester:
         self.super_admin_user_id = None
         self.created_role_id = None
         self.test_user_for_role_assignment = None
+        # Affiliate & Ticket System variables
+        self.affiliate_application_id = None
+        self.pending_application_id = None
+        self.affiliate_id = None
+        self.referral_code = None
+        self.ticket_type_id = None
+        self.vip_ticket_type_id = None
+        self.ticket_session_id = None
+        self.referral_session_id = None
+        self.vip_session_id = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None, use_admin=False, use_super_admin=False):
         """Run a single API test"""
