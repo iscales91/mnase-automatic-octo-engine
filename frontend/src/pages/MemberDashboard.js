@@ -210,6 +210,7 @@ function MemberDashboard() {
           <TabsList style={{ marginBottom: '2rem', display: 'flex', flexWrap: 'wrap' }}>
             <TabsTrigger value="registrations">My Registrations</TabsTrigger>
             <TabsTrigger value="family">Family & Children</TabsTrigger>
+            <TabsTrigger value="affiliate">Affiliate Earnings</TabsTrigger>
             <TabsTrigger value="teams">My Teams</TabsTrigger>
             <TabsTrigger value="schedule">Upcoming Schedule</TabsTrigger>
             <TabsTrigger value="bookings">Facility Bookings</TabsTrigger>
@@ -218,6 +219,11 @@ function MemberDashboard() {
           {/* Family Dashboard Tab */}
           <TabsContent value="family">
             <FamilyDashboard />
+          </TabsContent>
+
+          {/* Affiliate Earnings Tab */}
+          <TabsContent value="affiliate">
+            <AffiliateEarningsDashboard />
           </TabsContent>
 
           {/* Registrations Tab */}
