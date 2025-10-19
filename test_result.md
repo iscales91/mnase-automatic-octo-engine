@@ -277,6 +277,18 @@ backend:
         comment: "All 4 payment endpoints tested and working correctly. Youth checkout: cs_test_a1CgWKUdjVLlEK4doqyphzPx8I0EGsFqcU0RntTnv6jDSMW5kZ9MHIdjzU, Adult checkout: cs_test_a1DQig7QtOgnygx8OokyCtxFcDUxseSlJtgpygwqUR1sBBzeZD4EuqUmCm. Payment status checks returning correct unpaid status. Fixed backend model validation issues and missing return statements. Stripe integration fully functional."
 
 frontend:
+  - task: "Full Month Calendar Display"
+    implemented: true
+    working: true
+    file: "frontend/src/components/AdvancedCalendar.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated AdvancedCalendar component to display full month calendar. Reduced calendar cell minHeight from 100px to 75px and added maxHeight of 90px. Changed event display to show max 2 events per cell (instead of 3) with '+N more' indicator. Added overflow:hidden to cells. All 5-6 weeks of the month now visible without scrolling. Events displayed with color-coded badges on their respective dates."
+
   - task: "Collapsible Home Navigation Bar"
     implemented: true
     working: true
