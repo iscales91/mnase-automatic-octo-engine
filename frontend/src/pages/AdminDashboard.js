@@ -378,7 +378,29 @@ function AdminDashboard() {
                       </div>
                       <div>
                         <Label>Category</Label>
-                        <Input data-testid="event-category-input" value={eventForm.category} onChange={(e) => setEventForm({...eventForm, category: e.target.value})} required />
+                        <select
+                          data-testid="event-category-select"
+                          value={eventForm.category}
+                          onChange={(e) => setEventForm({...eventForm, category: e.target.value})}
+                          required
+                          style={{
+                            width: '100%',
+                            padding: '0.5rem',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '6px',
+                            fontSize: '0.875rem',
+                            backgroundColor: 'white'
+                          }}
+                        >
+                          <option value="">Select category...</option>
+                          <option value="tournament">🏆 Tournament</option>
+                          <option value="game">🏀 Game</option>
+                          <option value="camp">⛺ Camp</option>
+                          <option value="clinic">🎯 Clinic</option>
+                          <option value="workshop">📚 Workshop</option>
+                          <option value="orientation">📋 Orientation</option>
+                          <option value="other">📌 Other</option>
+                        </select>
                       </div>
                     </div>
                     <Button type="submit" className="w-full" data-testid="submit-event-btn">{editingEvent ? 'Update' : 'Create'} Event</Button>
