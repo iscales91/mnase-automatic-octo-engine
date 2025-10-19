@@ -153,9 +153,11 @@ function Events() {
               {events.map((event) => (
                 <Card key={event.id} data-testid={`event-card-${event.id}`}>
                   <CardHeader>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
                       <CardTitle data-testid={`event-title-${event.id}`}>{event.title}</CardTitle>
-                      <span className="card-badge" data-testid={`event-category-${event.id}`}>{event.category}</span>
+                      <span style={getCategoryBadgeStyle(event.category)} data-testid={`event-category-${event.id}`}>
+                        {event.category}
+                      </span>
                     </div>
                     <CardDescription data-testid={`event-description-${event.id}`}>{event.description}</CardDescription>
                   </CardHeader>
