@@ -442,6 +442,8 @@ test_plan:
 
 agent_communication:
   - agent: "main"
+    message: "Fixed full month calendar display. Updated AdvancedCalendar component to reduce cell height (75px min, 90px max) so all 5-6 weeks of the month are visible without scrolling. Calendar now shows complete month grid with all days (1-31), week headers (Sun-Sat), and color-coded events on their respective dates. Tested on multiple viewport sizes (1920x1080, 1440x900, 1366x768, 1280x720) - full month visible in all views. Ready for testing."
+  - agent: "main"
     message: "Implemented collapsible navigation bar on home screen. Mobile navigation now uses accordion-style collapse with hamburger menu (Menu/X icons). Logo remains visible. Smooth slide animation implemented. All navigation items (Programs, Memberships, Mentality Academy, Events, Facilities, News, About, FAQ, Shop, Search, Login) accessible in vertical scrollable list when expanded. Dropdowns functional within collapsible menu. Desktop navigation unchanged. Ready for frontend testing."
   - agent: "testing"
     message: "COLLAPSIBLE NAVIGATION BAR TESTING COMPLETE - Implementation working perfectly across all viewport sizes. Mobile view (375x667): Hamburger menu functional with smooth expand/collapse animation, all navigation items and dropdowns accessible. Desktop view (1920x800): Full horizontal navigation bar with working dropdowns, hamburger button properly hidden. Tablet view (768x1024): Correct responsive behavior. Animation timing verified at ~0.3s. All requirements from review request successfully met. No issues found - ready for production use."
