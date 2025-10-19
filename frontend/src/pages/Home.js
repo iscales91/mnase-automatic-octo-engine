@@ -9,6 +9,7 @@ import ImageCarousel from '@/components/ImageCarousel';
 import GlobalSearch from '@/components/GlobalSearch';
 import NotificationBell from '@/components/NotificationBell';
 import MobileNav from '@/components/MobileNav';
+import { isAdmin, getDashboardRoute } from '@/utils/roleUtils';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Search as SearchIcon, Menu, X } from 'lucide-react';
@@ -30,6 +31,9 @@ function Home() {
     phone: ''
   });
   const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const userIsAdmin = isAdmin(user);
+  const dashboardRoute = getDashboardRoute(user);
 
   // Carousel images for MNASE Basketball League
   const carouselImages = [
