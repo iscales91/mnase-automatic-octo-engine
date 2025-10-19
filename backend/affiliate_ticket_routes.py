@@ -114,8 +114,7 @@ async def get_db():
 @router.post("/affiliates/apply")
 async def apply_for_affiliate(
     application: AffiliateApplication,
-    user: dict = Depends(get_current_user),
-    db = Depends(get_db)
+    user: dict = Depends(get_current_user)
 ):
     """Apply to become an affiliate (coach or athlete)"""
     affiliate_service = AffiliateService(db)
