@@ -114,15 +114,25 @@
 
 @media (max-width: 640px) {
   .navbar-container {
-    padding: 0.25rem 0.5rem;
+    padding: 0.5rem;
     flex-direction: column;
     align-items: stretch;
+  }
+  
+  .navbar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .navbar-hamburger {
+    display: block;
   }
   
   .navbar-brand {
     font-size: 0.875rem;
     padding: 0.25rem;
-    text-align: center;
   }
   
   .navbar-brand img {
@@ -130,40 +140,75 @@
   }
   
   .navbar-links {
-    gap: 0.15rem;
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
     margin-left: 0;
-    margin-top: 0.5rem;
+    margin-top: 0;
+    padding: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+    border-top: none;
+  }
+  
+  .navbar-links.collapsed {
+    max-height: 0;
+  }
+  
+  .navbar-links.expanded {
+    max-height: 1000px;
     padding: 0.5rem 0;
     border-top: 1px solid #e5e7eb;
+    margin-top: 0.5rem;
   }
   
   .navbar-link {
-    font-size: 0.7rem !important;
-    padding: 0.3rem 0.4rem !important;
-    line-height: 1.2;
+    font-size: 0.875rem !important;
+    padding: 0.75rem 0.5rem !important;
+    line-height: 1.4;
+    width: 100%;
+    text-align: left;
+    border-bottom: 1px solid #f3f4f6;
   }
   
   .navbar-btn {
-    font-size: 0.7rem !important;
-    padding: 0.3rem 0.5rem !important;
-    line-height: 1.2;
+    font-size: 0.875rem !important;
+    padding: 0.75rem 0.5rem !important;
+    line-height: 1.4;
+    width: 100%;
+    text-align: left;
+    justify-content: flex-start;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  .navbar-dropdown {
+    width: 100%;
+  }
+  
+  .navbar-dropdown > button {
+    width: 100%;
+    text-align: left;
   }
   
   .navbar-dropdown-content {
-    font-size: 0.75rem;
-    min-width: 150px;
+    position: static;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+    margin-top: 0;
+    background-color: #f9fafb;
   }
   
   .navbar-dropdown-content a {
-    padding: 0.5rem 0.75rem;
+    padding: 0.625rem 1.5rem;
+    font-size: 0.8125rem;
+    border-bottom: 1px solid #e5e7eb;
   }
   
-  /* Target all navigation elements directly */
-  nav a,
-  nav button,
-  nav span {
-    font-size: 0.7rem !important;
-    padding: 0.3rem 0.4rem !important;
+  /* Show dropdown content on mobile when parent is hovered/clicked */
+  .navbar-dropdown:hover .navbar-dropdown-content,
+  .navbar-dropdown:focus-within .navbar-dropdown-content {
+    display: block;
   }
   
   /* Reduce logo size on mobile */
