@@ -5416,6 +5416,123 @@ async def get_notification_stats(user: User = Depends(get_current_user)):
 
         raise HTTPException(status_code=500, detail=f"Failed to delete image: {str(e)}")
 
+# FAQ endpoints
+@api_router.get("/faqs", response_model=List[FAQ])
+async def get_faqs(published_only: bool = True):
+    """Get all FAQs (public can only see published)"""
+    query = {"is_published": True} if published_only else {}
+    faqs = await db.faqs.find(query, {"_id": 0}).sort("order", 1).to_list(1000)
+    for faq in faqs:
+        if isinstance(faq.get('created_at'), str):
+            faq['created_at'] = datetime.fromisoformat(faq['created_at'])
+        if isinstance(faq.get('updated_at'), str):
+            faq['updated_at'] = datetime.fromisoformat(faq['updated_at'])
+    return faqs
+
+@api_router.get("/faqs/{faq_id}", response_model=FAQ)
+async def get_faq(faq_id: str):
+    """Get a specific FAQ"""
+    faq = await db.faqs.find_one({"id": faq_id}, {"_id": 0})
+    if not faq:
+        raise HTTPException(status_code=404, detail="FAQ not found")
+    if isinstance(faq.get('created_at'), str):
+        faq['created_at'] = datetime.fromisoformat(faq['created_at'])
+    if isinstance(faq.get('updated_at'), str):
+        faq['updated_at'] = datetime.fromisoformat(faq['updated_at'])
+    return FAQ(**faq)
+
+@api_router.post("/admin/faqs", response_model=FAQ)
+async def create_faq(faq_data: FAQCreate, admin: User = Depends(get_admin_user)):
+    """Create a new FAQ (admin only)"""
+    try:
+        faq = FAQ(**faq_data.model_dump())
+        doc = faq.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        doc['updated_at'] = doc['updated_at'].isoformat()
+        
+        await db.faqs.insert_one(doc)
+        
+        # Log activity
+        await activity_log_service.log_action(
+            db=db,
+            user_id=admin.id,
+            action="create_faq",
+            details={"faq_id": faq.id, "question": faq.question}
+        )
+        
+        return faq
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create FAQ: {str(e)}")
+
+@api_router.put("/admin/faqs/{faq_id}", response_model=FAQ)
+async def update_faq(faq_id: str, faq_update: FAQUpdate, admin: User = Depends(get_admin_user)):
+    """Update an existing FAQ (admin only)"""
+    try:
+        existing_faq = await db.faqs.find_one({"id": faq_id}, {"_id": 0})
+        if not existing_faq:
+            raise HTTPException(status_code=404, detail="FAQ not found")
+        
+        update_data = {k: v for k, v in faq_update.model_dump().items() if v is not None}
+        update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+        
+        await db.faqs.update_one(
+            {"id": faq_id},
+            {"$set": update_data}
+        )
+        
+        updated_faq = await db.faqs.find_one({"id": faq_id}, {"_id": 0})
+        if isinstance(updated_faq.get('created_at'), str):
+            updated_faq['created_at'] = datetime.fromisoformat(updated_faq['created_at'])
+        if isinstance(updated_faq.get('updated_at'), str):
+            updated_faq['updated_at'] = datetime.fromisoformat(updated_faq['updated_at'])
+        
+        # Log activity
+        await activity_log_service.log_action(
+            db=db,
+            user_id=admin.id,
+            action="update_faq",
+            details={"faq_id": faq_id, "changes": update_data}
+        )
+        
+        return FAQ(**updated_faq)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update FAQ: {str(e)}")
+
+@api_router.delete("/admin/faqs/{faq_id}")
+async def delete_faq(faq_id: str, admin: User = Depends(get_admin_user)):
+    """Delete an FAQ (admin only)"""
+    try:
+        result = await db.faqs.delete_one({"id": faq_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="FAQ not found")
+        
+        # Log activity
+        await activity_log_service.log_action(
+            db=db,
+            user_id=admin.id,
+            action="delete_faq",
+            details={"faq_id": faq_id}
+        )
+        
+        return {"message": "FAQ deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete FAQ: {str(e)}")
+
+@api_router.get("/admin/faqs/all", response_model=List[FAQ])
+async def get_all_faqs_admin(admin: User = Depends(get_admin_user)):
+    """Get all FAQs including unpublished (admin only)"""
+    faqs = await db.faqs.find({}, {"_id": 0}).sort("order", 1).to_list(1000)
+    for faq in faqs:
+        if isinstance(faq.get('created_at'), str):
+            faq['created_at'] = datetime.fromisoformat(faq['created_at'])
+        if isinstance(faq.get('updated_at'), str):
+            faq['updated_at'] = datetime.fromisoformat(faq['updated_at'])
+    return faqs
+
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
