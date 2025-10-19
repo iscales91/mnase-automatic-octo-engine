@@ -373,10 +373,10 @@ function MemberDashboard() {
                 </>
               )}
             </div>
-          </TabsContent>
+          )}
 
           {/* Teams Tab */}
-          <TabsContent value="teams">
+          {activeTab === 'teams' && (
             {myTeams.length === 0 ? (
               <Card>
                 <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
