@@ -25,6 +25,7 @@ import GetInvolved from '@/pages/GetInvolved';
 import Recruitment from '@/pages/Recruitment';
 import Sponsorship from '@/pages/Sponsorship';
 import Scores from '@/pages/Scores';
+import Stats from '@/pages/Stats';
 import Foundation from '@/pages/Foundation';
 import News from '@/pages/News';
 import Gallery from '@/pages/Gallery';
