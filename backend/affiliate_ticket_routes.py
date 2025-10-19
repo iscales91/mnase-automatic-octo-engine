@@ -204,7 +204,7 @@ async def get_my_sales(
 @router.get("/admin/affiliates/applications")
 async def get_affiliate_applications(
     admin: dict = Depends(get_admin_user),
-    db = Depends(get_db),
+    ,
     status: Optional[str] = None
 ):
     """Get affiliate applications (admin)"""
@@ -231,7 +231,7 @@ async def get_affiliate_applications(
 async def approve_affiliate_application(
     approval: AffiliateApproval,
     admin: dict = Depends(get_admin_user),
-    db = Depends(get_db)
+    
 ):
     """Approve affiliate application (admin)"""
     affiliate_service = AffiliateService(db)
@@ -253,7 +253,7 @@ async def approve_affiliate_application(
 async def reject_affiliate_application(
     rejection: AffiliateRejection,
     admin: dict = Depends(get_admin_user),
-    db = Depends(get_db)
+    
 ):
     """Reject affiliate application (admin)"""
     affiliate_service = AffiliateService(db)
@@ -269,7 +269,7 @@ async def reject_affiliate_application(
 @router.get("/admin/affiliates")
 async def get_all_affiliates(
     admin: dict = Depends(get_admin_user),
-    db = Depends(get_db),
+    ,
     status: Optional[str] = None
 ):
     """Get all affiliates (admin)"""
@@ -312,7 +312,7 @@ async def process_monthly_payouts(
 async def create_ticket_type(
     ticket_type: TicketTypeCreate,
     admin: dict = Depends(get_admin_user),
-    db = Depends(get_db)
+    
 ):
     """Create a ticket type for an event (admin)"""
     ticket_service = TicketService(db)
@@ -353,7 +353,7 @@ async def get_ticket_type(ticket_type_id: str):
 @router.post("/tickets/purchase")
 async def purchase_tickets(
     purchase: TicketPurchaseRequest,
-    db = Depends(get_db),
+    ,
     user: Optional[dict] = None
 ):
     """Purchase tickets with optional referral code"""
@@ -449,7 +449,7 @@ async def purchase_tickets(
 @router.get("/tickets/payment-status/{session_id}")
 async def get_ticket_payment_status(
     session_id: str,
-    db = Depends(get_db)
+    
 ):
     """Check ticket payment status"""
     stripe_api_key = os.getenv("STRIPE_API_KEY")
@@ -529,7 +529,7 @@ async def get_ticket_payment_status(
 @router.get("/tickets/my-tickets")
 async def get_my_tickets(
     user: dict = Depends(get_current_user),
-    db = Depends(get_db)
+    
 ):
     """Get user's purchased tickets"""
     ticket_service = TicketService(db)
@@ -549,7 +549,7 @@ async def get_my_tickets(
 async def validate_ticket(
     validation: TicketValidation,
     admin: dict = Depends(get_admin_user),
-    db = Depends(get_db)
+    
 ):
     """Validate ticket at event entry (admin/staff)"""
     ticket_service = TicketService(db)
@@ -559,7 +559,7 @@ async def validate_ticket(
 @router.get("/admin/tickets/sales-stats")
 async def get_sales_statistics(
     admin: dict = Depends(get_admin_user),
-    db = Depends(get_db),
+    ,
     event_id: Optional[str] = None
 ):
     """Get ticket sales statistics (admin)"""
@@ -573,7 +573,7 @@ async def get_sales_statistics(
 async def stripe_webhook(
     request: Request,
     stripe_signature: str = Header(None),
-    db = Depends(get_db)
+    
 ):
     """Handle Stripe webhook events"""
     body = await request.body()
