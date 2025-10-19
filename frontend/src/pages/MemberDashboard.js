@@ -24,8 +24,18 @@ function MemberDashboard() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('registrations');
   const token = localStorage.getItem('token');
   const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+
+  const sidebarItems = [
+    { value: 'registrations', label: 'My Registrations', icon: '📋', testId: 'registrations-tab' },
+    { value: 'family', label: 'Family & Children', icon: '👨‍👩‍👧‍👦', testId: 'family-tab' },
+    { value: 'affiliate', label: 'Affiliate Earnings', icon: '💰', testId: 'affiliate-tab' },
+    { value: 'teams', label: 'My Teams', icon: '⚽', testId: 'teams-tab' },
+    { value: 'schedule', label: 'Upcoming Schedule', icon: '📅', testId: 'schedule-tab' },
+    { value: 'bookings', label: 'Facility Bookings', icon: '🏢', testId: 'bookings-tab' }
+  ];
 
   // Check authentication
   if (!token || !canAccessMemberDashboard(storedUser)) {
