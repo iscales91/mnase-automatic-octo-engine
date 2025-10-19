@@ -80,10 +80,14 @@ function Home() {
     e.preventDefault();
     try {
       const response = await axios.post(`${API}/auth/register`, registerData);
+      const userData = response.data.user;
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('user', JSON.stringify(userData));
       toast.success('Account created successfully!');
-      window.location.href = '/dashboard';
+      
+      // Redirect based on role (new users typically get 'user' role)
+      const route = getDashboardRoute(userData);
+      window.location.href = route;
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Registration failed');
     }
