@@ -20,6 +20,7 @@ import RegistrationsManagement from '@/components/admin/RegistrationsManagement'
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import RolesManagement from '@/components/admin/RolesManagement';
 import ActivityLogs from '@/components/admin/ActivityLogs';
+import StatsManagement from '@/components/admin/StatsManagement';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
