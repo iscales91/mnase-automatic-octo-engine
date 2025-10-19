@@ -48,6 +48,12 @@ function App() {
   return (
     <div className="App">
       <BrowserRouter>
+        {/* Top Back Button */}
+        <BackButton style={{ top: '80px', left: '20px' }} />
+        
+        {/* Bottom Back Button */}
+        <BackButton style={{ top: 'auto', bottom: '20px', left: '20px' }} />
+        
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/programs" element={<Programs />} />
