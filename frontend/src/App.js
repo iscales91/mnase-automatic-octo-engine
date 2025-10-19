@@ -47,7 +47,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/programs" element={<Programs />} />
-          <Route path="/memberships" element={<Memberships />} />
+          <Route path="/memberships" element={<MembershipPlans />} />
+          <Route path="/memberships-old" element={<Memberships />} />
           <Route path="/memberships/individual" element={<IndividualMemberships />} />
           <Route path="/memberships/team" element={<TeamMemberships />} />
           <Route path="/camps" element={<Camps />} />
