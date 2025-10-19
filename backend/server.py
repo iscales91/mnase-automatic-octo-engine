@@ -2223,6 +2223,319 @@ async def update_membership_admin(
     return Membership(**updated)
 
 
+
+# Basketball Stats Endpoints
+@api_router.get("/stats/players", response_model=List[PlayerStats])
+async def get_player_stats(
+    season: Optional[str] = None,
+    team_name: Optional[str] = None,
+    user: User = Depends(get_current_user)
+):
+    """Get player statistics - Logged in users only"""
+    query = {}
+    if season:
+        query["season"] = season
+    if team_name:
+        query["team_name"] = team_name
+    
+    players = await db.player_stats.find(query, {"_id": 0}).sort("points", -1).to_list(1000)
+    
+    result = []
+    for player in players:
+        if isinstance(player.get('created_at'), str):
+            player['created_at'] = datetime.fromisoformat(player['created_at'])
+        if isinstance(player.get('updated_at'), str):
+            player['updated_at'] = datetime.fromisoformat(player['updated_at'])
+        result.append(PlayerStats(**player))
+    
+    return result
+
+@api_router.get("/stats/games", response_model=List[GameStats])
+async def get_game_stats(
+    season: Optional[str] = None,
+    team_name: Optional[str] = None,
+    game_type: Optional[str] = None,
+    user: User = Depends(get_current_user)
+):
+    """Get game statistics - Logged in users only"""
+    query = {}
+    if season:
+        query["season"] = season
+    if team_name:
+        query["$or"] = [{"home_team": team_name}, {"away_team": team_name}]
+    if game_type:
+        query["game_type"] = game_type
+    
+    games = await db.game_stats.find(query, {"_id": 0}).sort("game_date", -1).to_list(1000)
+    
+    result = []
+    for game in games:
+        if isinstance(game.get('created_at'), str):
+            game['created_at'] = datetime.fromisoformat(game['created_at'])
+        if isinstance(game.get('updated_at'), str):
+            game['updated_at'] = datetime.fromisoformat(game['updated_at'])
+        result.append(GameStats(**game))
+    
+    return result
+
+@api_router.get("/stats/standings", response_model=List[TeamStandings])
+async def get_team_standings(
+    season: Optional[str] = None,
+    user: User = Depends(get_current_user)
+):
+    """Get team standings - Logged in users only"""
+    query = {}
+    if season:
+        query["season"] = season
+    
+    standings = await db.team_standings.find(query, {"_id": 0}).sort("wins", -1).to_list(1000)
+    
+    result = []
+    for team in standings:
+        if isinstance(team.get('created_at'), str):
+            team['created_at'] = datetime.fromisoformat(team['created_at'])
+        if isinstance(team.get('updated_at'), str):
+            team['updated_at'] = datetime.fromisoformat(team['updated_at'])
+        result.append(TeamStandings(**team))
+    
+    return result
+
+@api_router.get("/stats/leaders")
+async def get_stat_leaders(
+    stat_type: str = "points",
+    season: Optional[str] = None,
+    limit: int = 10,
+    user: User = Depends(get_current_user)
+):
+    """Get statistical leaders - Logged in users only"""
+    query = {}
+    if season:
+        query["season"] = season
+    
+    # Valid stat types
+    valid_stats = ["points", "assists", "rebounds", "steals", "blocks", "three_pointers_made"]
+    if stat_type not in valid_stats:
+        stat_type = "points"
+    
+    leaders = await db.player_stats.find(query, {"_id": 0}).sort(stat_type, -1).limit(limit).to_list(limit)
+    
+    return {
+        "stat_type": stat_type,
+        "season": season,
+        "leaders": leaders
+    }
+
+# Admin-only Stats Management
+@api_router.post("/admin/stats/players", response_model=PlayerStats)
+async def create_player_stats(
+    stats_data: PlayerStatsCreate,
+    admin: User = Depends(get_admin_user)
+):
+    """Create player stats entry - Admin only"""
+    try:
+        # Check if player already exists for this season
+        existing = await db.player_stats.find_one({
+            "player_name": stats_data.player_name,
+            "team_name": stats_data.team_name,
+            "season": stats_data.season
+        }, {"_id": 0})
+        
+        if existing:
+            raise conflict_error("player_stats", "Player stats already exist for this season")
+        
+        stats = PlayerStats(
+            player_name=stats_data.player_name,
+            team_name=stats_data.team_name,
+            jersey_number=stats_data.jersey_number,
+            position=stats_data.position,
+            season=stats_data.season
+        )
+        
+        doc = stats.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        doc['updated_at'] = doc['updated_at'].isoformat()
+        
+        await db.player_stats.insert_one(doc)
+        
+        # Log activity
+        await activity_log_service.log_activity(
+            action="create_player_stats",
+            resource_type="stats",
+            user_id=admin.id,
+            user_email=admin.email,
+            resource_id=stats.id,
+            details={"player": stats_data.player_name, "team": stats_data.team_name}
+        )
+        
+        return stats
+        
+    except CustomHTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating player stats: {e}")
+        raise server_error("Failed to create player stats")
+
+@api_router.put("/admin/stats/players/{player_id}")
+async def update_player_stats(
+    player_id: str,
+    update_data: StatsUpdate,
+    admin: User = Depends(get_admin_user)
+):
+    """Update player statistics - Admin only"""
+    player = await db.player_stats.find_one({"id": player_id}, {"_id": 0})
+    if not player:
+        raise not_found_error("Player stats", player_id)
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    if update_dict:
+        await db.player_stats.update_one({"id": player_id}, {"$set": update_dict})
+        
+        # Log activity
+        await activity_log_service.log_activity(
+            action="update_player_stats",
+            resource_type="stats",
+            user_id=admin.id,
+            user_email=admin.email,
+            resource_id=player_id,
+            details=update_dict
+        )
+    
+    updated = await db.player_stats.find_one({"id": player_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if isinstance(updated.get('updated_at'), str):
+        updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
+    
+    return PlayerStats(**updated)
+
+@api_router.post("/admin/stats/games", response_model=GameStats)
+async def create_game_stats(
+    game_data: GameStatsCreate,
+    admin: User = Depends(get_admin_user)
+):
+    """Create game stats entry - Admin only"""
+    try:
+        game = GameStats(**game_data.model_dump())
+        
+        doc = game.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        doc['updated_at'] = doc['updated_at'].isoformat()
+        
+        await db.game_stats.insert_one(doc)
+        
+        # Update team standings
+        await update_team_standings(game_data.home_team, game_data.away_team, 
+                                    game_data.home_score, game_data.away_score, 
+                                    game_data.season)
+        
+        # Log activity
+        await activity_log_service.log_activity(
+            action="create_game_stats",
+            resource_type="stats",
+            user_id=admin.id,
+            user_email=admin.email,
+            resource_id=game.id,
+            details={"home": game_data.home_team, "away": game_data.away_team, "score": f"{game_data.home_score}-{game_data.away_score}"}
+        )
+        
+        return game
+        
+    except Exception as e:
+        logging.error(f"Error creating game stats: {e}")
+        raise server_error("Failed to create game stats")
+
+@api_router.delete("/admin/stats/players/{player_id}")
+async def delete_player_stats(
+    player_id: str,
+    admin: User = Depends(get_admin_user)
+):
+    """Delete player statistics - Admin only"""
+    player = await db.player_stats.find_one({"id": player_id}, {"_id": 0})
+    if not player:
+        raise not_found_error("Player stats", player_id)
+    
+    await db.player_stats.delete_one({"id": player_id})
+    
+    # Log activity
+    await activity_log_service.log_activity(
+        action="delete_player_stats",
+        resource_type="stats",
+        user_id=admin.id,
+        user_email=admin.email,
+        resource_id=player_id,
+        details={"player": player['player_name']}
+    )
+    
+    return {"message": "Player stats deleted successfully"}
+
+@api_router.delete("/admin/stats/games/{game_id}")
+async def delete_game_stats(
+    game_id: str,
+    admin: User = Depends(get_admin_user)
+):
+    """Delete game statistics - Admin only"""
+    game = await db.game_stats.find_one({"id": game_id}, {"_id": 0})
+    if not game:
+        raise not_found_error("Game stats", game_id)
+    
+    await db.game_stats.delete_one({"id": game_id})
+    
+    # Log activity
+    await activity_log_service.log_activity(
+        action="delete_game_stats",
+        resource_type="stats",
+        user_id=admin.id,
+        user_email=admin.email,
+        resource_id=game_id,
+        details={"game": f"{game['home_team']} vs {game['away_team']}"}
+    )
+    
+    return {"message": "Game stats deleted successfully"}
+
+# Helper function to update team standings
+async def update_team_standings(home_team: str, away_team: str, home_score: int, away_score: int, season: str):
+    """Update team standings based on game result"""
+    # Update home team
+    home_standing = await db.team_standings.find_one({"team_name": home_team, "season": season}, {"_id": 0})
+    if not home_standing:
+        home_standing = TeamStandings(team_name=home_team, season=season).model_dump()
+        home_standing['created_at'] = home_standing['created_at'].isoformat()
+        home_standing['updated_at'] = home_standing['updated_at'].isoformat()
+        await db.team_standings.insert_one(home_standing)
+    
+    # Update away team
+    away_standing = await db.team_standings.find_one({"team_name": away_team, "season": season}, {"_id": 0})
+    if not away_standing:
+        away_standing = TeamStandings(team_name=away_team, season=season).model_dump()
+        away_standing['created_at'] = away_standing['created_at'].isoformat()
+        away_standing['updated_at'] = away_standing['updated_at'].isoformat()
+        await db.team_standings.insert_one(away_standing)
+    
+    # Update records
+    if home_score > away_score:
+        # Home team wins
+        await db.team_standings.update_one(
+            {"team_name": home_team, "season": season},
+            {"$inc": {"wins": 1, "points_for": home_score, "points_against": away_score}}
+        )
+        await db.team_standings.update_one(
+            {"team_name": away_team, "season": season},
+            {"$inc": {"losses": 1, "points_for": away_score, "points_against": home_score}}
+        )
+    else:
+        # Away team wins
+        await db.team_standings.update_one(
+            {"team_name": away_team, "season": season},
+            {"$inc": {"wins": 1, "points_for": away_score, "points_against": home_score}}
+        )
+        await db.team_standings.update_one(
+            {"team_name": home_team, "season": season},
+            {"$inc": {"losses": 1, "points_for": home_score, "points_against": away_score}}
+        )
+
+
 # Event endpoints
 @api_router.get("/events", response_model=List[Event])
 async def get_events():
