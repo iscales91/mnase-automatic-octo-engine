@@ -299,6 +299,106 @@ class MembershipUpdate(BaseModel):
     end_date: Optional[str] = None
 
 
+
+# Basketball Stats Models
+class PlayerStats(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    player_name: str
+    team_name: str
+    jersey_number: Optional[int] = None
+    position: Optional[str] = None  # PG, SG, SF, PF, C
+    games_played: int = 0
+    minutes_played: float = 0.0
+    points: int = 0
+    field_goals_made: int = 0
+    field_goals_attempted: int = 0
+    three_pointers_made: int = 0
+    three_pointers_attempted: int = 0
+    free_throws_made: int = 0
+    free_throws_attempted: int = 0
+    offensive_rebounds: int = 0
+    defensive_rebounds: int = 0
+    total_rebounds: int = 0
+    assists: int = 0
+    steals: int = 0
+    blocks: int = 0
+    turnovers: int = 0
+    fouls: int = 0
+    season: str  # e.g., "2024-2025"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class GameStats(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    game_date: str  # YYYY-MM-DD
+    home_team: str
+    away_team: str
+    home_score: int
+    away_score: int
+    location: str
+    game_type: str = "regular"  # regular, playoff, tournament, championship
+    tournament_name: Optional[str] = None
+    player_stats: List[Dict] = Field(default_factory=list)  # Individual game stats
+    notes: Optional[str] = None
+    season: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class TeamStandings(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    team_name: str
+    wins: int = 0
+    losses: int = 0
+    points_for: int = 0
+    points_against: int = 0
+    season: str
+    division: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PlayerStatsCreate(BaseModel):
+    player_name: str
+    team_name: str
+    jersey_number: Optional[int] = None
+    position: Optional[str] = None
+    season: str
+
+class GameStatsCreate(BaseModel):
+    game_date: str
+    home_team: str
+    away_team: str
+    home_score: int
+    away_score: int
+    location: str
+    game_type: str = "regular"
+    tournament_name: Optional[str] = None
+    player_stats: List[Dict] = Field(default_factory=list)
+    notes: Optional[str] = None
+    season: str
+
+class StatsUpdate(BaseModel):
+    games_played: Optional[int] = None
+    minutes_played: Optional[float] = None
+    points: Optional[int] = None
+    field_goals_made: Optional[int] = None
+    field_goals_attempted: Optional[int] = None
+    three_pointers_made: Optional[int] = None
+    three_pointers_attempted: Optional[int] = None
+    free_throws_made: Optional[int] = None
+    free_throws_attempted: Optional[int] = None
+    offensive_rebounds: Optional[int] = None
+    defensive_rebounds: Optional[int] = None
+    total_rebounds: Optional[int] = None
+    assists: Optional[int] = None
+    steals: Optional[int] = None
+    blocks: Optional[int] = None
+    turnovers: Optional[int] = None
+    fouls: Optional[int] = None
+
+
 class Event(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
