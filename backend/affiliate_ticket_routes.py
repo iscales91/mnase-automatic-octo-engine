@@ -3,10 +3,12 @@ Affiliate & Ticket Management API Routes
 """
 from fastapi import APIRouter, Depends, HTTPException, Request, Header
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 import os
+import jwt
 from dotenv import load_dotenv
 
 from affiliate_service import AffiliateService
