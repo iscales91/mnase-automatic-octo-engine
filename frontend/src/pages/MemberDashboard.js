@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, MapPin, Clock, DollarSign, Users, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Calendar, MapPin, Clock, DollarSign, Users, CheckCircle, XCircle, AlertCircle, FileText, UserCircle, CalendarDays, Home } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { canAccessMemberDashboard } from '@/utils/roleUtils';
 import RestrictedAccess from '@/components/RestrictedAccess';
 import FamilyDashboard from '@/components/FamilyDashboard';
 import AffiliateEarningsDashboard from '@/components/AffiliateEarningsDashboard';
+import DashboardSidebar from '@/components/DashboardSidebar';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
