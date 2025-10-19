@@ -324,7 +324,7 @@ const RolesManagement = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2">Permissions</label>
-                  <div className="space-y-3">
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
                     {Object.entries(permissions).map(([category, perms]) => (
                       <div key={category} className="border rounded p-3">
                         <h4 className="font-semibold mb-2 capitalize">
