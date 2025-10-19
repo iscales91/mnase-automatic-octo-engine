@@ -32,7 +32,9 @@ class TicketService:
         }
         
         result = await self.db.ticket_types.insert_one(ticket_type)
-        return ticket_type
+        # Ensure no ObjectIds are in the returned data
+        ticket_type_copy = ticket_type.copy()
+        return ticket_type_copy
     
     async def get_ticket_types_by_event(self, event_id: str):
         """Get all ticket types for an event"""
