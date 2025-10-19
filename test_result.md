@@ -115,7 +115,7 @@ backend:
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Created affiliate_service.py and ticket_service.py backend services. Affiliate service includes: application management (create, approve, reject), unique referral code generation, affiliate account creation, sales tracking with commission calculation (15% default), earnings summary, monthly payout processing, commission rate updates (super admin only). Ticket service includes: ticket type creation (general/VIP with seat numbers), inventory management, seat reservation system, ticket purchase and validation, sales statistics. Ready for API endpoint integration and Stripe Connect setup."
+        comment: "Backend Phase 2 Complete: Created affiliate_ticket_routes.py with 25+ API endpoints. Integrated Stripe Checkout for ticket purchases with referral tracking. Endpoints include: Affiliate applications (apply, my-application, my-account, my-sales), Admin affiliate management (applications list, approve, reject, all affiliates, commission rate updates, process payouts), Ticket management (create-type, event tickets, purchase with referral tracking, payment status polling, my-tickets, validate, sales stats), Stripe webhook handler. Integrated with emergentintegrations.payments.stripe for payment processing. Backend services fully connected to API layer and running successfully."
 
   - task: "Enhanced User Model with Roles and Permissions"
     implemented: true
