@@ -413,14 +413,15 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus: 
+    - "Collapsible Home Navigation Bar"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
   backend_testing_complete: true
   backend_success_rate: "72.9%"
   backend_critical_systems_verified: true
-  frontend_testing_complete: true
+  frontend_testing_complete: false
   frontend_success_rate: "100%"
   frontend_critical_systems_verified: true
 
