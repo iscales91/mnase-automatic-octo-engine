@@ -257,6 +257,39 @@ class ActivityLogQuery(BaseModel):
     limit: int = 100
 
 
+
+class Membership(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    membership_type: str  # "individual" or "team"
+    tier: str  # "basic", "premium", "elite"
+    status: str = "active"  # active, expired, cancelled, pending
+    price: float
+    billing_cycle: str = "monthly"  # monthly, annual
+    start_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    end_date: Optional[datetime] = None
+    auto_renew: bool = True
+    payment_status: str = "unpaid"  # unpaid, paid, failed
+    checkout_session_id: Optional[str] = None
+    team_name: Optional[str] = None  # For team memberships
+    team_size: Optional[int] = None  # For team memberships
+    benefits: List[str] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class MembershipCreate(BaseModel):
+    membership_type: str
+    tier: str
+    billing_cycle: str = "monthly"
+    team_name: Optional[str] = None
+    team_size: Optional[int] = None
+
+class MembershipUpdate(BaseModel):
+    status: Optional[str] = None
+    auto_renew: Optional[bool] = None
+    end_date: Optional[str] = None
+
+
 class Event(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
