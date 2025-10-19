@@ -474,6 +474,7 @@ function MemberDashboard() {
                 ))}
               </div>
             )}
+            </div>
           )}
 
           {/* Bookings Tab - Keep existing */}
