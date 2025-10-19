@@ -2296,10 +2296,15 @@ class MNASEBasketballAPITester:
             print("❌ No complete child ID available for empty fields update test")
             return False
             
+        # Use unique email to avoid validation issues
+        import time
+        unique_email = f"complete.child.updated.{int(time.time())}@test.com"
+        
         update_data = {
             "name": "Complete Child Updated",
             "date_of_birth": "2014-03-10",
-            "phone": "612-555-0099",  # Update phone instead of empty email
+            "email": unique_email,  # Required field, use unique email
+            "phone": "612-555-0099",
             "password": "TempPass123!"  # Required field
         }
         
