@@ -351,7 +351,6 @@ async def get_ticket_type(ticket_type_id: str):
 @router.post("/tickets/purchase")
 async def purchase_tickets(
     purchase: TicketPurchaseRequest,
-    ,
     user: Optional[dict] = None
 ):
     """Purchase tickets with optional referral code"""
