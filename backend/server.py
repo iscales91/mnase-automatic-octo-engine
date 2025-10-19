@@ -4022,8 +4022,12 @@ async def delete_calendar_event(event_id: str, admin: User = Depends(get_admin_u
     return {"message": "Calendar event deleted successfully"}
 
 
-# Include router
+# Store database reference in app state
+app.state.db = db
+
+# Include routers
 app.include_router(api_router)
+app.include_router(affiliate_ticket_router)
 
 app.add_middleware(
     CORSMiddleware,
