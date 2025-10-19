@@ -273,6 +273,10 @@ function AdminDashboard() {
             <ActivityLogs />
           </TabsContent>
 
+          <TabsContent value="stats" data-testid="stats-content">
+            <StatsManagement />
+          </TabsContent>
+
           <TabsContent value="billing" data-testid="billing-content">
             <BillingInvoices token={token} />
           </TabsContent>
