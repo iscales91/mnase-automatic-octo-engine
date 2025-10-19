@@ -310,8 +310,7 @@ async def process_monthly_payouts(
 @router.post("/admin/tickets/create-type")
 async def create_ticket_type(
     ticket_type: TicketTypeCreate,
-    admin: dict = Depends(get_admin_user),
-    
+    admin: dict = Depends(get_admin_user)
 ):
     """Create a ticket type for an event (admin)"""
     ticket_service = TicketService(db)
