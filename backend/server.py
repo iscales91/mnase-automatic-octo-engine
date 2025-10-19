@@ -2571,11 +2571,69 @@ async def get_event(event_id: str):
 
 @api_router.post("/events", response_model=Event)
 async def create_event(event_data: EventCreate, admin: User = Depends(get_admin_user)):
-    event = Event(**event_data.model_dump())
-    doc = event.model_dump()
-    doc['created_at'] = doc['created_at'].isoformat()
-    await db.events.insert_one(doc)
-    return event
+    """Create event with optional recurring pattern"""
+    try:
+        # Create base event
+        event = Event(**event_data.model_dump())
+        doc = event.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        
+        # Check for conflicts if end_time provided
+        if event_data.end_time:
+            all_events = await db.events.find({}, {"_id": 0}).to_list(1000)
+            has_conflict = calendar_service.check_event_conflict(
+                event_data.location,
+                event_data.date,
+                event_data.time,
+                event_data.end_time,
+                all_events
+            )
+            if has_conflict:
+                raise CustomHTTPException(
+                    status_code=409,
+                    error="scheduling_conflict",
+                    message="Event conflicts with existing event at this location and time"
+                )
+        
+        await db.events.insert_one(doc)
+        
+        # Generate recurring events if specified
+        if event_data.event_type == "recurring" and event_data.recurrence_pattern and event_data.recurrence_end_date:
+            recurring_events = calendar_service.generate_recurring_events(
+                doc,
+                event_data.date,
+                event_data.recurrence_end_date,
+                event_data.recurrence_pattern,
+                event_data.recurrence_days
+            )
+            
+            # Insert all recurring instances
+            if recurring_events:
+                for rec_event in recurring_events:
+                    rec_event['created_at'] = datetime.now(timezone.utc).isoformat()
+                await db.events.insert_many(recurring_events)
+        
+        # Log activity
+        await activity_log_service.log_activity(
+            action="create_event",
+            resource_type="event",
+            user_id=admin.id,
+            user_email=admin.email,
+            resource_id=event.id,
+            details={
+                "title": event_data.title,
+                "date": event_data.date,
+                "recurring": event_data.event_type == "recurring"
+            }
+        )
+        
+        return event
+        
+    except CustomHTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating event: {e}")
+        raise server_error("Failed to create event")
 
 @api_router.put("/events/{event_id}", response_model=Event)
 async def update_event(event_id: str, event_data: EventCreate, admin: User = Depends(get_admin_user)):
