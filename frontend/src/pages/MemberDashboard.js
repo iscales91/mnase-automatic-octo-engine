@@ -423,6 +423,7 @@ function MemberDashboard() {
                 ))}
               </div>
             )}
+            </div>
           )}
 
           {/* Schedule Tab */}
