@@ -303,6 +303,10 @@ function AdminDashboard() {
             <TicketManagement />
           </TabsContent>
 
+          <TabsContent value="faqs" data-testid="faqs-content">
+            <FAQManagement />
+          </TabsContent>
+
           <TabsContent value="billing" data-testid="billing-content">
             <BillingInvoices token={token} />
           </TabsContent>
