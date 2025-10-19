@@ -93,7 +93,7 @@ const ActivityLogs = () => {
       <h2 className="text-2xl font-bold mb-4">Activity Logs</h2>
 
       {/* Statistics */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
           <h3 className="text-sm font-semibold text-gray-600">Total Logs</h3>
           <p className="text-2xl font-bold">{stats.total_logs || 0}</p>
