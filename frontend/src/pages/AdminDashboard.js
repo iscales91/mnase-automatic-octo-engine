@@ -291,6 +291,10 @@ function AdminDashboard() {
             <StatsManagement />
           </TabsContent>
 
+          <TabsContent value="affiliates" data-testid="affiliates-content">
+            <AffiliateManagement />
+          </TabsContent>
+
           <TabsContent value="billing" data-testid="billing-content">
             <BillingInvoices token={token} />
           </TabsContent>
