@@ -68,28 +68,46 @@ class TicketValidation(BaseModel):
     ticket_id: str
     qr_code: str
 
-# Import the authentication functions from main server
-import sys
-import os
-sys.path.append('/app/backend')
+# Security setup
+security = HTTPBearer()
+SECRET_KEY = os.environ.get('JWT_SECRET', 'your-secret-key-change-this')
 
-# Import from server.py
-from server import get_current_user as server_get_current_user, get_admin_user as server_get_admin_user, get_super_admin_user as server_get_super_admin_user
+# Database connection
+from motor.motor_asyncio import AsyncIOMotorClient
+mongo_url = os.environ['MONGO_URL']
+client = AsyncIOMotorClient(mongo_url)
+db = client[os.environ['DB_NAME']]
 
-# Use the same authentication as main server
-async def get_current_user(credentials = Depends(server_get_current_user)):
-    return credentials
+# Authentication functions (matching server.py)
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        user_id = payload.get("user_id")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        user = await db.users.find_one({"id": user_id}, {"_id": 0})
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        return user
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
+async def get_admin_user(user: dict = Depends(get_current_user)):
+    if user.get("role") not in ["super_admin", "admin"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+async def get_super_admin_user(user: dict = Depends(get_current_user)):
+    if user.get("role") != "super_admin":
+        raise HTTPException(status_code=403, detail="Super admin access required")
+    return user
+
+# Dependency to get database
 async def get_db():
-    from server import db
     return db
-
-# Use the same admin authentication as main server
-async def get_super_admin(user = Depends(server_get_super_admin_user)):
-    return user
-
-async def get_admin_user(user = Depends(server_get_admin_user)):
-    return user
 
 # ==================== AFFILIATE APPLICATION ROUTES ====================
 
