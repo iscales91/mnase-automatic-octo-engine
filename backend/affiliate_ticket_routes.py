@@ -180,7 +180,6 @@ async def get_my_affiliate_account(
 @router.get("/affiliates/my-sales")
 async def get_my_sales(
     user: dict = Depends(get_current_user),
-    db = Depends(get_db),
     limit: int = 50
 ):
     """Get affiliate's sales history"""
