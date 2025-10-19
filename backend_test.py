@@ -2330,6 +2330,24 @@ def main():
     test_results.append(("Super Admin Login", tester.test_super_admin_login()))
     test_results.append(("Get Current User", tester.test_get_current_user()))
     
+    # Parent-Child Account Management Tests
+    print("\n👨‍👩‍👧‍👦 PARENT-CHILD ACCOUNT MANAGEMENT TESTS")
+    test_results.append(("Create Child Account", tester.test_create_child_account()))
+    test_results.append(("Create Second Child Account", tester.test_create_second_child_account()))
+    test_results.append(("Get My Children", tester.test_get_my_children()))
+    test_results.append(("Get Specific Child", tester.test_get_specific_child()))
+    test_results.append(("Get Invalid Child (Should Fail)", tester.test_get_invalid_child_should_fail()))
+    test_results.append(("Update Child Information", tester.test_update_child_information()))
+    test_results.append(("Get Child Activities", tester.test_get_child_activities()))
+    test_results.append(("Get Family Dashboard", tester.test_get_family_dashboard()))
+    test_results.append(("Create Child Too Old (Should Fail)", tester.test_age_validation_child_too_old()))
+    test_results.append(("Unauthorized Child Access", tester.test_unauthorized_child_access()))
+    test_results.append(("Access Another User's Child", tester.test_access_another_users_child()))
+    test_results.append(("Create Child with Minimal Data", tester.test_child_with_minimal_data()))
+    test_results.append(("Create Child with All Fields", tester.test_child_with_all_optional_fields()))
+    test_results.append(("Get Activities for Child with No Activities", tester.test_get_activities_for_child_with_no_activities()))
+    test_results.append(("Update Child with Empty Optional Fields", tester.test_update_child_with_empty_optional_fields()))
+    
     # Public Endpoints Tests
     print("\n🌐 PUBLIC ENDPOINTS TESTS")
     test_results.append(("Get Events", tester.test_get_events()))
