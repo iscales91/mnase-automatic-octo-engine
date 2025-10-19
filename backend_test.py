@@ -89,7 +89,7 @@ class MNASEBasketballAPITester:
             "password": "TestPass123!",
             "name": "Test User",
             "date_of_birth": "1990-01-01",
-            "phone": "555-0100"
+            "phone": "555-123-4567"
         }
         
         success, response = self.run_test(
