@@ -82,17 +82,11 @@ async def get_db():
     from server import db
     return db
 
-# Dependency to check super admin
-async def get_super_admin(user: dict = Depends(get_current_user)):
-    if user.get("role") != "super_admin":
-        raise HTTPException(status_code=403, detail="Super admin access required")
+# Use the same admin authentication as main server
+async def get_super_admin(user = Depends(server_get_super_admin_user)):
     return user
 
-# Dependency to check admin access
-async def get_admin_user(user: dict = Depends(get_current_user)):
-    admin_roles = ["super_admin", "admin", "manager", "staff", "coach", "treasurer"]
-    if user.get("role") not in admin_roles:
-        raise HTTPException(status_code=403, detail="Admin access required")
+async def get_admin_user(user = Depends(server_get_admin_user)):
     return user
 
 # ==================== AFFILIATE APPLICATION ROUTES ====================
