@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
+import BackButton from '@/components/BackButton';
 import Home from '@/pages/Home';
 import Programs from '@/pages/Programs';
 import Memberships from '@/pages/Memberships';
