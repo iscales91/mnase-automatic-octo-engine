@@ -268,7 +268,6 @@ async def reject_affiliate_application(
 @router.get("/admin/affiliates")
 async def get_all_affiliates(
     admin: dict = Depends(get_admin_user),
-    ,
     status: Optional[str] = None
 ):
     """Get all affiliates (admin)"""
