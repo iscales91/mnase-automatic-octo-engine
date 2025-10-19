@@ -297,6 +297,10 @@ function AdminDashboard() {
             <AffiliateManagement />
           </TabsContent>
 
+          <TabsContent value="tickets" data-testid="tickets-content">
+            <TicketManagement />
+          </TabsContent>
+
           <TabsContent value="billing" data-testid="billing-content">
             <BillingInvoices token={token} />
           </TabsContent>
