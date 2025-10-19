@@ -217,8 +217,9 @@ async def get_affiliate_applications(
             query["status"] = status
         applications = await db.affiliate_applications.find(query).sort("applied_at", -1).to_list(length=1000)
         
-        # Enrich with user data
+        # Convert ObjectIds to strings and enrich with user data
         for app in applications:
+            app["_id"] = str(app["_id"])  # Convert ObjectId to string
             user = await db.users.find_one({"id": app["user_id"]})
             if user:
                 app["user_name"] = user.get("name", "Unknown")
