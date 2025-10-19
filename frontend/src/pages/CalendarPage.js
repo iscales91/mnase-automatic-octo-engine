@@ -1,9 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import AdvancedCalendar from '@/components/AdvancedCalendar';
+import { isAdmin, getDashboardRoute } from '@/utils/roleUtils';
 
 function CalendarPage() {
   const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const userIsAdmin = isAdmin(user);
+  const dashboardRoute = getDashboardRoute(user);
 
   return (
     <div>
