@@ -26,6 +26,7 @@ import StatsManagement from '@/components/admin/StatsManagement';
 import AffiliateManagement from '@/components/admin/AffiliateManagement';
 import TicketManagement from '@/components/admin/TicketManagement';
 import FAQManagement from '@/components/admin/FAQManagement';
+import { getCategoryBadgeStyle } from '@/utils/eventCategories';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
