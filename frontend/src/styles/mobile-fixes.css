@@ -146,17 +146,20 @@
     margin-left: 0;
     margin-top: 0;
     padding: 0;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     transition: max-height 0.3s ease-in-out;
     border-top: none;
+    -webkit-overflow-scrolling: touch;
   }
   
   .navbar-links.collapsed {
     max-height: 0;
+    overflow: hidden;
   }
   
   .navbar-links.expanded {
-    max-height: 1000px;
+    max-height: 80vh;
     padding: 0.5rem 0;
     border-top: 1px solid #e5e7eb;
     margin-top: 0.5rem;
