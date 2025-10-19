@@ -406,10 +406,18 @@ class Event(BaseModel):
     description: str
     date: str
     time: str
+    end_time: Optional[str] = None  # End time for the event
     location: str
     capacity: int
     price: float
     category: str
+    event_type: Optional[str] = "single"  # single, recurring
+    recurrence_pattern: Optional[str] = None  # daily, weekly, monthly
+    recurrence_end_date: Optional[str] = None  # When recurring events stop
+    recurrence_days: Optional[List[str]] = Field(default_factory=list)  # For weekly: ["monday", "wednesday"]
+    parent_event_id: Optional[str] = None  # Links recurring instances to parent
+    tags: List[str] = Field(default_factory=list)  # For filtering
+    reminder_sent: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class EventCreate(BaseModel):
@@ -417,10 +425,16 @@ class EventCreate(BaseModel):
     description: str
     date: str
     time: str
+    end_time: Optional[str] = None
     location: str
     capacity: int
     price: float
     category: str
+    event_type: Optional[str] = "single"
+    recurrence_pattern: Optional[str] = None
+    recurrence_end_date: Optional[str] = None
+    recurrence_days: Optional[List[str]] = Field(default_factory=list)
+    tags: Optional[List[str]] = Field(default_factory=list)
 
 class Facility(BaseModel):
     model_config = ConfigDict(extra="ignore")
