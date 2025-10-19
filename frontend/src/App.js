@@ -57,6 +57,7 @@ function App() {
           <Route path="/clinics" element={<Clinics />} />
           <Route path="/workshops" element={<Workshops />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/shoot-n-hoops" element={<ShootNHoops />} />
           <Route path="/summer-sizzle" element={<SummerSizzle />} />
           <Route path="/winter-wars" element={<WinterWars />} />
