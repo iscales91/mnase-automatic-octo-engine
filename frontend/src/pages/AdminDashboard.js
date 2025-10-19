@@ -244,6 +244,7 @@ function AdminDashboard() {
             <TabsTrigger value="users" data-testid="users-tab">Users</TabsTrigger>
             <TabsTrigger value="roles" data-testid="roles-tab">🔐 Roles & Permissions</TabsTrigger>
             <TabsTrigger value="activity-logs" data-testid="activity-logs-tab">📋 Activity Logs</TabsTrigger>
+            <TabsTrigger value="stats" data-testid="stats-tab">📊 Stats Management</TabsTrigger>
             <TabsTrigger value="billing" data-testid="billing-tab">Billing</TabsTrigger>
             <TabsTrigger value="payment-plans" data-testid="payment-plans-tab">Payment Plans</TabsTrigger>
             <TabsTrigger value="calendar" data-testid="calendar-tab">Calendar</TabsTrigger>
