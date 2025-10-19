@@ -313,22 +313,36 @@ async def create_ticket_type(
     admin: dict = Depends(get_admin_user)
 ):
     """Create a ticket type for an event (admin)"""
-    ticket_service = TicketService(db)
-    
-    # Verify event exists
-    event = await db.events.find_one({"id": ticket_type.event_id})
-    if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
-    
-    created_ticket = await ticket_service.create_ticket_type(
-        ticket_type.event_id,
-        ticket_type.dict()
-    )
-    
-    return {
-        "message": "Ticket type created",
-        "ticket_type": created_ticket
-    }
+    try:
+        ticket_service = TicketService(db)
+        
+        # Verify event exists
+        event = await db.events.find_one({"id": ticket_type.event_id})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        created_ticket = await ticket_service.create_ticket_type(
+            ticket_type.event_id,
+            ticket_type.dict()
+        )
+        
+        # Ensure clean response without ObjectIds
+        return {
+            "message": "Ticket type created",
+            "ticket_type": {
+                "id": created_ticket["id"],
+                "event_id": created_ticket["event_id"],
+                "name": created_ticket["name"],
+                "description": created_ticket["description"],
+                "price": created_ticket["price"],
+                "quantity_available": created_ticket["quantity_available"],
+                "has_seat_numbers": created_ticket["has_seat_numbers"],
+                "status": created_ticket["status"]
+            }
+        }
+    except Exception as e:
+        print(f"Error in create_ticket_type: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create ticket type: {str(e)}")
 
 @router.get("/tickets/event/{event_id}")
 async def get_event_tickets(event_id: str):
