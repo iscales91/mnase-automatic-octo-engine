@@ -27,6 +27,7 @@ import Recruitment from '@/pages/Recruitment';
 import Sponsorship from '@/pages/Sponsorship';
 import Scores from '@/pages/Scores';
 import Stats from '@/pages/Stats';
+import AffiliateApplication from '@/pages/AffiliateApplication';
 import Foundation from '@/pages/Foundation';
 import News from '@/pages/News';
 import Gallery from '@/pages/Gallery';
