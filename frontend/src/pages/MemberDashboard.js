@@ -155,7 +155,7 @@ function MemberDashboard() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc', overflow: 'hidden' }}>
+    <div className="dashboard-layout">
       {/* Sidebar */}
       <DashboardSidebar
         items={sidebarItems}
@@ -164,16 +164,9 @@ function MemberDashboard() {
       />
 
       {/* Main Content */}
-      <div style={{ flex: 1, overflow: 'auto', maxWidth: '100%' }}>
+      <div className="dashboard-main-content">
         {/* Top Bar */}
-        <div style={{
-          background: 'white',
-          borderBottom: '1px solid #e5e7eb',
-          padding: '1.5rem 2rem',
-          position: 'sticky',
-          top: 0,
-          zIndex: 10
-        }}>
+        <div className="dashboard-topbar">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b', marginBottom: '0.25rem' }}>
