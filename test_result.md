@@ -327,7 +327,8 @@ test_plan:
   test_all: false
   test_priority: "high_first"
   backend_testing_complete: true
-  backend_success_rate: "92.9%"
+  backend_success_rate: "72.9%"
+  backend_critical_systems_verified: true
 
 agent_communication:
   - agent: "main"
