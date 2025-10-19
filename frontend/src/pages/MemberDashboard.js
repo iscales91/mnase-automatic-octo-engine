@@ -479,7 +479,8 @@ function MemberDashboard() {
 
           {/* Bookings Tab - Keep existing */}
           {activeTab === 'bookings' && (
-            {bookings.length === 0 ? (
+            <div>
+              {bookings.length === 0 ? (
               <Card>
                 <CardContent style={{ padding: '3rem', textAlign: 'center' }}>
                   <p style={{ fontSize: '1.1rem', color: '#64748b', marginBottom: '1.5rem' }}>
