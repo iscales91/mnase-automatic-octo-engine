@@ -277,6 +277,18 @@ backend:
         comment: "All 4 payment endpoints tested and working correctly. Youth checkout: cs_test_a1CgWKUdjVLlEK4doqyphzPx8I0EGsFqcU0RntTnv6jDSMW5kZ9MHIdjzU, Adult checkout: cs_test_a1DQig7QtOgnygx8OokyCtxFcDUxseSlJtgpygwqUR1sBBzeZD4EuqUmCm. Payment status checks returning correct unpaid status. Fixed backend model validation issues and missing return statements. Stripe integration fully functional."
 
 frontend:
+  - task: "Role-Based UI Visibility"
+    implemented: true
+    working: true
+    file: "frontend/src/utils/roleUtils.js, frontend/src/components/RestrictedAccess.js, frontend/src/pages/Home.js, frontend/src/pages/CalendarPage.js, frontend/src/pages/AdminDashboard.js, frontend/src/pages/MemberDashboard.js, frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented comprehensive role-based access control. Created roleUtils.js with helper functions (isAdmin, isSuperAdmin, isAuthenticated, canAccessAdminDashboard, canAccessMemberDashboard, getDashboardRoute). Created RestrictedAccess component for unauthorized access pages. Updated navigation to show 'Admin Dashboard' link for admin roles (super_admin, admin, manager, staff, coach, treasurer) and 'Dashboard' for regular users. Added route protection to AdminDashboard and MemberDashboard pages. Updated login/register handlers to redirect based on role. Separated routes: /dashboard for members, /admin-dashboard for admins. All public pages remain accessible to everyone."
+
   - task: "Calendar as Subpage Under Events Tab"
     implemented: true
     working: true
