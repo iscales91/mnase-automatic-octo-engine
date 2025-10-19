@@ -108,7 +108,7 @@ backend:
   - task: "Affiliate Ticket Sales System - Backend API Endpoints"
     implemented: true
     working: true
-    file: "backend/affiliate_service.py, backend/ticket_service.py"
+    file: "backend/affiliate_service.py, backend/ticket_service.py, backend/affiliate_ticket_routes.py, backend/server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
