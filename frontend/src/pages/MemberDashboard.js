@@ -225,46 +225,13 @@ function MemberDashboard() {
             </div>
           </div>
 
-        {/* Stats Grid */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
-          gap: '1.5rem',
-          marginBottom: '3rem'
-        }}>
-          <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', border: '2px solid #e8eeff' }}>
-            <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '0.5rem' }}>Program Registrations</div>
-            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1e293b' }}>
-              {youthRegistrations.length + adultRegistrations.length}
-            </div>
-          </div>
-          <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', border: '2px solid #e8eeff' }}>
-            <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '0.5rem' }}>My Teams</div>
-            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1e293b' }}>
-              {myTeams.length}
-            </div>
-          </div>
-          <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', border: '2px solid #e8eeff' }}>
-            <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '0.5rem' }}>Upcoming Events</div>
-            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1e293b' }}>
-              {upcomingEvents.length}
-            </div>
-          </div>
-          <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', border: '2px solid #e8eeff' }}>
-            <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '0.5rem' }}>Facility Bookings</div>
-            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1e293b' }}>
-              {bookings.length}
-            </div>
-          </div>
-        </div>
-
           {/* Content Area */}
           {activeTab === 'family' && <FamilyDashboard />}
           
           {activeTab === 'affiliate' && <AffiliateEarningsDashboard />}
 
           {/* Registrations Tab */}
-          <TabsContent value="registrations">
+          {activeTab === 'registrations' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               {youthRegistrations.length === 0 && adultRegistrations.length === 0 ? (
                 <Card>
