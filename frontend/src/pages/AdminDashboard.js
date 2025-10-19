@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Edit, Trash2, Calendar, MapPin, DollarSign } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { canAccessAdminDashboard } from '@/utils/roleUtils';
+import RestrictedAccess from '@/components/RestrictedAccess';
 import UserManagement from '@/components/admin/UserManagement';
 import BillingInvoices from '@/components/admin/BillingInvoices';
 import PaymentPlans from '@/components/admin/PaymentPlans';
@@ -38,6 +40,16 @@ function AdminDashboard() {
   const [editingFacility, setEditingFacility] = useState(null);
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  // Check if user has admin access
+  if (!token || !canAccessAdminDashboard(user)) {
+    return (
+      <RestrictedAccess 
+        message="You need admin privileges to access the Admin Dashboard."
+        requiredRole="Admin, Manager, Staff, Coach, or Treasurer"
+      />
+    );
+  }
 
   const [eventForm, setEventForm] = useState({
     title: '', description: '', date: '', time: '',
