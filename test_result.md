@@ -277,6 +277,18 @@ backend:
         comment: "All 4 payment endpoints tested and working correctly. Youth checkout: cs_test_a1CgWKUdjVLlEK4doqyphzPx8I0EGsFqcU0RntTnv6jDSMW5kZ9MHIdjzU, Adult checkout: cs_test_a1DQig7QtOgnygx8OokyCtxFcDUxseSlJtgpygwqUR1sBBzeZD4EuqUmCm. Payment status checks returning correct unpaid status. Fixed backend model validation issues and missing return statements. Stripe integration fully functional."
 
 frontend:
+  - task: "Calendar as Subpage Under Events Tab"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/CalendarPage.js, frontend/src/App.js, frontend/src/pages/Home.js, frontend/src/pages/Events.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created new CalendarPage component that displays the full month AdvancedCalendar. Added /calendar route in App.js. Updated Events dropdown in navigation (Home.js, Events.js, CalendarPage.js) to include 'Calendar' as the first subpage option. Calendar is now accessible via Events > Calendar dropdown menu. Page displays full month grid with color-coded events, navigation controls, and filter options."
+
   - task: "Full Month Calendar Display"
     implemented: true
     working: true
