@@ -1166,6 +1166,299 @@ async def get_me(user: User = Depends(get_current_user)):
     return user
 
 
+
+# Parent-Child Account Management Endpoints
+@api_router.post("/users/children", response_model=User)
+async def create_child_account(
+    child_data: ChildAccountCreate,
+    request: Request,
+    parent: User = Depends(get_current_user)
+):
+    """Create a child account linked to parent - Parent must be 18+"""
+    try:
+        # Verify parent is adult
+        is_adult, _ = ValidationUtils.validate_age(parent.date_of_birth, 18)
+        if not is_adult:
+            raise forbidden_error("Only adults can create child accounts")
+        
+        # Validate child data
+        errors = []
+        
+        if not ValidationUtils.validate_date_format(child_data.date_of_birth):
+            errors.append(ValidationError(
+                field="date_of_birth",
+                message="Invalid date format. Use YYYY-MM-DD",
+                code="invalid_date"
+            ))
+        
+        # Verify child is under 18
+        is_youth, child_age = ValidationUtils.validate_age(child_data.date_of_birth, 18)
+        if is_youth:
+            raise CustomHTTPException(
+                status_code=400,
+                error="age_requirement",
+                message="Child must be under 18 years old. For adults, please have them create their own account.",
+                details={"age": child_age}
+            )
+        
+        if errors:
+            raise validation_error(errors)
+        
+        # Generate temporary password or use parent email for notifications
+        temp_password = f"Youth{str(uuid.uuid4())[:8]}"
+        
+        # Create child user account
+        child = User(
+            email=child_data.email or f"youth_{str(uuid.uuid4())[:8]}@mnase.temp",
+            name=ValidationUtils.sanitize_input(child_data.name),
+            role="user",
+            date_of_birth=child_data.date_of_birth,
+            phone=child_data.phone,
+            parent_account_id=parent.id,
+            is_parent=False,
+            permissions=[]
+        )
+        
+        doc = child.model_dump()
+        doc['password'] = hash_password(temp_password)
+        doc['created_at'] = doc['created_at'].isoformat()
+        
+        await db.users.insert_one(doc)
+        
+        # Update parent's is_parent flag if not already set
+        if not parent.is_parent:
+            await db.users.update_one(
+                {"id": parent.id},
+                {"$set": {"is_parent": True}}
+            )
+        
+        # Log activity
+        await activity_log_service.log_activity(
+            action="create_child_account",
+            resource_type="user",
+            user_id=parent.id,
+            user_email=parent.email,
+            resource_id=child.id,
+            ip_address=request.client.host if request else None,
+            details={
+                "child_name": child.name,
+                "child_age": child_age
+            }
+        )
+        
+        # Send notification to parent
+        try:
+            await email_service.send_email(
+                to_email=parent.email,
+                subject="Child Account Created - MNASE Basketball League",
+                body=f"""
+                <h2>Child Account Created</h2>
+                <p>Hi {parent.name},</p>
+                <p>You have successfully created a youth account for <strong>{child.name}</strong>.</p>
+                <p>You can now register them for programs and manage their activities from your dashboard.</p>
+                <p>Thank you for being part of MNASE Basketball League!</p>
+                """
+            )
+        except Exception as e:
+            logging.error(f"Failed to send child account creation email: {e}")
+        
+        return child
+        
+    except CustomHTTPException:
+        raise
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating child account: {e}")
+        raise server_error("Failed to create child account")
+
+@api_router.get("/users/children", response_model=List[User])
+async def get_my_children(parent: User = Depends(get_current_user)):
+    """Get all child accounts linked to current parent"""
+    children = await db.users.find(
+        {"parent_account_id": parent.id},
+        {"_id": 0, "password": 0}
+    ).to_list(1000)
+    
+    result = []
+    for child in children:
+        if isinstance(child.get('created_at'), str):
+            child['created_at'] = datetime.fromisoformat(child['created_at'])
+        result.append(User(**child))
+    
+    return result
+
+@api_router.get("/users/children/{child_id}", response_model=User)
+async def get_child_account(
+    child_id: str,
+    parent: User = Depends(get_current_user)
+):
+    """Get specific child account - Parent must own the account"""
+    child = await db.users.find_one({"id": child_id}, {"_id": 0, "password": 0})
+    
+    if not child:
+        raise not_found_error("Child account", child_id)
+    
+    # Verify parent owns this child account
+    if child.get("parent_account_id") != parent.id:
+        raise forbidden_error("You don't have access to this account")
+    
+    if isinstance(child.get('created_at'), str):
+        child['created_at'] = datetime.fromisoformat(child['created_at'])
+    
+    return User(**child)
+
+@api_router.get("/users/children/{child_id}/activities")
+async def get_child_activities(
+    child_id: str,
+    parent: User = Depends(get_current_user)
+):
+    """Get all activities for a child (registrations, memberships, etc.)"""
+    # Verify parent owns this child account
+    child = await db.users.find_one({"id": child_id}, {"_id": 0})
+    if not child:
+        raise not_found_error("Child account", child_id)
+    
+    if child.get("parent_account_id") != parent.id:
+        raise forbidden_error("You don't have access to this account")
+    
+    # Get child's registrations
+    youth_registrations = await db.enhanced_registrations.find(
+        {"user_id": child_id},
+        {"_id": 0}
+    ).to_list(1000)
+    
+    adult_registrations = await db.adult_registrations.find(
+        {"user_id": child_id},
+        {"_id": 0}
+    ).to_list(1000)
+    
+    # Get child's memberships
+    memberships = await db.memberships.find(
+        {"user_id": child_id},
+        {"_id": 0}
+    ).to_list(1000)
+    
+    return {
+        "child_id": child_id,
+        "child_name": child["name"],
+        "youth_registrations": youth_registrations,
+        "adult_registrations": adult_registrations,
+        "memberships": memberships,
+        "total_activities": len(youth_registrations) + len(adult_registrations) + len(memberships)
+    }
+
+@api_router.put("/users/children/{child_id}")
+async def update_child_account(
+    child_id: str,
+    update_data: UserCreate,
+    parent: User = Depends(get_current_user)
+):
+    """Update child account information - Parent only"""
+    # Verify parent owns this child account
+    child = await db.users.find_one({"id": child_id}, {"_id": 0})
+    if not child:
+        raise not_found_error("Child account", child_id)
+    
+    if child.get("parent_account_id") != parent.id:
+        raise forbidden_error("You don't have access to this account")
+    
+    # Update child info
+    update_dict = {
+        "name": ValidationUtils.sanitize_input(update_data.name),
+        "date_of_birth": update_data.date_of_birth,
+        "phone": update_data.phone
+    }
+    
+    if update_data.email and update_data.email != child.get("email"):
+        # Check if new email already exists
+        existing = await db.users.find_one({"email": update_data.email}, {"_id": 0})
+        if existing:
+            raise conflict_error("user", "Email already in use")
+        update_dict["email"] = update_data.email
+    
+    await db.users.update_one({"id": child_id}, {"$set": update_dict})
+    
+    # Log activity
+    await activity_log_service.log_activity(
+        action="update_child_account",
+        resource_type="user",
+        user_id=parent.id,
+        user_email=parent.email,
+        resource_id=child_id,
+        details=update_dict
+    )
+    
+    updated_child = await db.users.find_one({"id": child_id}, {"_id": 0, "password": 0})
+    if isinstance(updated_child.get('created_at'), str):
+        updated_child['created_at'] = datetime.fromisoformat(updated_child['created_at'])
+    
+    return User(**updated_child)
+
+@api_router.get("/users/family-dashboard")
+async def get_family_dashboard(parent: User = Depends(get_current_user)):
+    """Get complete family dashboard with all children and their activities"""
+    # Get all children
+    children = await db.users.find(
+        {"parent_account_id": parent.id},
+        {"_id": 0, "password": 0}
+    ).to_list(1000)
+    
+    family_data = {
+        "parent": {
+            "id": parent.id,
+            "name": parent.name,
+            "email": parent.email
+        },
+        "children": [],
+        "summary": {
+            "total_children": len(children),
+            "total_registrations": 0,
+            "total_memberships": 0,
+            "pending_payments": 0
+        }
+    }
+    
+    for child in children:
+        # Get child's activities
+        youth_regs = await db.enhanced_registrations.find(
+            {"user_id": child["id"]},
+            {"_id": 0}
+        ).to_list(1000)
+        
+        adult_regs = await db.adult_registrations.find(
+            {"user_id": child["id"]},
+            {"_id": 0}
+        ).to_list(1000)
+        
+        memberships = await db.memberships.find(
+            {"user_id": child["id"]},
+            {"_id": 0}
+        ).to_list(1000)
+        
+        # Count pending payments
+        pending = sum(1 for r in youth_regs + adult_regs if r.get("payment_status") == "unpaid")
+        pending += sum(1 for m in memberships if m.get("payment_status") == "unpaid")
+        
+        child_data = {
+            "id": child["id"],
+            "name": child["name"],
+            "date_of_birth": child.get("date_of_birth"),
+            "registrations_count": len(youth_regs) + len(adult_regs),
+            "memberships_count": len(memberships),
+            "pending_payments": pending,
+            "registrations": youth_regs + adult_regs,
+            "memberships": memberships
+        }
+        
+        family_data["children"].append(child_data)
+        family_data["summary"]["total_registrations"] += child_data["registrations_count"]
+        family_data["summary"]["total_memberships"] += child_data["memberships_count"]
+        family_data["summary"]["pending_payments"] += pending
+    
+    return family_data
+
+
 # Admin Setup endpoint (one-time use to create super admin)
 @api_router.post("/admin/setup")
 async def setup_super_admin(request: SetupAdminRequest):
