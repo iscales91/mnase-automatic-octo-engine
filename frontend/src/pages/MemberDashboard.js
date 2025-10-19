@@ -191,13 +191,14 @@ function MemberDashboard() {
           </div>
         </div>
 
-        <div style={{ padding: '2rem' }}>
+        <div style={{ padding: '2rem', maxWidth: '100%', overflow: 'hidden' }}>
           {/* Stats Grid */}
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
             gap: '1.5rem',
-            marginBottom: '2rem'
+            marginBottom: '2rem',
+            width: '100%'
           }}>
             <div style={{ padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>Program Registrations</div>
