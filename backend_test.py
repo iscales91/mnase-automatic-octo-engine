@@ -2570,12 +2570,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-        )
-        
-        if success:
-            results = response.get('results', [])
-            print(f"✅ Processed payouts for {len(results)} affiliates")
-        return success
 
     def test_reject_affiliate_application_admin(self):
         """Test rejecting affiliate application"""
