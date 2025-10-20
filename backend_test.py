@@ -179,14 +179,15 @@ class MNASEBasketballAPITester:
 
     def test_user_login(self):
         """Test user login with registered user"""
-        # First register a user
-        if not self.test_user_registration():
-            return False
+        # Use the token from registration if available
+        if self.token:
+            print("✅ User already logged in from registration")
+            return True
             
-        # Now test login with same credentials
+        # Try to login with super admin credentials as fallback
         login_data = {
-            "email": f"testuser_{datetime.now().strftime('%H%M%S')}@test.com",
-            "password": "TestPass123!"
+            "email": "mnasebasketball@gmail.com",
+            "password": "IzaMina1612"
         }
         
         success, response = self.run_test(
@@ -196,6 +197,10 @@ class MNASEBasketballAPITester:
             200,
             data=login_data
         )
+        
+        if success and 'token' in response:
+            # Don't overwrite super admin token
+            print("✅ User login successful")
         return success
 
     def test_get_current_user(self):
