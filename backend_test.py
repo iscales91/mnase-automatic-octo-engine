@@ -1062,7 +1062,7 @@ class MNASEBasketballAPITester:
             "Unauthorized Payment Access",
             "POST",
             "enhanced-registrations/fake-id/checkout",
-            401,
+            403,  # FastAPI returns 403 for "Not authenticated"
             data={"origin_url": self.base_url}
         )
         
