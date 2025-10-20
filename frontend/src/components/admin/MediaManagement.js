@@ -172,7 +172,7 @@ const MediaManagement = () => {
                 required
               >
                 {categories.map(cat => (
-                  <key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                  <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
                 ))}
               </select>
             </div>
