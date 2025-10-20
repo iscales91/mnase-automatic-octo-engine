@@ -1452,7 +1452,7 @@ class MNASEBasketballAPITester:
             "Unauthorized Role Access",
             "GET",
             "admin/roles",
-            401  # Should get 401 Unauthorized
+            403  # FastAPI returns 403 for "Not authenticated"
         )
         
         # Restore token
