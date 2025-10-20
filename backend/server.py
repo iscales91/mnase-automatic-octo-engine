@@ -3207,6 +3207,101 @@ async def delete_program(program_id: str, admin: User = Depends(get_admin_user))
         raise HTTPException(status_code=404, detail="Program not found")
     return {"message": "Program deleted"}
 
+# Division endpoints
+@api_router.get("/programs/{program_id}/divisions", response_model=List[Division])
+async def get_program_divisions(program_id: str):
+    """Get all divisions for a specific program"""
+    divisions = await db.divisions.find({"program_id": program_id}, {"_id": 0}).to_list(length=100)
+    
+    # Convert datetime strings to datetime objects
+    for div in divisions:
+        if isinstance(div.get('created_at'), str):
+            div['created_at'] = datetime.fromisoformat(div['created_at'])
+        if isinstance(div.get('updated_at'), str):
+            div['updated_at'] = datetime.fromisoformat(div['updated_at'])
+    
+    return [Division(**div) for div in divisions]
+
+@api_router.get("/divisions", response_model=List[Division])
+async def get_all_divisions(admin: User = Depends(get_admin_user)):
+    """Get all divisions (admin only)"""
+    divisions = await db.divisions.find({}, {"_id": 0}).to_list(length=500)
+    
+    # Convert datetime strings
+    for div in divisions:
+        if isinstance(div.get('created_at'), str):
+            div['created_at'] = datetime.fromisoformat(div['created_at'])
+        if isinstance(div.get('updated_at'), str):
+            div['updated_at'] = datetime.fromisoformat(div['updated_at'])
+    
+    return [Division(**div) for div in divisions]
+
+@api_router.get("/divisions/{division_id}", response_model=Division)
+async def get_division(division_id: str):
+    """Get a specific division by ID"""
+    division = await db.divisions.find_one({"id": division_id}, {"_id": 0})
+    if not division:
+        raise HTTPException(status_code=404, detail="Division not found")
+    
+    if isinstance(division.get('created_at'), str):
+        division['created_at'] = datetime.fromisoformat(division['created_at'])
+    if isinstance(division.get('updated_at'), str):
+        division['updated_at'] = datetime.fromisoformat(division['updated_at'])
+    
+    return Division(**division)
+
+@api_router.post("/divisions", response_model=Division)
+async def create_division(division_data: DivisionCreate, admin: User = Depends(get_admin_user)):
+    """Create a new division (admin only)"""
+    # Verify program exists
+    program = await db.programs.find_one({"id": division_data.program_id}, {"_id": 0})
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+    
+    division_doc = division_data.model_dump()
+    division_doc["id"] = str(uuid.uuid4())
+    division_doc["current_enrollment"] = 0
+    division_doc["created_at"] = datetime.now(timezone.utc).isoformat()
+    division_doc["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.divisions.insert_one(division_doc)
+    
+    division = await db.divisions.find_one({"id": division_doc["id"]}, {"_id": 0})
+    if isinstance(division['created_at'], str):
+        division['created_at'] = datetime.fromisoformat(division['created_at'])
+    if isinstance(division['updated_at'], str):
+        division['updated_at'] = datetime.fromisoformat(division['updated_at'])
+    
+    return Division(**division)
+
+@api_router.put("/divisions/{division_id}", response_model=Division)
+async def update_division(division_id: str, division_data: DivisionUpdate, admin: User = Depends(get_admin_user)):
+    """Update a division (admin only)"""
+    existing = await db.divisions.find_one({"id": division_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Division not found")
+    
+    update_doc = {k: v for k, v in division_data.model_dump().items() if v is not None}
+    update_doc["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.divisions.update_one({"id": division_id}, {"$set": update_doc})
+    
+    division = await db.divisions.find_one({"id": division_id}, {"_id": 0})
+    if isinstance(division['created_at'], str):
+        division['created_at'] = datetime.fromisoformat(division['created_at'])
+    if isinstance(division['updated_at'], str):
+        division['updated_at'] = datetime.fromisoformat(division['updated_at'])
+    
+    return Division(**division)
+
+@api_router.delete("/divisions/{division_id}")
+async def delete_division(division_id: str, admin: User = Depends(get_admin_user)):
+    """Delete a division (admin only)"""
+    result = await db.divisions.delete_one({"id": division_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Division not found")
+    return {"message": "Division deleted successfully"}
+
 # Membership endpoints
 @api_router.get("/memberships", response_model=List[Membership])
 async def get_memberships():
