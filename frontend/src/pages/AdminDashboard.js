@@ -335,6 +335,10 @@ function AdminDashboard() {
             <TeamsManagement />
           </TabsContent>
 
+          <TabsContent value="divisions" data-testid="divisions-content">
+            <DivisionManagement />
+          </TabsContent>
+
           <TabsContent value="forms" data-testid="forms-content">
             <FormSubmissions />
           </TabsContent>
