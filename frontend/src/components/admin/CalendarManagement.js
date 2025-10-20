@@ -207,6 +207,79 @@ function CalendarManagement() {
                   placeholder="e.g., Main Gymnasium, Court A"
                 />
               </div>
+              
+              {/* Recurring Event Section */}
+              <div className="border-t pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="checkbox"
+                    id="recurring"
+                    checked={eventForm.recurring}
+                    onChange={(e) => setEventForm({...eventForm, recurring: e.target.checked})}
+                    className="w-4 h-4"
+                  />
+                  <Label htmlFor="recurring" className="cursor-pointer font-semibold">
+                    Recurring Event
+                  </Label>
+                </div>
+                
+                {eventForm.recurring && (
+                  <div className="space-y-3 pl-6 border-l-2 border-blue-200">
+                    <div>
+                      <Label>Frequency *</Label>
+                      <select
+                        value={eventForm.recurrence_frequency}
+                        onChange={(e) => setEventForm({...eventForm, recurrence_frequency: e.target.value})}
+                        className="w-full border rounded px-3 py-2"
+                        required
+                      >
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                      </select>
+                    </div>
+                    
+                    {eventForm.recurrence_frequency === 'weekly' && (
+                      <div>
+                        <Label>Repeat on Days *</Label>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                            <label key={day} className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded cursor-pointer hover:bg-gray-200">
+                              <input
+                                type="checkbox"
+                                checked={eventForm.recurrence_days.includes(day)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setEventForm({...eventForm, recurrence_days: [...eventForm.recurrence_days, day]});
+                                  } else {
+                                    setEventForm({...eventForm, recurrence_days: eventForm.recurrence_days.filter(d => d !== day)});
+                                  }
+                                }}
+                              />
+                              <span className="text-sm">{day.slice(0, 3)}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div>
+                      <Label>End Date *</Label>
+                      <Input
+                        type="date"
+                        value={eventForm.recurrence_end_date}
+                        onChange={(e) => setEventForm({...eventForm, recurrence_end_date: e.target.value})}
+                        min={eventForm.date}
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Events will be created until this date
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
               <div>
                 <Label htmlFor="type">Type *</Label>
                 <Select value={eventForm.type} onValueChange={(value) => setEventForm({...eventForm, type: value})}>
