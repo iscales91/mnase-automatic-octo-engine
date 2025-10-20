@@ -60,13 +60,40 @@ function CalendarManagement() {
         await axios.put(`${API}/admin/calendar-events/${editingEvent.id}`, eventForm, { headers });
         toast.success('Calendar event updated successfully');
       } else {
-        await axios.post(`${API}/admin/calendar-events`, eventForm, { headers });
-        toast.success('Calendar event created successfully');
+        // Use recurring endpoint if recurring is enabled
+        const endpoint = eventForm.recurring ? `${API}/events/recurring` : `${API}/admin/calendar-events`;
+        const payload = eventForm.recurring ? {
+          title: eventForm.title,
+          description: eventForm.description,
+          start_date: eventForm.date,
+          start_time: eventForm.time,
+          end_time: eventForm.end_time || eventForm.time,
+          location: eventForm.location,
+          recurring: true,
+          recurrence_frequency: eventForm.recurrence_frequency,
+          recurrence_end_date: eventForm.recurrence_end_date,
+          recurrence_days: eventForm.recurrence_days,
+          capacity: eventForm.capacity,
+          price: eventForm.price || 0,
+          category: eventForm.category
+        } : eventForm;
+        
+        const response = await axios.post(endpoint, payload, { headers });
+        
+        if (eventForm.recurring && response.data.count) {
+          toast.success(`Created ${response.data.count} recurring event instances!`);
+        } else {
+          toast.success('Calendar event created successfully');
+        }
       }
       
       setShowDialog(false);
       setEditingEvent(null);
-      setEventForm({ title: '', description: '', date: '', time: '', location: '', type: 'event' });
+      setEventForm({ 
+        title: '', description: '', date: '', time: '', end_time: '', location: '', 
+        type: 'event', capacity: null, price: 0, category: 'other',
+        recurring: false, recurrence_frequency: 'weekly', recurrence_end_date: '', recurrence_days: []
+      });
       fetchCalendarEvents();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Operation failed');
