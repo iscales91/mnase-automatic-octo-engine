@@ -90,7 +90,7 @@ class AffiliateService:
     async def reject_affiliate(self, application_id: str, admin_id: str, reason: str = ""):
         """Reject affiliate application"""
         await self.db.affiliate_applications.update_one(
-            {"_id": application_id},
+            {"_id": ObjectId(application_id)},
             {
                 "$set": {
                     "status": "rejected",
