@@ -310,6 +310,10 @@ function AdminDashboard() {
             <FAQManagement />
           </TabsContent>
 
+          <TabsContent value="media" data-testid="media-content">
+            <MediaManagement />
+          </TabsContent>
+
           <TabsContent value="billing" data-testid="billing-content">
             <BillingInvoices token={token} />
           </TabsContent>
