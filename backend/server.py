@@ -581,6 +581,44 @@ class ProgramCreate(BaseModel):
     logo_url: Optional[str] = None
     active: bool = True
 
+# Divisions
+class Division(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    program_id: str
+    name: str
+    age_range: str
+    gender: Optional[str] = None  # male, female, co-ed, any
+    capacity: Optional[int] = None
+    current_enrollment: int = 0
+    description: Optional[str] = None
+    price_override: Optional[float] = None  # If different from program price
+    schedule_override: Optional[str] = None  # If different from program schedule
+    active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class DivisionCreate(BaseModel):
+    program_id: str
+    name: str
+    age_range: str
+    gender: Optional[str] = None
+    capacity: Optional[int] = None
+    description: Optional[str] = None
+    price_override: Optional[float] = None
+    schedule_override: Optional[str] = None
+    active: bool = True
+
+class DivisionUpdate(BaseModel):
+    name: Optional[str] = None
+    age_range: Optional[str] = None
+    gender: Optional[str] = None
+    capacity: Optional[int] = None
+    description: Optional[str] = None
+    price_override: Optional[float] = None
+    schedule_override: Optional[str] = None
+    active: Optional[bool] = None
+
 # Memberships
 class Membership(BaseModel):
     model_config = ConfigDict(extra="ignore")
