@@ -42,7 +42,7 @@ class AffiliateService:
     
     async def approve_affiliate(self, application_id: str, admin_id: str):
         """Approve affiliate application and create affiliate account"""
-        application = await self.db.affiliate_applications.find_one({"_id": application_id})
+        application = await self.db.affiliate_applications.find_one({"_id": ObjectId(application_id)})
         if not application:
             raise ValueError("Application not found")
         
