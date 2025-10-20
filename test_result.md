@@ -369,15 +369,18 @@ frontend:
   
   - task: "New Features Implementation"
     implemented: true
-    working: true
+    working: false
     file: "backend/media_service.py, backend/email_queue_service.py, backend/additional_routes.py, backend/affiliate_service.py, backend/server.py, frontend/src/components/admin/MediaManagement.js, frontend/src/components/admin/CalendarManagement.js, frontend/src/pages/AdminDashboard.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "pending_testing"
         agent: "main"
         comment: "Implemented 7 major features: 1) AFFILIATE APPROVAL FIX: Fixed MongoDB ObjectId conversion in affiliate_service.py, added bson.ObjectId import, updated 7 queries to properly convert string IDs. 2) MEDIA MANAGEMENT SYSTEM: Created MediaService with file storage in /app/backend/media/ folders (events, programs, facilities, general), supports images (10MB max) and videos (90min max), all recommended formats (JPG, PNG, GIF, MP4, MOV, AVI, MKV, WEBM), CRUD operations, view tracking, search, tags. Created MediaManagement admin component with upload interface, category filtering, grid view, edit/delete, search. Added Media Gallery tab to AdminDashboard. 3) EMAIL QUEUE: Created EmailQueueService with Gmail rate limiting (100 emails/day), priority queue (high/normal/low), automatic retry (3 attempts), 1-second delay between emails, status monitoring, old email cleanup. 4) RECURRING EVENTS: Created recurring event endpoint in additional_routes.py supporting daily/weekly/monthly frequency, end date, weekly day selection, individual event editing. Updated CalendarManagement with recurring event toggle, frequency dropdown, day checkboxes, end date picker. Creates all instances separately so each can be edited individually. 5) PROGRAM LOGOS: Added logo_url field to Program and ProgramCreate models in server.py. Programs can now store uploaded logo URLs. 6) ADDITIONAL ROUTES: Created additional_routes.py with media upload/download/update/delete endpoints, recurring event creation, email queue management. All routes integrated with authentication. 7) BACKEND INTEGRATION: Added additional_router to server.py, imported new services, restarted backend successfully. Frontend compiled successfully after fixing syntax errors. All 7 features implemented and ready for comprehensive testing."
+      - working: false
+        agent: "testing"
+        comment: "NEW FEATURES TESTING COMPLETE - Mixed results with critical issues found. ✅ WORKING FEATURES: 1) MEDIA MANAGEMENT ENDPOINTS: All 5 category endpoints (all, events, programs, facilities, general) responding correctly and returning empty media arrays as expected for new system. 2) PROGRAM LOGOS: Successfully tested program creation with logo_url field, field persists correctly in database, programs endpoint returns logo_url field properly. 3) EXISTING FUNCTIONALITY REGRESSION: Core endpoints (events, facilities, programs, calendar-events) still working correctly, no breaking changes detected. ❌ CRITICAL ISSUES FOUND: 1) EMAIL QUEUE ENDPOINTS: All email queue endpoints (/admin/email-queue/add, /admin/email-queue/status, /admin/email-queue/process) returning 422 validation errors with 'Field required' for 'request' parameter - indicates FastAPI dependency injection issue in additional_routes.py. 2) RECURRING EVENTS ENDPOINT: /api/events/recurring endpoint returning same 422 validation error - same dependency injection issue. 3) AFFILIATE APPROVAL: Unable to complete full testing due to timeout issues, but existing affiliate applications endpoint accessible. ROOT CAUSE: The additional_routes.py file has incorrect FastAPI dependency injection - the get_db() and authentication functions are not properly configured as FastAPI dependencies, causing validation errors. RECOMMENDATION: Fix dependency injection in additional_routes.py by properly implementing FastAPI Depends() pattern for database and authentication dependencies."
   
   - task: "Affiliate Ticket Sales - Frontend Complete"
     implemented: true
