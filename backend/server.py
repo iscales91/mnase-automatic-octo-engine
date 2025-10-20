@@ -563,6 +563,7 @@ class Program(BaseModel):
     inclusions: List[str]
     schedule: str
     registration_info: str
+    logo_url: Optional[str] = None
     active: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -577,6 +578,7 @@ class ProgramCreate(BaseModel):
     inclusions: List[str]
     schedule: str
     registration_info: str
+    logo_url: Optional[str] = None
     active: bool = True
 
 # Memberships
