@@ -3054,8 +3054,18 @@ class MNASEBasketballAPITester:
         self.test_delete_custom_role_super_admin()
         self.test_delete_system_role_should_fail()
         
-        # 13. ACTIVITY LOGS (Priority: Medium)
-        print("\n📊 13. ACTIVITY LOGS TESTS (MEDIUM PRIORITY)")
+        # 13. NEW FEATURES TESTING (Priority: Critical - Review Request)
+        print("\n🆕 13. NEW FEATURES TESTING (CRITICAL - REVIEW REQUEST)")
+        print("-" * 60)
+        self.test_affiliate_approval_fix()
+        self.test_media_management_endpoints()
+        self.test_email_queue_system()
+        self.test_recurring_events_system()
+        self.test_program_logos_feature()
+        self.test_existing_functionality_regression()
+        
+        # 14. ACTIVITY LOGS (Priority: Medium)
+        print("\n📊 14. ACTIVITY LOGS TESTS (MEDIUM PRIORITY)")
         print("-" * 60)
         # Note: Activity logs endpoints may not exist in current backend
         # These tests will likely fail but are included for completeness
