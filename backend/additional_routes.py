@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, Field
 import os
 import uuid
+import jwt
 
 # Import services
 from media_service import MediaService
@@ -44,17 +45,13 @@ class EmailQueue(BaseModel):
     body: str
     priority: str = "normal"
 
-# Database connection (will be injected)
-async def get_db(request):
-    return request.app.state.db
-
-async def get_current_user(request):
+# Dependency functions
+async def get_current_user(request: Request):
     """Get authenticated user from request"""
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    import jwt
     try:
         payload = jwt.decode(token, os.getenv("JWT_SECRET", "your-secret-key"), algorithms=["HS256"])
         user_id = payload.get("user_id")
@@ -63,10 +60,10 @@ async def get_current_user(request):
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
         return user
-    except:
+    except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-async def get_admin_user(request):
+async def get_admin_user(request: Request):
     """Verify admin access"""
     user = await get_current_user(request)
     admin_roles = ['super_admin', 'admin', 'manager']
