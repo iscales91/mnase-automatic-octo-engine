@@ -2509,6 +2509,7 @@ class MNASEBasketballAPITester:
         # Security & Error Handling Tests
         print("\n🔒 SECURITY & ERROR HANDLING TESTS")
         print("-" * 60)
+        # Note: These tests expect 401 but may get 403 due to FastAPI implementation
         self.test_unauthorized_payment_access()
         self.test_nonexistent_registration_payment()
         self.test_unauthorized_role_access()
