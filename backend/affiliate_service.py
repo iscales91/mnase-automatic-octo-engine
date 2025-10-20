@@ -72,7 +72,7 @@ class AffiliateService:
         
         # Update application status
         await self.db.affiliate_applications.update_one(
-            {"_id": application_id},
+            {"_id": ObjectId(application_id)},
             {
                 "$set": {
                     "status": "approved",
