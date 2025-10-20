@@ -160,7 +160,7 @@ class AffiliateService:
     
     async def get_affiliate_earnings_summary(self, affiliate_id: str):
         """Get earnings summary for affiliate"""
-        affiliate = await self.db.affiliates.find_one({"_id": affiliate_id})
+        affiliate = await self.db.affiliates.find_one({"_id": ObjectId(affiliate_id)})
         if not affiliate:
             return None
         
