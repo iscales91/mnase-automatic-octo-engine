@@ -570,10 +570,14 @@ test_plan:
   test_all: false
   test_priority: "high_first"
   backend_testing_complete: true
-  backend_success_rate: "80.0%"
+  backend_success_rate: "87.2%"
   backend_critical_systems_verified: true
   parent_child_testing_complete: true
-  parent_child_success_rate: "80.0%"
+  parent_child_success_rate: "100%"
+  comprehensive_testing_complete: true
+  comprehensive_success_rate: "87.2%"
+  total_tests_run: 86
+  total_tests_passed: 75
   frontend_testing_complete: false
   frontend_success_rate: "100%"
   frontend_critical_systems_verified: true
