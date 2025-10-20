@@ -4054,6 +4054,7 @@ app.state.db = db
 # Include routers
 app.include_router(api_router)
 app.include_router(affiliate_ticket_router)
+app.include_router(additional_router)
 
 app.add_middleware(
     CORSMiddleware,
