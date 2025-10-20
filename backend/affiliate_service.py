@@ -239,7 +239,7 @@ class AffiliateService:
             raise ValueError("Commission rate must be between 0 and 1")
         
         await self.db.affiliates.update_one(
-            {"_id": affiliate_id},
+            {"_id": ObjectId(affiliate_id)},
             {"$set": {"commission_rate": new_rate}}
         )
     
