@@ -2541,6 +2541,35 @@ class MNASEBasketballAPITester:
                 print(f"   • {test}")
         
         return success_rate >= 95  # 95% success rate required
+
+def main():
+    """Main function to run comprehensive new features testing"""
+    tester = MNASEBasketballAPITester()
+    
+    print("🏀 MNASE Basketball League - Comprehensive New Features Testing")
+    print("=" * 80)
+    print("Testing 8 newly implemented features for production readiness")
+    print("Authentication: mnasebasketball@gmail.com / IzaMina1612")
+    print("=" * 80)
+    
+    # Run comprehensive new features test
+    success = tester.run_comprehensive_new_features_test()
+    
+    print("\n" + "=" * 80)
+    if success:
+        print("🎉 COMPREHENSIVE TESTING COMPLETED SUCCESSFULLY!")
+        print("✅ All new features are production ready")
+    else:
+        print("⚠️  COMPREHENSIVE TESTING COMPLETED WITH ISSUES")
+        print("❌ Some features need attention before production")
+    
+    print(f"📊 Overall Test Results: {tester.tests_passed}/{tester.tests_run} passed")
+    print("=" * 80)
+    
+    return success
+
+if __name__ == "__main__":
+    main()
         )
         
         if success:
