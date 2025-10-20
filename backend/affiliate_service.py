@@ -131,7 +131,7 @@ class AffiliateService:
         
         # Calculate commission if affiliate referral
         if sale["referral_code"] and sale["affiliate_id"]:
-            affiliate = await self.db.affiliates.find_one({"_id": sale["affiliate_id"]})
+            affiliate = await self.db.affiliates.find_one({"_id": ObjectId(sale["affiliate_id"])})
             if affiliate:
                 commission = sale["total_amount"] * affiliate["commission_rate"]
                 sale["commission_amount"] = round(commission, 2)
