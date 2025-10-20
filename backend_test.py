@@ -2341,6 +2341,567 @@ class MNASEBasketballAPITester:
             print(f"✅ Child updated: {response.get('name', 'Unknown')}")
         return success
 
+    # ===== NEW FEATURES TESTING (Review Request) =====
+    
+    def test_affiliate_approval_fix(self):
+        """Test the ObjectId conversion fix for affiliate approval"""
+        print("\n🔧 TESTING AFFILIATE APPROVAL FIX (ObjectId Conversion)")
+        
+        # First create a new user for affiliate testing
+        test_user_data = {
+            "email": f"affiliate_test_{datetime.now().strftime('%H%M%S')}@test.com",
+            "password": "TestPass123!",
+            "name": "Affiliate Test User",
+            "date_of_birth": "1995-01-01",
+            "phone": "555-123-9999"
+        }
+        
+        success, response = self.run_test(
+            "Create User for Affiliate Testing",
+            "POST",
+            "auth/register",
+            200,
+            data=test_user_data
+        )
+        
+        if not success:
+            print("❌ Failed to create test user for affiliate testing")
+            return False
+            
+        test_token = response.get('token')
+        test_user_id = response.get('user', {}).get('id')
+        
+        # Submit affiliate application as new user
+        application_data = {
+            "role_type": "athlete",
+            "sport_experience": "5 years playing basketball",
+            "social_media_links": ["https://instagram.com/testuser"],
+            "motivation": "Want to promote basketball events"
+        }
+        
+        # Temporarily use test user token
+        original_token = self.token
+        self.token = test_token
+        
+        success, response = self.run_test(
+            "Submit Affiliate Application (New User)",
+            "POST",
+            "affiliates/apply",
+            200,
+            data=application_data
+        )
+        
+        # Restore original token
+        self.token = original_token
+        
+        if not success:
+            print("❌ Failed to submit affiliate application")
+            return False
+            
+        application_id = response.get('application_id')
+        
+        # Get applications as admin
+        success, response = self.run_test(
+            "Get Affiliate Applications (Admin) - ObjectId Fix Test",
+            "GET",
+            "admin/affiliates/applications",
+            200,
+            use_admin=True
+        )
+        
+        if not success:
+            print("❌ Failed to get affiliate applications")
+            return False
+            
+        applications = response.get('applications', [])
+        if not applications:
+            print("❌ No applications found")
+            return False
+            
+        # Find the application we just created
+        target_app = None
+        for app in applications:
+            if app.get('user_id') == test_user_id:
+                target_app = app
+                break
+                
+        if not target_app:
+            print("❌ Could not find the test application")
+            return False
+            
+        # Test approval with ObjectId conversion fix
+        approval_data = {
+            "application_id": target_app.get('_id') or target_app.get('id'),
+            "admin_id": self.admin_user_id or self.super_admin_user_id
+        }
+        
+        success, response = self.run_test(
+            "Approve Affiliate Application - ObjectId Fix Test",
+            "POST",
+            "admin/affiliates/approve",
+            200,
+            data=approval_data,
+            use_admin=True
+        )
+        
+        if success:
+            print("✅ ObjectId conversion fix working - affiliate approval successful")
+            affiliate_id = response.get('affiliate_id')
+            referral_code = response.get('referral_code')
+            print(f"✅ Created affiliate ID: {affiliate_id}")
+            print(f"✅ Generated referral code: {referral_code}")
+        
+        return success
+    
+    def test_media_management_endpoints(self):
+        """Test media management system endpoints"""
+        print("\n📸 TESTING MEDIA MANAGEMENT SYSTEM")
+        
+        # Test 1: Get all media (should be empty initially)
+        success1, response1 = self.run_test(
+            "Get All Media",
+            "GET",
+            "media/category/all",
+            200
+        )
+        
+        if success1:
+            media_count = len(response1.get('media', []))
+            print(f"✅ Found {media_count} media items")
+        
+        # Test 2: Get media by category - events
+        success2, response2 = self.run_test(
+            "Get Events Media",
+            "GET",
+            "media/category/events",
+            200
+        )
+        
+        # Test 3: Get media by category - programs
+        success3, response3 = self.run_test(
+            "Get Programs Media",
+            "GET",
+            "media/category/programs",
+            200
+        )
+        
+        # Test 4: Get media by category - facilities
+        success4, response4 = self.run_test(
+            "Get Facilities Media",
+            "GET",
+            "media/category/facilities",
+            200
+        )
+        
+        # Test 5: Get media by category - general
+        success5, response5 = self.run_test(
+            "Get General Media",
+            "GET",
+            "media/category/general",
+            200
+        )
+        
+        # Note: File upload testing requires multipart form data which is complex to test here
+        # The endpoints are available but would need frontend or specialized testing tools
+        
+        return success1 and success2 and success3 and success4 and success5
+    
+    def test_email_queue_system(self):
+        """Test email queue management system"""
+        print("\n📧 TESTING EMAIL QUEUE SYSTEM")
+        
+        # Test 1: Add test email to queue
+        email_data = {
+            "to_email": "test@example.com",
+            "subject": "Test Email",
+            "body": "This is a test email",
+            "priority": "normal"
+        }
+        
+        success1, response1 = self.run_test(
+            "Add Email to Queue",
+            "POST",
+            "admin/email-queue/add",
+            200,
+            data=email_data,
+            use_admin=True
+        )
+        
+        if success1:
+            print(f"✅ Email queued with ID: {response1.get('queue_id', 'Unknown')}")
+        
+        # Test 2: Check queue status
+        success2, response2 = self.run_test(
+            "Check Email Queue Status",
+            "GET",
+            "admin/email-queue/status",
+            200,
+            use_admin=True
+        )
+        
+        if success2:
+            status = response2
+            print(f"✅ Queue status - Pending: {status.get('pending', 0)}")
+            print(f"✅ Queue status - Sent today: {status.get('sent_today', 0)}")
+            print(f"✅ Queue status - Failed: {status.get('failed', 0)}")
+            print(f"✅ Rate limit: {status.get('rate_limit', 0)} emails/day")
+        
+        # Test 3: Add high priority email
+        high_priority_email = {
+            "to_email": "priority@example.com",
+            "subject": "High Priority Test Email",
+            "body": "This is a high priority test email",
+            "priority": "high"
+        }
+        
+        success3, response3 = self.run_test(
+            "Add High Priority Email to Queue",
+            "POST",
+            "admin/email-queue/add",
+            200,
+            data=high_priority_email,
+            use_admin=True
+        )
+        
+        # Test 4: Check queue status again (should have 2 pending)
+        success4, response4 = self.run_test(
+            "Check Queue Status After Adding High Priority",
+            "GET",
+            "admin/email-queue/status",
+            200,
+            use_admin=True
+        )
+        
+        if success4:
+            pending_count = response4.get('pending', 0)
+            print(f"✅ Queue now has {pending_count} pending emails")
+        
+        # Test 5: Process queue
+        success5, response5 = self.run_test(
+            "Process Email Queue",
+            "POST",
+            "admin/email-queue/process",
+            200,
+            use_admin=True
+        )
+        
+        if success5:
+            processed = response5.get('processed', 0)
+            failed = response5.get('failed', 0)
+            print(f"✅ Queue processing - Processed: {processed}, Failed: {failed}")
+        
+        # Test 6: Check final queue status
+        success6, response6 = self.run_test(
+            "Check Final Queue Status",
+            "GET",
+            "admin/email-queue/status",
+            200,
+            use_admin=True
+        )
+        
+        if success6:
+            final_status = response6
+            print(f"✅ Final status - Sent today: {final_status.get('sent_today', 0)}")
+        
+        return success1 and success2 and success3 and success4 and success5 and success6
+    
+    def test_recurring_events_system(self):
+        """Test recurring event creation system"""
+        print("\n🔄 TESTING RECURRING EVENTS SYSTEM")
+        
+        # Test 1: Create daily recurring event
+        daily_event_data = {
+            "title": "Daily Practice",
+            "description": "Daily basketball practice",
+            "location": "Main Court",
+            "start_date": "2025-01-20",
+            "start_time": "10:00",
+            "end_time": "12:00",
+            "recurring": True,
+            "recurrence_frequency": "daily",
+            "recurrence_end_date": "2025-01-24",
+            "capacity": 20,
+            "price": 0,
+            "category": "camp"
+        }
+        
+        success1, response1 = self.run_test(
+            "Create Daily Recurring Event",
+            "POST",
+            "events/recurring",
+            200,
+            data=daily_event_data,
+            use_admin=True
+        )
+        
+        if success1:
+            count = response1.get('count', 0)
+            print(f"✅ Created {count} daily event instances (expected: 5 for Jan 20-24)")
+        
+        # Test 2: Create weekly recurring event
+        weekly_event_data = {
+            "title": "Weekend Tournament",
+            "description": "Saturday tournament",
+            "location": "Arena",
+            "start_date": "2025-01-25",  # Saturday
+            "start_time": "09:00",
+            "end_time": "17:00",
+            "recurring": True,
+            "recurrence_frequency": "weekly",
+            "recurrence_days": ["Saturday"],
+            "recurrence_end_date": "2025-02-22",
+            "capacity": 50,
+            "price": 25,
+            "category": "tournament"
+        }
+        
+        success2, response2 = self.run_test(
+            "Create Weekly Recurring Event",
+            "POST",
+            "events/recurring",
+            200,
+            data=weekly_event_data,
+            use_admin=True
+        )
+        
+        if success2:
+            count = response2.get('count', 0)
+            print(f"✅ Created {count} weekly event instances (expected: 5 Saturdays)")
+        
+        # Test 3: Verify all recurring instances created
+        success3, response3 = self.run_test(
+            "Verify Recurring Events in Calendar",
+            "GET",
+            "calendar-events",
+            200
+        )
+        
+        if success3:
+            total_events = len(response3)
+            print(f"✅ Total calendar events now: {total_events}")
+            
+            # Count recurring events
+            recurring_count = sum(1 for event in response3 if event.get('is_recurring'))
+            print(f"✅ Recurring events created: {recurring_count}")
+        
+        # Test 4: Create single (non-recurring) event for comparison
+        single_event_data = {
+            "title": "Single Event Test",
+            "description": "Non-recurring event",
+            "location": "Test Court",
+            "start_date": "2025-03-01",
+            "start_time": "14:00",
+            "end_time": "16:00",
+            "recurring": False,
+            "capacity": 30,
+            "price": 15,
+            "category": "other"
+        }
+        
+        success4, response4 = self.run_test(
+            "Create Single (Non-Recurring) Event",
+            "POST",
+            "events/recurring",
+            200,
+            data=single_event_data,
+            use_admin=True
+        )
+        
+        if success4:
+            event_id = response4.get('event_id')
+            print(f"✅ Created single event with ID: {event_id}")
+        
+        return success1 and success2 and success3 and success4
+    
+    def test_program_logos_feature(self):
+        """Test logo_url field in programs"""
+        print("\n🖼️ TESTING PROGRAM LOGOS FEATURE")
+        
+        # Test 1: Create program with logo_url
+        program_data = {
+            "slug": "elite-training",
+            "name": "Elite Training Program",
+            "season": "Winter 2025",
+            "description": "Advanced training",
+            "long_description": "Comprehensive elite training program",
+            "age_range": "13-18",
+            "price": 299.99,
+            "inclusions": ["Training", "Equipment", "Tournaments"],
+            "schedule": "Mon/Wed/Fri 6-8pm",
+            "registration_info": "Register online",
+            "logo_url": "/api/media/programs/test-logo.png",
+            "active": True
+        }
+        
+        success1, response1 = self.run_test(
+            "Create Program with Logo URL",
+            "POST",
+            "programs",
+            200,
+            data=program_data,
+            use_admin=True
+        )
+        
+        if success1:
+            program_id = response1.get('id')
+            logo_url = response1.get('logo_url')
+            print(f"✅ Program created with ID: {program_id}")
+            print(f"✅ Logo URL: {logo_url}")
+            self.program_with_logo_id = program_id
+        
+        # Test 2: Get programs and verify logo_url field
+        success2, response2 = self.run_test(
+            "Get Programs - Verify Logo URL Field",
+            "GET",
+            "programs",
+            200
+        )
+        
+        if success2:
+            programs = response2
+            logo_programs = [p for p in programs if p.get('logo_url')]
+            print(f"✅ Found {len(logo_programs)} programs with logo URLs")
+            
+            # Find our test program
+            test_program = None
+            for program in programs:
+                if program.get('slug') == 'elite-training':
+                    test_program = program
+                    break
+                    
+            if test_program:
+                print(f"✅ Test program logo URL: {test_program.get('logo_url')}")
+        
+        # Test 3: Update logo_url
+        if hasattr(self, 'program_with_logo_id') and self.program_with_logo_id:
+            update_data = {
+                "slug": "elite-training",
+                "name": "Elite Training Program",
+                "season": "Winter 2025",
+                "description": "Advanced training - Updated",
+                "long_description": "Comprehensive elite training program - Updated",
+                "age_range": "13-18",
+                "price": 299.99,
+                "inclusions": ["Training", "Equipment", "Tournaments", "Nutrition Guide"],
+                "schedule": "Mon/Wed/Fri 6-8pm",
+                "registration_info": "Register online",
+                "logo_url": "/api/media/programs/updated-logo.png",  # Updated logo
+                "active": True
+            }
+            
+            success3, response3 = self.run_test(
+                "Update Program Logo URL",
+                "PUT",
+                f"programs/{self.program_with_logo_id}",
+                200,
+                data=update_data,
+                use_admin=True
+            )
+            
+            if success3:
+                updated_logo = response3.get('logo_url')
+                print(f"✅ Updated logo URL: {updated_logo}")
+        else:
+            success3 = True  # Skip if no program ID
+            print("⚠️ Skipping logo update test - no program ID available")
+        
+        # Test 4: Verify logo_url persists
+        success4, response4 = self.run_test(
+            "Verify Logo URL Persistence",
+            "GET",
+            "programs/slug/elite-training",
+            200
+        )
+        
+        if success4:
+            persisted_logo = response4.get('logo_url')
+            print(f"✅ Persisted logo URL: {persisted_logo}")
+        
+        return success1 and success2 and success3 and success4
+    
+    def test_existing_functionality_regression(self):
+        """Test that existing functionality still works (regression test)"""
+        print("\n🔍 TESTING EXISTING FUNCTIONALITY REGRESSION")
+        
+        # Test 1: List events (should include recurring instances)
+        success1, response1 = self.run_test(
+            "Regression Test - Get Events",
+            "GET",
+            "events",
+            200
+        )
+        
+        if success1:
+            events_count = len(response1)
+            print(f"✅ Events endpoint working - {events_count} events found")
+        
+        # Test 2: List facilities
+        success2, response2 = self.run_test(
+            "Regression Test - Get Facilities",
+            "GET",
+            "facilities",
+            200
+        )
+        
+        if success2:
+            facilities_count = len(response2)
+            print(f"✅ Facilities endpoint working - {facilities_count} facilities found")
+        
+        # Test 3: Test registration still works
+        regression_registration_data = {
+            "athlete_first_name": "Regression",
+            "athlete_last_name": "Test",
+            "athlete_date_of_birth": "2012-01-01",
+            "athlete_gender": "Male",
+            "athlete_grade": "6th",
+            "athlete_school": "Regression Test School",
+            "parent_first_name": "Parent",
+            "parent_last_name": "Test",
+            "parent_email": "regression.test@example.com",
+            "parent_phone": "555-0199",
+            "parent_address": "123 Regression St",
+            "parent_city": "Test City",
+            "parent_state": "CA",
+            "emergency_name": "Emergency Contact",
+            "emergency_relationship": "Guardian",
+            "emergency_phone": "555-0198",
+            "insurance_provider": "Test Insurance",
+            "insurance_policy_number": "REG123456",
+            "shirt_size": "Medium",
+            "shorts_size": "Medium",
+            "years_playing": "2",
+            "skill_level": "Beginner",
+            "liability_waiver": True,
+            "code_of_conduct": True,
+            "medical_treatment": True
+        }
+        
+        success3, response3 = self.run_test(
+            "Regression Test - Enhanced Registration",
+            "POST",
+            "enhanced-registrations",
+            200,
+            data=regression_registration_data
+        )
+        
+        if success3:
+            reg_id = response3.get('id')
+            print(f"✅ Registration system working - ID: {reg_id}")
+        
+        # Test 4: Calendar events working
+        success4, response4 = self.run_test(
+            "Regression Test - Calendar Events",
+            "GET",
+            "calendar-events",
+            200
+        )
+        
+        if success4:
+            calendar_events_count = len(response4)
+            print(f"✅ Calendar events working - {calendar_events_count} events found")
+        
+        return success1 and success2 and success3 and success4
+
     # ===== COMPREHENSIVE TEST RUNNER =====
     
     def run_comprehensive_tests(self):
