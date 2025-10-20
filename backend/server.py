@@ -33,7 +33,7 @@ from error_utils import (
     forbidden_error, conflict_error, server_error
 )
 from affiliate_ticket_routes import router as affiliate_ticket_router
-from additional_routes import router as additional_router
+# from additional_routes import router as additional_router
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
