@@ -1,12 +1,13 @@
 """
 Additional Routes for Media Management, Recurring Events, and Email Queue
 """
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Request
 from fastapi.responses import FileResponse
 from typing import Optional, List
 from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, Field
 import os
+import uuid
 
 # Import services
 from media_service import MediaService
