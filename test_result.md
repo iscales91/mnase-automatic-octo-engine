@@ -369,11 +369,11 @@ frontend:
   
   - task: "New Features Implementation"
     implemented: true
-    working: true
+    working: false
     file: "backend/media_service.py, backend/email_queue_service.py, backend/additional_routes.py, backend/affiliate_service.py, backend/server.py, frontend/src/components/admin/MediaManagement.js, frontend/src/components/admin/CalendarManagement.js, frontend/src/components/admin/DivisionManagement.js, frontend/src/pages/AdminDashboard.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "tested"
         agent: "main"
