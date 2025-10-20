@@ -76,11 +76,12 @@ async def get_admin_user(request: Request):
 @router.post("/events/recurring")
 async def create_recurring_event(
     event: RecurringEventCreate,
-    request: Request,
-    admin: dict = Depends(get_admin_user)
+    request: Request
 ):
     """Create recurring event instances"""
-    db = await get_db(request)
+    # Get admin user
+    user = await get_admin_user(request)
+    db = request.app.state.db
     
     if not event.recurring:
         # Create single event
@@ -96,7 +97,7 @@ async def create_recurring_event(
             "price": event.price,
             "category": event.category,
             "created_at": datetime.now(timezone.utc).isoformat(),
-            "created_by": admin["id"]
+            "created_by": user["id"]
         }
         await db.calendar_events.insert_one(event_doc)
         return {"message": "Event created", "event_id": event_doc["id"]}
@@ -134,7 +135,7 @@ async def create_recurring_event(
                 "is_recurring": True,
                 "recurrence_group": None,  # Can add group ID later
                 "created_at": datetime.now(timezone.utc).isoformat(),
-                "created_by": admin["id"]
+                "created_by": user["id"]
             }
             await db.calendar_events.insert_one(event_doc)
             created_events.append(event_doc["id"])
