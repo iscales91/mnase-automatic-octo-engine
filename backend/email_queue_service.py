@@ -9,7 +9,7 @@ from email_service import EmailService
 class EmailQueueService:
     def __init__(self, db):
         self.db = db
-        self.email_service = EmailService(db)
+        self.email_service = EmailService()  # EmailService doesn't take db parameter
         self.rate_limit = 100  # Gmail free account limit: 100 emails/day
         self.processing = False
     
