@@ -94,9 +94,19 @@ function Programs() {
               {programs.map((program) => (
                 <Card key={program.id} data-testid={`program-card-${program.id}`} style={{ borderTop: '4px solid #dc2626' }}>
                   <CardHeader>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                      <CardTitle data-testid={`program-name-${program.id}`}>{program.name}</CardTitle>
-                      <span className="card-badge" style={{ background: '#fee2e2', color: '#991b1b' }} data-testid={`program-season-${program.id}`}>{program.season}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '1rem' }}>
+                      <div style={{ flex: 1 }}>
+                        <CardTitle data-testid={`program-name-${program.id}`}>{program.name}</CardTitle>
+                        <span className="card-badge" style={{ background: '#fee2e2', color: '#991b1b', marginTop: '0.5rem', display: 'inline-block' }} data-testid={`program-season-${program.id}`}>{program.season}</span>
+                      </div>
+                      {program.logo_url && (
+                        <img 
+                          src={`${BACKEND_URL}${program.logo_url}`} 
+                          alt={`${program.name} logo`}
+                          style={{ width: '60px', height: '60px', objectFit: 'contain', borderRadius: '8px' }}
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                      )}
                     </div>
                     <CardDescription data-testid={`program-description-${program.id}`}>{program.description}</CardDescription>
                   </CardHeader>
@@ -119,6 +129,39 @@ function Programs() {
                         <span data-testid={`program-price-${program.id}`}>${program.price}</span>
                       </div>
                     </div>
+
+                    {/* Divisions Section */}
+                    {divisions[program.id] && divisions[program.id].length > 0 && (
+                      <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#eff6ff', borderRadius: '8px', border: '1px solid #dbeafe' }}>
+                        <strong style={{ display: 'block', marginBottom: '0.75rem', color: '#1e293b', fontSize: '0.95rem' }}>Available Divisions:</strong>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                          {divisions[program.id].map((division) => (
+                            <div
+                              key={division.id}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                padding: '0.25rem 0.75rem',
+                                background: '#fff',
+                                border: '1px solid #bfdbfe',
+                                borderRadius: '999px',
+                                fontSize: '0.85rem',
+                                color: '#1e40af'
+                              }}
+                            >
+                              <span style={{ fontWeight: '600' }}>{division.name}</span>
+                              <span style={{ color: '#64748b' }}>({division.age_range})</span>
+                              {division.capacity && (
+                                <span style={{ marginLeft: '0.25rem', color: '#16a34a', fontSize: '0.8rem' }}>
+                                  {division.current_enrollment || 0}/{division.capacity}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     <div style={{ marginTop: '1.5rem' }}>
                       <strong style={{ display: 'block', marginBottom: '0.5rem', color: '#1e293b' }}>Includes:</strong>
