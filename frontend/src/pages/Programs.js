@@ -11,6 +11,7 @@ const API = `${BACKEND_URL}/api`;
 
 function Programs() {
   const [programs, setPrograms] = useState([]);
+  const [divisions, setDivisions] = useState({});
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem('token');
 
@@ -21,11 +22,33 @@ function Programs() {
   const fetchPrograms = async () => {
     try {
       const response = await axios.get(`${API}/programs`);
-      setPrograms(response.data.filter(p => p.active));
+      const activePrograms = response.data.filter(p => p.active);
+      setPrograms(activePrograms);
+      
+      // Fetch divisions for each program
+      for (const program of activePrograms) {
+        fetchDivisions(program.id);
+      }
     } catch (error) {
       toast.error('Failed to load programs');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDivisions = async (programId) => {
+    try {
+      const response = await axios.get(`${API}/programs/${programId}/divisions`);
+      setDivisions(prev => ({
+        ...prev,
+        [programId]: response.data.filter(d => d.active)
+      }));
+    } catch (error) {
+      // Divisions might not exist for this program
+      setDivisions(prev => ({
+        ...prev,
+        [programId]: []
+      }));
     }
   };
 
