@@ -138,7 +138,7 @@ class AffiliateService:
                 
                 # Update affiliate earnings
                 await self.db.affiliates.update_one(
-                    {"_id": sale["affiliate_id"]},
+                    {"_id": ObjectId(sale["affiliate_id"])},
                     {
                         "$inc": {
                             "total_sales": 1,
