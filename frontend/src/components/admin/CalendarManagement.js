@@ -24,8 +24,16 @@ function CalendarManagement() {
     description: '',
     date: '',
     time: '',
+    end_time: '',
     location: '',
-    type: 'event'
+    type: 'event',
+    capacity: null,
+    price: 0,
+    category: 'other',
+    recurring: false,
+    recurrence_frequency: 'weekly',
+    recurrence_end_date: '',
+    recurrence_days: []
   });
 
   useEffect(() => {
