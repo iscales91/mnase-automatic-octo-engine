@@ -2520,6 +2520,17 @@ class MNASEBasketballAPITester:
         
         print("=" * 80)
 
+def main_comprehensive():
+    """Run comprehensive testing as per review request"""
+    print("🏀 MNASE Basketball League - COMPREHENSIVE BACKEND TESTING")
+    print("🎯 As per Review Request - Testing ALL Major Systems")
+    print("=" * 80)
+    
+    tester = MNASEBasketballAPITester()
+    tester.run_comprehensive_tests()
+    
+    return 0 if tester.tests_passed == tester.tests_run else 1
+
 def main():
     print("🏀 Starting MNASE Basketball League API Tests")
     print("=" * 50)
