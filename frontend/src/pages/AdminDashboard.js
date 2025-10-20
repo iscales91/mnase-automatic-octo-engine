@@ -272,6 +272,7 @@ function AdminDashboard() {
             <TabsTrigger value="calendar" data-testid="calendar-tab">Calendar</TabsTrigger>
             <TabsTrigger value="forms" data-testid="forms-tab">Form Submissions</TabsTrigger>
             <TabsTrigger value="teams" data-testid="teams-tab">Teams</TabsTrigger>
+            <TabsTrigger value="divisions" data-testid="divisions-tab">📊 Divisions</TabsTrigger>
             <TabsTrigger value="events" data-testid="events-tab">Events</TabsTrigger>
             <TabsTrigger value="facilities" data-testid="facilities-tab">Facilities</TabsTrigger>
             <TabsTrigger value="registrations" data-testid="registrations-tab">Registrations</TabsTrigger>
