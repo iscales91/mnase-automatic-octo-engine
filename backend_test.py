@@ -2712,4 +2712,5 @@ def main():
         return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # Use comprehensive testing for the review request
+    sys.exit(main_comprehensive())
